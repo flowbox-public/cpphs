@@ -107,6 +107,7 @@ program.
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
               [--nomacro] [--noline] [--strip] [--hashes]
+       cpphs --version
 </pre></center>
 <p>
 You can give any number of filenames on the command-line.  The
@@ -126,6 +127,7 @@ Options:
                       cpp directives</dd>
 <dt>--hashes</dt> <dd>recognise the ANSI # stringise operator, and ## for
                       token catenation, within macros</dd>
+<dt>--version</dt><dd>report version number of cpphs and stop</dd>
 </dl>
 
 <p>
@@ -147,6 +149,7 @@ By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.5.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.5.zip">.zip</a>.
 <ul>
+<li> Added a --version flag to report the version number.
 <li> Renamed --stringise to --hashes, and use it to turn on ## catenation
      as well.
 </ul>

@@ -1,3 +1,9 @@
+Version 0.5
+-----------
+  * Added a --version flag to report the version number.
+  *  Renamed --stringise to --hashes, and use it to turn on ## catenation
+     as well.
+
 Version 0.4
 -----------
   * New flag -Ofile to redirect output
