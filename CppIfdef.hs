@@ -149,7 +149,8 @@ gatherDefined p st inp =
     _       -> error ("Ambiguous parse for #if directive in file "++show p)
 
 parseBoolExp st =
-  do  bracket (skip (char '(')) (parseBoolExp st) (skip (char ')'))
+  do  a <- bracket (skip (char '(')) (parseBoolExp st) (skip (char ')'))
+      parseCont a st
   +++
   do  skip (char '!')
       a <- skip (parseSym st)		-- deals with !x && y
