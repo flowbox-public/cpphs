@@ -1,2 +1,2 @@
 #!/bin/sh
-runhugs Cpphs "$@"
+runhugs Cpphs -D__HASKELL98__ -D__HUGS__ "$@"
