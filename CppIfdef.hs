@@ -25,7 +25,7 @@ import Position  (Posn,newline,newlines,cppline,hashline)
 import ReadFirst (readFirst)
 import Tokenise  (linesCpp,reslash)
 import Char      (isDigit)
-import Numeric   (readHex)
+import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafePerformIO)
 import IO        (hPutStrLn,stderr)
 
@@ -99,10 +99,10 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	            skipn cpp p syms path  Keep xs
 	"error"  ->  error (l++"\nin "++show p)
 	"line" | all isDigit sym
-	         -> (if ln then l else ""):
+	         -> (if ln then (l:) else id) $
                     cpp (hashline (read sym) rest p) syms path leave ln Keep xs
 	n | all isDigit n
-	         -> (if ln then l else ""):
+	         -> (if ln then (l:) else id) $
 	            cpp (hashline (read n) Nothing p) syms path leave ln Keep xs
           | otherwise
 	         -> error ("Unknown directive #"++cmd++"\nin "++show p)
@@ -199,7 +199,12 @@ parseComparison sym1 st =
         Nothing  -> safeRead sym
         (Just a) -> safeRead a
     safeRead s =
-      case readHex s of
+      case s of
+        '0':'x':s' -> number readHex s'
+        '0':'o':s' -> number readOct s'
+        _          -> number readDec s
+    number rd s =
+      case rd s of
         []        -> 0 :: Integer
         ((n,_):_) -> n :: Integer
 
