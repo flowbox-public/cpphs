@@ -56,7 +56,7 @@ reslash   []      = []
 --   structures.
 data SubMode = Any | Pred (Char->Bool) (String->WordStyle)
              | String Char | LineComment | NestComment Int
-             | Hash
+             | CComment
 
 -- | Each token is classified as one of Ident, Other, or Cmd
 --   * Ident is a word that could potentially match a macro name.
@@ -73,25 +73,25 @@ deWordStyle (Cmd i)   = "\n"
 --    * each word-like "token" is categorised as one of {Ident,Other,Cmd}
 --    * #define's are parsed and returned out-of-band using the Cmd variant
 --    * All whitespace is preserved intact as tokens.
---    * C-comments are converted to white-space.
+--    * C-comments are converted to white-space (depending on first param)
 --    * Parens and commas are tokens in their own right.
---    * The cpp ## catenation operator is stripped.
 --    * Any cpp line continuations are respected.
 --   No errors can be raised.
 --   The inverse of tokenise is (concatMap deWordStyle).
-tokenise :: String -> [WordStyle]
---tokenise :: String -> [Either String HashDefine]
-tokenise = haskell Any []
+tokenise :: Bool -> Bool -> String -> [WordStyle]
+tokenise strip stringise = haskell Any []
   where
     -- rules to lex Haskell
     haskell :: SubMode -> String -> String -> [WordStyle]
     haskell Any acc ('\n':'#':xs)      = emit acc $  -- emit "\n" $
                                          cpp Any [] [] xs
-						-- warning: non-maximal munch
+					-- warning: non-maximal munch on comment
     haskell Any acc ('-':'-':xs)       = emit acc $
                                          haskell LineComment "--" xs
     haskell Any acc ('{':'-':xs)       = emit acc $
                                          haskell (NestComment 0) "-{" xs
+    haskell Any acc ('/':'*':xs)|strip = emit acc $
+                                         haskell CComment "  " xs
     haskell Any acc ('"':xs)           = emit acc $
                                          haskell (String '"') ['"'] xs
     haskell Any acc ('\'':xs)          = emit acc $
@@ -129,6 +129,9 @@ tokenise = haskell Any []
                                        = haskell (NestComment (n-1))
                                                                  ("}-"++acc) xs
     haskell (NestComment n) acc (x:xs) = haskell (NestComment n) (x:acc) xs
+    haskell CComment acc ('*':'/':xs)  = emit ("  "++acc) $
+                                         haskell Any [] xs
+    haskell CComment acc (x:xs)        = haskell CComment (' ':acc) xs
     haskell _   acc []                 = emit acc $ []
 
     -- rules to lex Cpp
@@ -136,7 +139,8 @@ tokenise = haskell Any []
     cpp Any w l ('/':'*':xs)        = cpp (NestComment 0) "" (w*/*l) xs
     cpp Any w l ('/':'/':xs)        = cpp LineComment "  " (w*/*l) xs
     cpp Any w l ('\\':'\n':xs)      = cpp Any [] ("\n":w*/*l) xs
-    cpp Any w l xs@('\n':_)         = Cmd (parseHashDefine (reverse (w*/*l))):
+    cpp Any w l xs@('\n':_)         = Cmd (parseHashDefine stringise
+                                                           (reverse (w*/*l))):
                                       haskell Any [] xs
  -- cpp Any w l ('"':xs)            = cpp (String '"') ['"'] (w*/*l) xs
  -- cpp Any w l ('\'':xs)           = cpp (String '\'') "'"  (w*/*l) xs
