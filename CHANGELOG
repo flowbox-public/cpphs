@@ -3,7 +3,8 @@ Version 0.5
   * Added a --version flag to report the version number.
   * Renamed --stringise to --hashes, and use it to turn on ## catenation
     as well.
-  * Bugfix for #if 1
+  * Bugfix for #if 1, previously taken as false.
+  * Bugfix for --nolines: it no longer adds extra spurious newlines.
 
 Version 0.4
 -----------
