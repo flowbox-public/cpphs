@@ -22,3 +22,4 @@ runtest "../cpphs recursive" expect12
 runtest "../cpphs --strip ross" expect13
 runtest "../cpphs precedence" expect14
 runtest "../cpphs indirect" expect15
+runtest "../cpphs numbers" expect16
