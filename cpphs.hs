@@ -6,7 +6,7 @@
 -- Haskell'98 or distributed under the LGPL.
 -}
 module Main where
-import System   (getArgs, getProgName)
+import System   (getArgs, getProgName, exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)
 import IO       (stdout, IOMode(WriteMode), openFile, hClose, hPutStr)
@@ -14,6 +14,8 @@ import IO       (stdout, IOMode(WriteMode), openFile, hClose, hPutStr)
 import CppIfdef (cppIfdef, preDefine)
 import Position (newfile)
 import MacroPass(macroPass)
+
+version = "0.5"
 
 main = do
   args <- getArgs
@@ -30,10 +32,14 @@ runCpphs prog args = do
       strip =      "--strip" `elem` args
       ansi  =      "--hashes" `elem` args
       files = filter (not . isPrefixOf "-") args
+  when ("--version" `elem` args)
+       (do putStrLn (prog++" "++version)
+           exitWith ExitSuccess)
   when (null files)
-       (error ("Usage: "++prog
-              ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-              ++"\t\t[--nomacro] [--noline] [--strip] [--hashes]"))
+       (do putStrLn ("Usage: "++prog
+                    ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
+                    ++"\t\t[--nomacro] [--noline] [--strip] [--hashes]")
+           exitWith (ExitFailure 1))
   o <- if null os then return stdout else openFile (head os) WriteMode
   mapM_ (\f-> do c <- readFile f
                  let pass1 = cppIfdef (newfile f) (preDefine ds)
