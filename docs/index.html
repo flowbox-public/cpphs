@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>
+  cpphs
+</title>
+</head>
+ 
+<body bgcolor='#ffffff'>
+
+<center>
+<h1>cpphs</h1>
+<table><tr><td width=200 align=center>
+<a href="#what">What is cpphs?</a><br>
+<a href="#how">How do I use it?</a><br>
+<a href="#download">Downloads</a><br>
+</td><td width=200 align=center>
+<a href="#news">Recent news</a><br>
+<a href="#who">Contacts</a><br>
+</td></tr></table>
+</center>
+<hr>
+
+<center><h3><a name="what">What is cpphs?</a></h3></center>
+<p>
+<b>cpphs</b> is a simplified implementation of cpp,
+the C pre-processor, in Haskell.
+
+<p>
+This cut-down version of the C pre-processor is incomplete.
+For now, it only operates on lines beginning with a #.  No
+attempt is made to expand symbols or parametrised macros
+within lines (except as required to resolve #if's).
+
+<p>
+Features that do work:
+<dl>
+<dt>#ifdef</dt>	 <dd>simple conditional compilation</dd>
+<dt>#if</dt>	 <dd>the full boolean language of defined(),
+                     &amp;&amp;, ||, ==, etc.</dd>
+<dt>#elif</dt>	 <dd>chained conditionals</dd>
+<dt>#define</dt> <dd>in-line definitions (symbols only, not macros)</dd>
+<dt>#undef</dt>	 <dd>in-line revocation of definitions</dd>
+<dt>#include</dt><dd>file inclusion</dd>
+<dt>#line</dt>   <dd>line number directives</dd>
+</dl>
+
+<p>
+Numbering of lines in the output is preserved so that any later
+processor can give meaningful error messages.  When a file is
+#include'd, cpphs inserts #line directives for the same reason.
+
+<p>
+Any syntax errors in cpp directives, and any failure to find a
+#include'd file, gives a message to standard error and halts the
+program.
+
+<p>
+Features that don't work:
+<dl>
+<dt>#define</dt> <dd>parametrised macro definitions</dd>
+<dt>\</dt>	 <dd>especially those that extend over several lines
+		     with line continuation characters</dd>
+</dl>
+
+
+<hr>
+<center><h3><a name="how">How do I use it?</a></h3></center>
+<p>
+<center><pre>
+Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
+</pre></center>
+<p>
+You can give any number of filenames on the command-line.  The
+results are catenated on standard output.
+
+<p>
+Options:
+<dl>
+<dt>-Dsym</dt>    <dd>define a symbol</dd>
+<dt>-Dsym=val</dt><dd>define a symbol with a specific value</dd>
+<dt>-Ipath</dt>   <dd>add a directory to the search path for #include's</dd>
+</dl>
+
+<p>
+There are NO symbols defined by default.  Could easily be changed in
+the source code though.  The search path is searched in order of the -I
+options, except that the current directory is always searched first.
+Again, there is no default search path (and again, could easily
+be changed).
+
+
+<hr>
+<center><h3><a name="downloads">Downloads</a></h3></center>
+<p>
+<b>Current version:</b>
+cpphs-0.1, release date 2004.04.07<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.1.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.1.zip">.zip</a>.
+
+
+<p>
+To build cpphs, use
+<pre>
+    hmake cpphs [-package base]
+</pre>
+or
+<pre>
+    ghc --make cpphs
+</pre>
+or
+<pre>
+    runhugs cpphs
+</pre>
+
+
+<hr>
+<center><h3><a name="who">Contacts</a></h3></center>
+<p>
+I am interested in hearing your feedback on cpphs.  Bug reports
+especially welcome, since it is so new.  You can send Feature requests
+too, but I won't guarantee to attend to them, especially if they
+depart from ordinary cpp's behaviour.  Please mail
+<ul>
+<li>    <a href="mailto:Malcolm.Wallace@cs.york.ac.uk">
+        Malcolm.Wallace@cs.york.ac.uk</a> 
+</ul>
+
+<p><b>Copyright:</b> &copy; 2004 Malcolm Wallace,
+except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
+
+<p><b>License:</b> The library modules in cpphs are distributed under
+the terms of the LGPL (see file <a href="LICENCE-LGPL">LICENSE-LGPL</a>
+for more details).  If that's a problem for you, contact me to make
+other arrangements.
+
+<p>
+The application module 'cpphs.hs' itself is trivial (since all
+the functionality is inside the library) and so is placed into the
+public domain.
+
+<p>
+This software comes with no warranty.  Use at your own risk.
+
+<hr>
+ 
+</body>
+</html>
