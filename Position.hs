@@ -43,7 +43,8 @@ addcol :: Int -> Posn -> Posn
 addcol n (Pn f r c i) = Pn f r (c+n) i
 
 newline, tab :: Posn -> Posn
-newline (Pn f r _ i) = Pn f (r+1) 1 i
+--newline (Pn f r _ i) = Pn f (r+1) 1 i
+newline (Pn f r _ i) = let r' = r+1 in r' `seq` Pn f r' 1 i
 tab     (Pn f r c i) = Pn f r (((c`div`8)+1)*8) i
 
 newlines :: Int -> Posn -> Posn
