@@ -28,3 +28,4 @@ runtest "../cpphs --noline pragma" expect18
 runtest "../cpphs -D__NHC__=117 parens" expect19
 runtest "../cpphs -Dc -Dd -De -Df -Dg -Dh chains" expect20
 runtest "../cpphs --hashes specials" expect21
+runtest "../cpphs --hashes specialinclude" expect22
