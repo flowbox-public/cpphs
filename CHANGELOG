@@ -1,3 +1,9 @@
+CVS
+---
+  * Recognise and ignore the #pragma cpp directive.
+  * Fix beginning-of-file bug, where in --noline mode, a # cpp directive
+    at the top of the file appeared in the output.
+
 Version 0.5
 -----------
   * Added a --version flag to report the version number.
