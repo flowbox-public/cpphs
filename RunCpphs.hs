@@ -15,7 +15,7 @@ import CppIfdef (cppIfdef)
 import MacroPass(macroPass)
 
 version :: String
-version = "0.7"
+version = "0.8"
 
 runCpphs :: String -> [String] -> IO ()
 runCpphs prog args = do
@@ -32,7 +32,7 @@ runCpphs prog args = do
   when ("--version" `elem` args)
        (do putStrLn (prog++" "++version)
            exitWith ExitSuccess)
-  when (null files || length os > 1)
+  when ("--help" `elem` args || null files || length os > 1)
        (do putStrLn ("Usage: "++prog
                 ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
                 ++"\t\t[--nomacro] [--noline] [--text]"

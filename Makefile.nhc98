@@ -55,6 +55,7 @@ package:
 	mkdir cpphs-$(VERSION)
 	cd cpphs-$(VERSION); tar xf ../tmp.tar
 	tar zcf cpphs-$(VERSION).tar.gz cpphs-$(VERSION)
+	zip -r cpphs-$(VERSION).zip cpphs-$(VERSION)
 	rm -r tmp.tar cpphs-$(VERSION)
 haddock: $(SRCS)
 	haddock -h $(SRCS)
