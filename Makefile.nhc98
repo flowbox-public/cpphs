@@ -20,7 +20,13 @@ ifeq "nhc98" "$(findstring nhc98, ${HC})"
 HEAP = -H4M -package base
 endif
 ifeq "ghc" "$(findstring ghc, ${HC})"
-HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base -package lang)
+HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base)
+endif
+ifeq "hbc" "$(findstring hbc, ${HC})"
+hbc: CppIfdef.hs
+	sed -e 's/System.IO.Unsafe/IOExts/' CppIfdef.hs >hbc
+	cp -a hbc CppIfdef.hs
+all: hbc
 endif
 
 all: $(TARGET)
