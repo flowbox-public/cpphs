@@ -1,0 +1,19 @@
+#!/bin/sh
+
+runtest() {
+  if $1 >out && diff -q $2 out >/dev/null
+  then echo "passed: " $1
+  else echo "FAILED: ($2) " $1
+  fi
+}
+
+runtest "../cpphs --nomacro testfile" expect1
+runtest "../cpphs --nomacro -Dnoelif testfile" expect2
+runtest "../cpphs --nomacro -Delif testfile" expect3
+runtest "../cpphs --nomacro -Dinclude testfile" expect4
+runtest "../cpphs --noline -Dinclude testfile" expect5
+runtest "../cpphs cpp" expect6
+runtest "../cpphs -D__GLASGOW_HASKELL__ Storable.hs " expect7
+runtest "../cpphs -DCALLCONV=ccall HsOpenGLExt.h" expect8
+runtest "../cpphs multiline" expect9
+runtest "../cpphs --nomacro multiline" expect10

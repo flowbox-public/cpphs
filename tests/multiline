@@ -6,3 +6,5 @@
 #include "inclusion"
 7 hello again
 8 some more
+9 aLongMacroDefinition(a,b)
+10 end
