@@ -13,6 +13,7 @@
  
 module HashDefine
   ( HashDefine(..)
+  , ArgOrText(..)
   , expandMacro
   , parseHashDefine
   ) where
