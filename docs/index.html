@@ -103,7 +103,7 @@ program.
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
-              [ --nomacro ] [ --noline ]
+              [--nomacro] [--noline] [--strip] [--stringise]
 </pre></center>
 <p>
 You can give any number of filenames on the command-line.  The
@@ -118,15 +118,17 @@ Options:
 <dt>--nomacro</dt><dd>only process #ifdef's and #include's,
                       do not expand macros</dd>
 <dt>--noline</dt> <dd>remove #line droppings from the output</dd>
-
+<dt>--strip</dt>  <dd>convert C-style comments to whitespace, even outside
+                      cpp directives</dd>
+<dt>--stringise</dt><dd>recognise the # stringise operator within macros</dd>
 </dl>
 
 <p>
 There are NO symbols defined by default.  (This could easily be
-changed in the source code though.)  The search path is searched in
+changed in the source code.)  The search path is searched in
 order of the -I options, except that the current directory is always
 searched first.  Again, there is no default search path (and again,
-could easily be changed).
+this could easily be changed).
 
 
 <hr>
@@ -134,12 +136,13 @@ could easily be changed).
 <p>
 <b>Current version:</b>
 <p>
-cpphs-0.3, release date 2004.05.xx<br>
+cpphs-0.3, release date 2004.05.18<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.3.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.3.zip">.zip</a>.
 <p>
-Fix recursive macro expansion bug.
+Fix recursive macro expansion bug.  Added option to strip C comments.
+Added option to recognise the # stringise operator.
 
 <p>
 <b>Older versions:</b>
@@ -180,14 +183,15 @@ ANSI C, and has the following main differences from the standard cpp.
 <p>
 <b>General</b>
 <ul>
-<li> The # that introduces any cpp directive must be in the first column.
-     (ANSI permits whitespace before the #.)
+<li> The <tt>#</tt> that introduces any cpp directive must be in the first
+     column of a line (whereas ANSI permits whitespace before the #).
 <li> Generates the <tt>#line n "filename"</tt> syntax, not the <tt># n
      "filename"</tt> variant.
 <li> C comments are only removed from within cpp directives.  They are
      not stripped from other text.  Consider for instance that in
-     Haskell, all of the following are valid operator symbols:  /*
-     */  */*
+     Haskell, all of the following are valid operator symbols:  <tt>/*
+     */  */*</tt>   However, you can turn on C-comment removal with the
+     <tt>--strip</tt> option.
 </ul>
 <p>
 <b>Macro language</b>
@@ -199,14 +203,15 @@ ANSI C, and has the following main differences from the standard cpp.
 <li> Replaces a macro formal parameter with the actual, even inside a
      string (double or single quoted).  This is -traditional behaviour,
      not supported in ANSI.
-<li> Does not understand the # stringisation operator in a macro definition.
-     (It is an ANSI addition, only needed because quoted stringisation
-     (above) is prohibited.)
-<li> Preserves whitespace within a textual replacement definition exactly, but
-     leading and trailing space is eliminated.
-<li> Preserves whitespace within a macro definition (and trailing it) exactly,
-     but leading space is eliminated.
-<li> Preserves whitespace within a macro call exactly, but
+<li> Does not recognise the <tt>#</tt> stringisation operator in a macro
+     definition, unless you use the <tt>--stringise</tt> option.  (It is
+     an ANSI addition, only needed because quoted stringisation (above)
+     is prohibited.)
+<li> Preserves whitespace within a textual replacement definition
+     exactly, but leading and trailing space is eliminated.
+<li> Preserves whitespace within a macro definition (and trailing it)
+     exactly, but leading space is eliminated.
+<li> Preserves whitespace within macro call arguments exactly, but
      leading and trailing space is eliminated.
 <li> Line continuations in a macro definition are preserved as
      line-breaks in the macro call.  (Useful for layout-sensitive
