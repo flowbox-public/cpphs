@@ -18,4 +18,3 @@ g = do { putStr "Hello ";   putStrLn "World" }
 
 
 h = 4
-

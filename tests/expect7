@@ -297,4 +297,3 @@ instance Storable (Int64) where {
     pokeElemOff = writeInt64OffPtr }
 
 
-

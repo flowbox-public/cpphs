@@ -35,4 +35,3 @@ glFogCoorddEXT = dyn_glFogCoorddEXT ptr_glFogCoorddEXT ;
 ptr_glFogCoorddEXT :: FunPtr a ; 
 ptr_glFogCoorddEXT = unsafePerformIO (Graphics.Rendering.OpenGL.GL.Extensions.getProcAddress ("GL_EXT_fog_coord or OpenGL 1.4") ("glFogCoorddEXT")) ; 
 {-# NOINLINE ptr_glFogCoorddEXT #-}
-
