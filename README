@@ -14,6 +14,7 @@ or
 USAGE
 -----
 	cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
+               [ --nomacro ] [ --noline ]
 
 You can give any number of filenames on the command-line.  The
 results are catenated on standard output.
@@ -22,33 +23,52 @@ Options:
     -Dsym	define a symbol
     -Dsym=val	define a symbol with a specific value
     -Ipath	add a directory to the search path for #include's
+    --nomacro	only process #ifdef's and #include's, do not expand macros
+    --noline	remove #line droppings from the output
 
-There are NO symbols defined by default.  Could easily be changed in
-the source code though.  The search path is searched in order of the -I
-options, except that the current directory is always searched first.
-Again, there is no default search path (and again, could easily
-be changed).
+There are NO symbols defined by default.  (This could easily be
+changed in the source code though.)  The search path is searched in
+order of the -I options, except that the current directory is always
+searched first.  Again, there is no default search path (and again,
+this could easily be changed).
 
 
 DESCRIPTION
 -----------
-This cut-down version of the C pre-processor is incomplete.
-For now, it only operates on lines beginning with a #.  No
-attempt is made to expand symbols or parametrised macros
-within lines (except as required to resolve #if's).
+This cut-down version of the C pre-processor is pretty-much complete.
+It has two modes:
+  * conditional compilation only (--nomacro);
+  * full macro-expansion (default).
+In --nomacro mode, cpphs performs only conditional compilation actions,
+namely #include's, #if's, and #ifdef's are processed according to
+symbol definitions (both command-line and internal), but no symbol
+replacement or parameterised macro expansion is performed.  In full
+compatibility mode (the default), symbol replacements and macro
+expansions are also processed.
 
-Features that do work:
+Working Features:
     #ifdef	simple conditional compilation
     #if		the full boolean language of defined(), &&, ||, ==, etc.
     #elif	chained conditionals
-    #define	in-line definitions (symbols only, not macros)
+    #define	in-line definitions (both symbols and macros)
     #undef	in-line revocation of definitions
     #include	file inclusion
     #line	line number directives
+    \\n		line continuations within all # directives
+    ##  /**/	token catenation within a macro definition
+
+Macro expansion is recursive.  Redefinition of a macro or symbol does
+not generate a warning.  Macros can be defined on the command-line
+with -D just like symbols.  Macro/symbol names are permitted to be
+Haskell identifiers e.g. with the ' character, which is slightly
+looser than in C, but they still may not include symbols or operators.
 
 Numbering of lines in the output is preserved so that any later
 processor can give meaningful error messages.  When a file is
 #include'd, cpphs inserts #line directives for the same reason.
+Numbering should be correct even in the presence of line continuations.
+If you don't want #line directives in the final output, use the
+--noline option.
 
 Any syntax errors in cpp directives, and any failure to find a
 #include'd file, gives a message to standard error and halts the

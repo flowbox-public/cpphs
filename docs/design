@@ -19,8 +19,10 @@ Second pass:
       - keeping track of #define'd macros
       - expanding #define'd macros when an instance is encountered
   * needs a whitespace-preserving tokeniser with odd rules to
-    cover e.g. token concatenisation.  quotation marks do not start
-    strings.
+    cover e.g. token concatenation.  Within Haskell, quotation marks start
+    strings, haskell comments are preserved.  Within a cpp directive,
+    quotation marks do not start a string, and C-style comments are
+    converted to whitespace.
   * Line continuation characters are tricky; probably should only
     be recognised within a macro definition, not in ordinary code.
 

@@ -20,13 +20,18 @@ import Char (isSpace)
 import List (intersperse)
 
 data HashDefine
-	= SymbolReplacement
+	= LineDrop
+		{ name :: String }
+	| SymbolReplacement
 		{ name		:: String
-		, replacement	:: String }
+		, replacement	:: String
+		, linebreaks    :: Int
+		}
 	| MacroExpansion
 		{ name		:: String
 		, arguments	:: [String]
 		, expansion	:: [(ArgOrText,String)]
+		, linebreaks    :: Int
 		}
     deriving (Eq,Show)
 
@@ -42,21 +47,22 @@ expandMacro macro parameters =
     in
     concatMap replace (expansion macro)
 
--- parse a #define, or #undef, ignoring other # directives
+-- | parse a #define, or #undef, ignoring other # directives
 parseHashDefine :: [String] -> Maybe HashDefine
-parseHashDefine = command . skip
+parseHashDefine def = (command . skip) def
   where
     skip xss@(x:xs) | all isSpace x = skip xs
                     | otherwise     = xss
     skip    []      = []
-    command ("define":xs) = Just ((define . skip) xs)
-    command ("undef":xs)  = Just ((undef  . skip) xs)
+    command ("line":xs)   = Just (LineDrop ("#line"++concat xs))
+    command ("define":xs) = Just (((define . skip) xs) { linebreaks=count def })
+    command ("undef":xs)  = Just (((undef  . skip) xs) { linebreaks=count def })
     command _             = Nothing
     undef  (sym:_)   = SymbolReplacement { name=sym, replacement=sym }
     define (sym:xs)  = case skip xs of
                            ("(":ys) -> (macro sym [] . skip) ys
                            ys       -> SymbolReplacement
-                                           { name=sym, replacement=concat ys }
+                                           { name=sym, replacement=chop ys }
     macro sym args (",":xs) = (macro sym args . skip) xs
     macro sym args (")":xs) = MacroExpansion
                                     { name =sym , arguments = reverse args
@@ -69,7 +75,8 @@ parseHashDefine = command . skip
     classify args (word:xs) | word `elem` args = (Arg,word): classify args xs
                             | otherwise        = (Text,word): classify args xs
     classify args []        = []
-
+    count = length . filter (=='\n') . concat
+    chop  = concat . reverse . dropWhile (all isSpace) . reverse
 
 -- test data
 simple, complex :: HashDefine

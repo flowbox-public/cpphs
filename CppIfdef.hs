@@ -21,7 +21,7 @@ import ParseLib
 -- import HashDefine
 import Position    (Posn,newline,newlines,cppline,hashline)
 import ReadFirst   (readFirst)
-import Tokenise    (linesCpp)
+import Tokenise    (linesCpp,reslash)
 import ListUtil    (takeUntil)
 import Char        (isDigit)
 import Numeric     (readHex)
@@ -33,10 +33,12 @@ import System.IO.Unsafe (unsafePerformIO)
 cppIfdef :: Posn		-- ^ Position info for error reports
 	-> SymTab String	-- ^ Pre-defined symbols
 	-> [String]		-- ^ Search path for #includes
+	-> Bool			-- ^ Leave #define and #undef in output?
+	-> Bool			-- ^ Place #line droppings in output?
 	-> String		-- ^ The input file content
 	-> String		-- ^ The file after processing
-cppIfdef posn syms search =
-    unlines . cpp posn syms search Keep . (cppline posn:) . linesCpp
+cppIfdef posn syms search leave locat =
+    unlines . cpp posn syms search leave locat Keep . (cppline posn:) . linesCpp
 -- Notice that the symbol table is a very simple one mapping strings
 -- to strings.  This pass does not need anything more elaborate, in
 -- particular it is not required to deal with any parameterised macros.
@@ -53,15 +55,16 @@ preDefine defines =
 
 -- | Internal state for whether lines are being kept or dropped.
 --   In @Drop n b@, @n@ is the depth of nesting, @b@ is whether
---   we have already succeeded in keeping some lines.in a chain of
+--   we have already succeeded in keeping some lines in a chain of
 --   @elif@'s
 data KeepState = Keep | Drop Int Bool
 
 -- | Return just the list of lines that the real cpp would decide to keep.
-cpp :: Posn -> SymTab String -> [String] -> KeepState -> [String] -> [String]
-cpp _ _ _ _ [] = []
+cpp :: Posn -> SymTab String -> [String] -> Bool -> Bool -> KeepState
+       -> [String] -> [String]
+cpp _ _ _ _ _ _ [] = []
 
-cpp p syms path Keep (l@('#':x):xs) =
+cpp p syms path leave ln Keep (l@('#':x):xs) =
     let ws = words x
         cmd = head ws
         sym = head (tail ws)
@@ -72,8 +75,9 @@ cpp p syms path Keep (l@('#':x):xs) =
         up   = if definedST sym syms then Keep else (Drop 1 False)
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
         skipn cpp p syms path ud xs =
-                    let n = 1 + length (filter (=='\n') l) in
-                    replicate n "" ++ cpp (newlines n p) syms path ud xs
+            let n = 1 + length (filter (=='\n') l) in
+            (if leave then (reslash l:) else (replicate n "" ++)) $
+            cpp (newlines n p) syms path leave ln ud xs
     in case cmd of
 	"define" -> skipn cpp p (insertST (sym,val) syms) path Keep xs
 	"undef"  -> skipn cpp p (deleteST sym syms) path Keep xs
@@ -86,19 +90,22 @@ cpp p syms path Keep (l@('#':x):xs) =
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (unwords (tail ws)) p path)
 	            in
-		    cpp p syms path Keep (("#line 1 "++show inc)
-	                                 : lines content ++ cppline p :"": xs)
+		    cpp p syms path leave ln Keep (("#line 1 "++show inc)
+                                                  : linesCpp content
+                                                  ++ cppline p :"": xs)
 	"warning"-> trace (l++"\nin "++show p) $
 	            skipn cpp p syms path  Keep xs
 	"error"  ->  error (l++"\nin "++show p)
 	"line" | all isDigit sym
-	         -> l: cpp (hashline (read sym) rest p) syms path Keep xs
+	         -> (if ln then l else ""):
+                    cpp (hashline (read sym) rest p) syms path leave ln Keep xs
 	n | all isDigit n
-	         -> l: cpp (hashline (read n) Nothing p) syms path Keep xs
+	         -> (if ln then l else ""):
+	            cpp (hashline (read n) Nothing p) syms path leave ln Keep xs
           | otherwise
 	         -> error ("Unknown directive #"++cmd++"\nin "++show p)
 
-cpp p syms path (Drop n b) (('#':x):xs) =
+cpp p syms path leave ln (Drop n b) (('#':x):xs) =
     let ws = words x
         cmd = head ws
         delse    | n==1 && b = Drop 1 b
@@ -110,8 +117,8 @@ cpp p syms path (Drop n b) (('#':x):xs) =
                                else (Drop 1) b
                  | otherwise = Drop n b
         skipn cpp p syms path ud xs =
-                    let n = 1 + length (filter (=='\n') x) in
-                    replicate n "" ++ cpp (newlines n p) syms path ud xs
+                 let n = 1 + length (filter (=='\n') x) in
+                 replicate n "" ++ cpp (newlines n p) syms path leave ln ud xs
     in
     if      cmd == "define"  ||
             cmd == "undef"   ||
@@ -127,10 +134,10 @@ cpp p syms path (Drop n b) (('#':x):xs) =
     else if cmd == "endif"  then  skipn cpp p syms path dend xs
     else skipn cpp p syms path (Drop n b) xs
 
-cpp p syms path Keep (x:xs) =
-    x:  cpp (newline p) syms path Keep xs
-cpp p syms path d@(Drop n b) (x:xs) =
-    "": cpp (newline p) syms path d xs
+cpp p syms path leave ln Keep (x:xs) =
+    x:  cpp (newline p) syms path leave ln Keep xs
+cpp p syms path leave ln d@(Drop n b) (x:xs) =
+    "": cpp (newline p) syms path leave ln d xs
 
 
 ----

@@ -27,13 +27,21 @@
 the C pre-processor, in Haskell.
 
 <p>
-This cut-down version of the C pre-processor is incomplete.
-For now, it only operates on lines beginning with a #.  No
-attempt is made to expand symbols or parametrised macros
-within lines (except as required to resolve #if's).
+This cut-down version of the C pre-processor is pretty-much complete.
+It has two modes:
+<ul>
+  <li> conditional compilation only (--nomacro),
+  <li> and full macro-expansion (default).
+</ul>
+In <tt>--nomacro</tt> mode, cpphs performs only conditional
+compilation actions, namely <tt>#include</tt>'s, <tt>#if</tt>'s, and
+<tt>#ifdef</tt>'s are processed according to symbol definitions (both
+command-line and internal), but no symbol replacement or parameterised
+macro expansion is performed.  In full compatibility mode (the
+default), symbol replacements and macro expansions are also processed.
 
 <p>
-Features that do work:
+Working Features:
 <dl>
 <dt>#ifdef</dt>	 <dd>simple conditional compilation</dd>
 <dt>#if</dt>	 <dd>the full boolean language of defined(),
@@ -43,32 +51,29 @@ Features that do work:
 <dt>#undef</dt>	 <dd>in-line revocation of definitions</dd>
 <dt>#include</dt><dd>file inclusion</dd>
 <dt>#line</dt>   <dd>line number directives</dd>
+<dt>\\n</dt>     <dd>line continuations within all # directives</dd>
 </dl>
 
 <p>
 Numbering of lines in the output is preserved so that any later
 processor can give meaningful error messages.  When a file is
-#include'd, cpphs inserts #line directives for the same reason.
+<tt>#include</tt>'d, cpphs inserts <tt>#line</tt> directives for the
+same reason.  Numbering should be correct even in the presence of
+line continuations.  If you don't want <tt>#line</tt> directives in
+the final output, use the <tt>--noline</tt> option.
+
 
 <p>
 Any syntax errors in cpp directives, and any failure to find a
 #include'd file, gives a message to standard error and halts the
 program.
 
-<p>
-Features that don't work:
-<dl>
-<dt>#define</dt> <dd>parametrised macro definitions</dd>
-<dt>\</dt>	 <dd>especially those that extend over several lines
-		     with line continuation characters</dd>
-</dl>
-
-
 <hr>
 <center><h3><a name="how">How do I use it?</a></h3></center>
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
+              [ --nomacro ] [ --noline ]
 </pre></center>
 <p>
 You can give any number of filenames on the command-line.  The
@@ -80,6 +85,10 @@ Options:
 <dt>-Dsym</dt>    <dd>define a symbol</dd>
 <dt>-Dsym=val</dt><dd>define a symbol with a specific value</dd>
 <dt>-Ipath</dt>   <dd>add a directory to the search path for #include's</dd>
+<dt>--nomacro</dt><dd>only process #ifdef's and #include's,
+                      do not expand macros</dd>
+<dt>--noline</dt> <dd>remove #line droppings from the output</dd>
+
 </dl>
 
 <p>
@@ -94,6 +103,12 @@ be changed).
 <center><h3><a name="downloads">Downloads</a></h3></center>
 <p>
 <b>Current version:</b>
+cpphs-0.2, release date 2004.05.14<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.2.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.2.zip">.zip</a>.
+<p>
+<b>Older versions:</b>
 cpphs-0.1, release date 2004.04.07<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.1.tar.gz">.tar.gz</a>,
@@ -131,7 +146,7 @@ depart from ordinary cpp's behaviour.  Please mail
 except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
 
 <p><b>License:</b> The library modules in cpphs are distributed under
-the terms of the LGPL (see file <a href="LICENCE-LGPL">LICENSE-LGPL</a>
+the terms of the LGPL (see file <a href="LICENCE-LGPL">LICENCE-LGPL</a>
 for more details).  If that's a problem for you, contact me to make
 other arrangements.
 
