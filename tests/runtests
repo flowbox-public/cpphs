@@ -23,3 +23,5 @@ runtest "../cpphs --strip ross" expect13
 runtest "../cpphs precedence" expect14
 runtest "../cpphs indirect" expect15
 runtest "../cpphs numbers" expect16
+runtest "../cpphs pragma" expect17
+runtest "../cpphs --noline pragma" expect18
