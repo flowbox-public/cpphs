@@ -1,3 +1,17 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  MacroPass
+-- Copyright   :  2004 Malcolm Wallace
+-- Licence     :  LGPL
+--
+-- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
+-- Stability   :  experimental
+-- Portability :  All
+--
+-- Perform a cpp.second-pass, accumulating #define's and #undef's,
+-- whilst doing symbol replacement and macro expansion.
+-----------------------------------------------------------------------------
+
 module MacroPass
   ( macroPass
   , preDefine
@@ -38,7 +52,11 @@ macroProcess st (Ident x: ws) =
             Nothing -> x: macroProcess st ws
             Just hd ->
                 case hd of
-                    SymbolReplacement _ r _ -> r: macroProcess st ws
+                    SymbolReplacement _ r _ ->
+                        -- one-level expansion only:
+                        -- r: macroProcess st ws
+                        -- multi-level expansion:
+                        macroProcess st (tokenise r ++ ws)
                     MacroExpansion _ _ _ _  ->
                         case parseMacroCall ws of
                             Nothing -> x: macroProcess st ws
