@@ -26,7 +26,7 @@ import ReadFirst (readFirst)
 import Tokenise  (linesCpp,reslash)
 import Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
-import System.IO.Unsafe (unsafePerformIO)
+import IOExts    (unsafePerformIO)
 import IO        (hPutStrLn,stderr)
 
 -- | Run a first pass of cpp, evaluating #ifdef's and processing #include's,

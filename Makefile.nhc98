@@ -20,7 +20,7 @@ ifeq "nhc98" "$(findstring nhc98, ${HC})"
 HEAP = -H4M -package base
 endif
 ifeq "ghc" "$(findstring ghc, ${HC})"
-HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base)
+HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base -package lang)
 endif
 
 all: $(TARGET)
