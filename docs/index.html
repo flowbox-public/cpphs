@@ -49,18 +49,20 @@ both more compatible with Haskell, and itself written in Haskell so
 that it can be distributed with compilers.
 
 <p>
-This version of the C pre-processor is pretty-much feature-complete.
+This version of the C pre-processor is pretty-much feature-complete,
+and compatible with the <tt>-traditional</tt> style.
 It has two modes:
 <ul>
   <li> conditional compilation only (--nomacro),
   <li> and full macro-expansion (default).
 </ul>
 In <tt>--nomacro</tt> mode, cpphs performs only conditional
-compilation actions, namely <tt>#include</tt>'s, <tt>#if</tt>'s, and
-<tt>#ifdef</tt>'s are processed according to symbol definitions (both
-command-line and internal), but no symbol replacement or parameterised
+compilation actions, namely <tt>#include</tt>'s, <tt>#if</tt>'s,
+and <tt>#ifdef</tt>'s are processed according to text-replacement
+definitions (both command-line and internal), but no parameterised
 macro expansion is performed.  In full compatibility mode (the
-default), symbol replacements and macro expansions are also processed.
+default), textual replacements and macro expansions are also processed
+in the remaining body of non-cpp text.
 
 <p>
 Working Features:
@@ -69,20 +71,22 @@ Working Features:
 <dt>#if</dt>	 <dd>the full boolean language of defined(),
                      &amp;&amp;, ||, ==, etc.</dd>
 <dt>#elif</dt>	 <dd>chained conditionals</dd>
-<dt>#define</dt> <dd>in-line definitions (symbols and macros)</dd>
+<dt>#define</dt> <dd>in-line definitions (text replacements and macros)</dd>
 <dt>#undef</dt>	 <dd>in-line revocation of definitions</dd>
 <dt>#include</dt><dd>file inclusion</dd>
 <dt>#line</dt>   <dd>line number directives</dd>
 <dt>\\n</dt>     <dd>line continuations within all # directives</dd>
-<dt>## /**/</dt> <dd>token catenation within a macro definition</dd>
+<dt>/**/</dt>    <dd>token catenation within a macro definition</dd>
+<dt>## #</dt>    <dd>ANSI-style token catenation and stringisation</dd>
 </dl>
 
 <p>
-Macro expansion is recursive.  Redefinition of a macro or symbol does
-not generate a warning.  Macros can be defined on the command-line
-with -D just like symbols.  Macro/symbol names are permitted to be
-Haskell identifiers e.g. with the ' character, which is slightly
-looser than in C, but they still may not include operators.
+Macro expansion is recursive.  Redefinition of a macro name does not
+generate a warning.  Macros can be defined on the command-line with
+-D just like textual replacements.  Macro names are permitted to be
+Haskell identifiers e.g. with the prime ' and backtick ` characters,
+which is slightly looser than in C, but they still may not include
+operator symbols.
 
 <p>
 Numbering of lines in the output is preserved so that any later
@@ -91,7 +95,6 @@ processor can give meaningful error messages.  When a file is
 same reason.  Numbering should be correct even in the presence of
 line continuations.  If you don't want <tt>#line</tt> directives in
 the final output, use the <tt>--noline</tt> option.
-
 
 <p>
 Any syntax errors in cpp directives, and any failure to find a
@@ -102,8 +105,8 @@ program.
 <center><h3><a name="how">How do I use it?</a></h3></center>
 <p>
 <center><pre>
-Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
-              [--nomacro] [--noline] [--strip] [--stringise]
+Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
+              [--nomacro] [--noline] [--strip] [--hashes]
 </pre></center>
 <p>
 You can give any number of filenames on the command-line.  The
@@ -112,29 +115,56 @@ results are catenated on standard output.
 <p>
 Options:
 <dl>
-<dt>-Dsym</dt>    <dd>define a symbol</dd>
-<dt>-Dsym=val</dt><dd>define a symbol with a specific value</dd>
+<dt>-Dsym</dt>    <dd>define a textual replacement (default value is 1)</dd>
+<dt>-Dsym=val</dt><dd>define a textual replacement with a specific value</dd>
 <dt>-Ipath</dt>   <dd>add a directory to the search path for #include's</dd>
+<dt>-Ofile</dt>   <dd>specify a file for output (default is stdout)</dd>
 <dt>--nomacro</dt><dd>only process #ifdef's and #include's,
                       do not expand macros</dd>
 <dt>--noline</dt> <dd>remove #line droppings from the output</dd>
 <dt>--strip</dt>  <dd>convert C-style comments to whitespace, even outside
                       cpp directives</dd>
-<dt>--stringise</dt><dd>recognise the # stringise operator within macros</dd>
+<dt>--hashes</dt> <dd>recognise the ANSI # stringise operator, and ## for
+                      token catenation, within macros</dd>
 </dl>
 
 <p>
-There are NO symbols defined by default.  (This could easily be
-changed in the source code.)  The search path is searched in
-order of the -I options, except that the current directory is always
-searched first.  Again, there is no default search path (and again,
-this could easily be changed).
+There are NO textual replacements defined by default.  (Normal cpp
+usually has definitions for machine, OS, etc.  These could easily
+be added to the cpphs source code if you wish.)  The search path is
+searched in order of the -I options, except that the current directory
+is always searched first.  Again, there is no default search path
+(and again, this could easily be changed).
 
 
 <hr>
 <center><h3><a name="download">Downloads</a></h3></center>
 <p>
 <b>Current version:</b>
+<p>
+cpphs-0.5, release date 2004.05.xx<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.5.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.5.zip">.zip</a>.
+<ul>
+<li> Renamed --stringise to --hashes, and use it to turn on ## catenation
+     as well.
+</ul>
+
+<p>
+<b>Older versions:</b>
+<p>
+cpphs-0.4, release date 2004.05.19<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.4.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.4.zip">.zip</a>.
+<ul>
+<li> New flag -Ofile to redirect output
+<li> Bugfix for precedence of ! in #if !False &amp;&amp; False
+<li> Bugfix for whitespace permitted between # and if
+<li> Bugfix for <tt>#define F "blah";  #include F</tt>
+</ul>
+
 <p>
 cpphs-0.3, release date 2004.05.18<br>
 By HTTP:
@@ -145,14 +175,13 @@ Fix recursive macro expansion bug.  Added option to strip C comments.
 Added option to recognise the # stringise operator.
 
 <p>
-<b>Older versions:</b>
-<p>
 cpphs-0.2, release date 2004.05.15<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.2.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.2.zip">.zip</a>.
 <p>
 Implements textual replacement and macro expansion.
+
 <p>
 cpphs-0.1, release date 2004.04.07<br>
 By HTTP:
@@ -162,6 +191,8 @@ By HTTP:
 Initial release: implements conditional compilation and file inclusion only.
 
 
+<p>
+<b>Building instructions</b>
 <p>
 To build cpphs, use
 <pre>    hmake cpphs [-package base]
@@ -196,15 +227,17 @@ ANSI C, and has the following main differences from the standard cpp.
 <p>
 <b>Macro language</b>
 <ul>
-<li> Accepts both <tt>##</tt> and <tt>/**/</tt> for token-pasting in
-     a macro definition.  (Cpp accepts the former only in ANSI mode,
-     the latter only in -traditional mode.)  However, <tt>/* */</tt>
-     (with any text between the open/close comment) inserts whitespace.
+<li> Accepts <tt>/**/</tt> for token-pasting in a macro definition.
+     However, <tt>/* */</tt> (with any text between the open/close
+     comment) inserts whitespace.
+<li> The ANSI <tt>##</tt> token-pasting operator is available with
+     the <tt>--hashes</tt> flag.  This is to avoid misinterpreting
+     any valid Haskell operator of the same name.
 <li> Replaces a macro formal parameter with the actual, even inside a
      string (double or single quoted).  This is -traditional behaviour,
      not supported in ANSI.
-<li> Does not recognise the <tt>#</tt> stringisation operator in a macro
-     definition, unless you use the <tt>--stringise</tt> option.  (It is
+<li> Recognises the <tt>#</tt> stringisation operator in a macro
+     definition only if you use the <tt>--hashes</tt> option.  (It is
      an ANSI addition, only needed because quoted stringisation (above)
      is prohibited.)
 <li> Preserves whitespace within a textual replacement definition
@@ -239,12 +272,8 @@ except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
 <p><b>License:</b> The library modules in cpphs are distributed under
 the terms of the LGPL (see file <a href="LICENCE-LGPL">LICENCE-LGPL</a>
 for more details).  If that's a problem for you, contact me to make
-other arrangements.
-
-<p>
-The application module 'cpphs.hs' itself is trivial (since all
-the functionality is inside the library) and so is placed into the
-public domain.
+other arrangements.  The application module 'cpphs.hs' itself is GPL
+(see file <a href="LICENCE-GPL">LICENCE-GPL</a>).
 
 <p>
 This software comes with no warranty.  Use at your own risk.

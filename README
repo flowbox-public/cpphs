@@ -13,108 +13,22 @@ or
 
 USAGE
 -----
-	cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
-               [--nomacro] [--noline] [--strip] [--stringise]
+	cpphs  [filename | -Dsym | -Dsym=val | -Ipath]+  [-Ofile]
+               [--nomacro] [--noline] [--strip] [--hashes]
 
-You can give any number of filenames on the command-line.  The
-results are catenated on standard output.
-
-Options:
-    -Dsym	define a symbol
-    -Dsym=val	define a symbol with a specific value
-    -Ipath	add a directory to the search path for #include's
-    --nomacro	only process #ifdef's and #include's, do not expand macros
-    --noline	remove #line droppings from the output
-    --strip	convert C-style comments to whitespace, even outside
-                cpp directives
-    --stringise	recognise the # stringise operator within macros
-
-There are NO symbols defined by default.  (This could easily be
-changed in the source code though.)  The search path is searched in
-order of the -I options, except that the current directory is always
-searched first.  Again, there is no default search path (and again,
-this could easily be changed).
-
-
-RATIONALE
----------
-Why re-implement cpp?  Rightly or wrongly, the C pre-processor is 
-widely used in Haskell source code.  It enables conditional compilation 
-for different compilers, different versions of the same compiler, 
-and different OS platforms.  It is also occasionally used for its
-macro language, which can enable certain forms of platform-specific
-detail-filling, such as the tedious boilerplate generation of instance
-definitions and FFI declarations.  However, there are two problems with
-cpp, aside from the obvious aesthetic ones:
-
- * For some Haskell systems, notably Hugs on Windows, a true cpp
-   is not available by default.
- * Even for the other Haskell systems, the common cpp provided by
-   the gcc 3.x series is changing subtly in ways that are 
-   incompatible with Haskell's syntax.  There have always been 
-   problems with, for instance, string gaps, and prime characters
-   in identifiers.  These problems are only going to get worse.
-
-So, it seemed right to attempt to provide an alternative to cpp, 
-both more compatible with Haskell, and itself written in Haskell so 
-that it can be distributed with compilers.
-
-
-DESCRIPTION
------------
-This version of the C pre-processor is pretty-much feature-complete.
-It has two modes:
-  * conditional compilation only (--nomacro);
-  * full macro-expansion (default).
-In --nomacro mode, cpphs performs only conditional compilation actions,
-namely #include's, #if's, and #ifdef's are processed according to
-symbol definitions (both command-line and internal), but no symbol
-replacement or parameterised macro expansion is performed.  In full
-compatibility mode (the default), symbol replacements and macro
-expansions are also processed.
-
-Working Features:
-    #ifdef	simple conditional compilation
-    #if		the full boolean language of defined(), &&, ||, ==, etc.
-    #elif	chained conditionals
-    #define	in-line definitions (both symbols and macros)
-    #undef	in-line revocation of definitions
-    #include	file inclusion
-    #line	line number directives
-    \\n		line continuations within all # directives
-    ##  /**/	token catenation within a macro definition
-
-Macro expansion is recursive.  Redefinition of a macro or symbol does
-not generate a warning.  Macros can be defined on the command-line
-with -D just like symbols.  Macro/symbol names are permitted to be
-Haskell identifiers e.g. with the ' character, which is slightly
-looser than in C, but they still may not include operators.
-
-Numbering of lines in the output is preserved so that any later
-processor can give meaningful error messages.  When a file is
-#include'd, cpphs inserts #line directives for the same reason.
-Numbering should be correct even in the presence of line continuations.
-If you don't want #line directives in the final output, use the
---noline option.
-
-Any syntax errors in cpp directives, and any failure to find a
-#include'd file, gives a message to standard error and halts the
-rogram.
+For fuller details, see docs/index.html
 
 
 COPYRIGHT
 ---------
 Copyright (c) 2004 Malcolm Wallace (Malcolm.Wallace@cs.york.ac.uk)
-
 except for ParseLib (Copyright (c) 1995 Graham Hutton and Erik Meijer)
 
 
 LICENCE
 -------
 These library modules are distributed under the terms of the LGPL.
-The application module 'cpphs.hs' itself is trivial (since all
-the functionality is inside the library) and so is placed into the
-public domain.
+The application module 'cpphs.hs' is GPL.
 
 This software comes with no warranty.  Use at your own risk.
 
