@@ -1,3 +1,15 @@
+new
+---
+  * Bugfix for precedence in   #if !False && False
+  * Bugfix for whitespace between # and if
+  * Bugfix for #define F "blah"; #include F
+
+Version 0.3
+-----------
+  * Bugfix for recursive macro expansion.
+  * New flag --strip to remove C comments even outside cpp directives.
+  * New flag --stringise to recognise the # stringise operator in macros.
+
 Version 0.2
 -----------
   * New flag --noline to eliminate #line directives from output.
