@@ -51,8 +51,8 @@ expandMacro macro parameters =
     concatMap replace (expansion macro)
 
 -- | parse a #define, or #undef, ignoring other # directives
-parseHashDefine :: [String] -> Maybe HashDefine
-parseHashDefine def = (command . skip) def
+parseHashDefine :: Bool -> [String] -> Maybe HashDefine
+parseHashDefine stringise def = (command . skip) def
   where
     skip xss@(x:xs) | all isSpace x = skip xs
                     | otherwise     = xss
@@ -74,7 +74,8 @@ parseHashDefine def = (command . skip) def
     macro sym args []       = error ("incomplete macro definition:\n"
                                     ++"  #define "++sym++"("
                                     ++concat (intersperse "," args))
- -- classify args ("#":x:xs)| x `elem` args    = (Str,x): classify args xs
+    classify args ("#":x:xs)| stringise &&
+                              x `elem` args    = (Str,x): classify args xs
     classify args ("##":xs) = classify args xs
     classify args (word:xs) | word `elem` args = (Arg,word): classify args xs
                             | otherwise        = (Text,word): classify args xs
@@ -82,37 +83,3 @@ parseHashDefine def = (command . skip) def
     count = length . filter (=='\n') . concat
     chop  = concat . reverse . dropWhile (all isSpace) . reverse
 
--- test data
-simple, complex :: HashDefine
-simple  = SymbolReplacement { name = "CALLCONV", replacement = "ccall" }
-complex = MacroExpansion
-	{ name = "EXTENSION_ENTRY"
-	, arguments = ["_msg","_entry","_ty"]
-	, expansion =
-		[(Text,"foreign import CALLCONV unsafe \"dynamic\" dyn_")
-		,(Arg,"_entry")
-		,(Text," :: Graphics.Rendering.OpenGL.GL.Extensions.Invoker (")
-		,(Arg,"_ty")
-		,(Text,") ; ")
-		,(Arg,"_entry")
-		,(Text," :: (")
-		,(Arg,"_ty")
-		,(Text,") ; ")
-		,(Arg,"_entry")
-		,(Text," = dyn_")
-		,(Arg,"_entry")
-		,(Text," ptr_")
-		,(Arg,"_entry")
-		,(Text," ; ptr_")
-		,(Arg,"_entry")
-		,(Text," :: FunPtr a ; ptr_")
-		,(Arg,"_entry")
-		,(Text," = unsafePerformIO (Graphics.Rendering.OpenGL.GL.Extensions.getProcAddress (")
-		,(Arg,"_msg")
-		,(Text,") (\"")
-		,(Arg,"_entry")
-		,(Text,"\")) ; {-# NOINLINE ptr_")
-		,(Arg,"_entry")
-		,(Text," #-}")
-		]
-	}
