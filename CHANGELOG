@@ -1,3 +1,9 @@
+Version 0.2
+-----------
+  * New flag --noline to eliminate #line directives from output.
+  * Add symbol-replacement and macro-expansion.
+  * New flag --nomacro to turn off symbol/macro-expansion.
+
 2004-Apr-21
 -----------
   * Now accept multi-line # commands via the \ line continuation operator.
