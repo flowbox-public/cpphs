@@ -1,0 +1,27 @@
+Name: cpphs
+Version: 0.9
+Copyright: 2004-5, Malcolm Wallace
+Build-Depends: base, haskell98
+License: LGPL
+License-File: LICENCE-LGPL
+Author: Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
+Maintainer: Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
+Homepage: http://haskell.org/cpphs/
+Synopsis: A liberalised re-implementation of cpp, the C pre-processor.
+Description:
+	Cpphs is a re-implementation of the C pre-processor that is both
+	more compatible with Haskell, and itself written in Haskell so
+	that it can be distributed with compilers.
+	.
+	This version of the C pre-processor is pretty-much
+	feature-complete and compatible with traditional (K&R)
+	pre-processors.  It also has some optional extras, and can be
+	set to turn off macro-expansion.
+Category: Development
+
+Executable: cpphs
+Main-Is: cpphs.hs
+Other-Modules:
+	CppIfdef, CpphsTest, HashDefine, MacroPass, ParseLib,
+	Position, ReadFirst, RunCpphs, SymTab, Tokenise
+
