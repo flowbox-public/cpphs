@@ -15,7 +15,7 @@
 <a href="#how">How do I use it?</a><br>
 <a href="#download">Downloads</a><br>
 </td><td width=200 align=center>
-<a href="#news">Recent news</a><br>
+<a href="#diff">Differences to cpp</a><br>
 <a href="#who">Contacts</a><br>
 </td></tr></table>
 </center>
@@ -23,11 +23,33 @@
 
 <center><h3><a name="what">What is cpphs?</a></h3></center>
 <p>
-<b>cpphs</b> is a simplified implementation of cpp,
+<b>cpphs</b> is a simplified re-implementation of cpp,
 the C pre-processor, in Haskell.
 
 <p>
-This cut-down version of the C pre-processor is pretty-much complete.
+Why re-implement cpp?  Rightly or wrongly, the C pre-processor is
+widely used in Haskell source code.  It enables conditional compilation
+for different compilers, different versions of the same compiler,
+and different OS platforms.  It is also occasionally used for its
+macro language, which can enable certain forms of platform-specific
+detail-filling, such as the tedious boilerplate generation of instance
+definitions and FFI declarations.  However, there are two problems with
+cpp, aside from the obvious aesthetic ones:
+<ul>
+  <li> For some Haskell systems, notably Hugs on Windows, a true cpp
+       is not available by default.
+  <li> Even for the other Haskell systems, the common cpp provided by
+       the gcc 3.x series is changing subtly in ways that are
+       incompatible with Haskell's syntax.  There have always been
+       problems with, for instance, string gaps, and prime characters
+       in identifiers.  These problems are only going to get worse.
+</ul>
+So, it seemed right to attempt to provide an alternative to cpp,
+both more compatible with Haskell, and itself written in Haskell so
+that it can be distributed with compilers.
+
+<p>
+This version of the C pre-processor is pretty-much feature-complete.
 It has two modes:
 <ul>
   <li> conditional compilation only (--nomacro),
@@ -47,12 +69,20 @@ Working Features:
 <dt>#if</dt>	 <dd>the full boolean language of defined(),
                      &amp;&amp;, ||, ==, etc.</dd>
 <dt>#elif</dt>	 <dd>chained conditionals</dd>
-<dt>#define</dt> <dd>in-line definitions (symbols only, not macros)</dd>
+<dt>#define</dt> <dd>in-line definitions (symbols and macros)</dd>
 <dt>#undef</dt>	 <dd>in-line revocation of definitions</dd>
 <dt>#include</dt><dd>file inclusion</dd>
 <dt>#line</dt>   <dd>line number directives</dd>
 <dt>\\n</dt>     <dd>line continuations within all # directives</dd>
+<dt>## /**/</dt> <dd>token catenation within a macro definition</dd>
 </dl>
+
+<p>
+Macro expansion is recursive.  Redefinition of a macro or symbol does
+not generate a warning.  Macros can be defined on the command-line
+with -D just like symbols.  Macro/symbol names are permitted to be
+Haskell identifiers e.g. with the ' character, which is slightly
+looser than in C, but they still may not include operators.
 
 <p>
 Numbering of lines in the output is preserved so that any later
@@ -92,51 +122,107 @@ Options:
 </dl>
 
 <p>
-There are NO symbols defined by default.  Could easily be changed in
-the source code though.  The search path is searched in order of the -I
-options, except that the current directory is always searched first.
-Again, there is no default search path (and again, could easily
-be changed).
+There are NO symbols defined by default.  (This could easily be
+changed in the source code though.)  The search path is searched in
+order of the -I options, except that the current directory is always
+searched first.  Again, there is no default search path (and again,
+could easily be changed).
 
 
 <hr>
-<center><h3><a name="downloads">Downloads</a></h3></center>
+<center><h3><a name="download">Downloads</a></h3></center>
 <p>
 <b>Current version:</b>
-cpphs-0.2, release date 2004.05.14<br>
+<p>
+cpphs-0.3, release date 2004.05.xx<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.3.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.3.zip">.zip</a>.
+<p>
+Fix recursive macro expansion bug.
+
+<p>
+<b>Older versions:</b>
+<p>
+cpphs-0.2, release date 2004.05.15<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.2.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.2.zip">.zip</a>.
 <p>
-<b>Older versions:</b>
+Implements textual replacement and macro expansion.
+<p>
 cpphs-0.1, release date 2004.04.07<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.1.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.1.zip">.zip</a>.
+<p>
+Initial release: implements conditional compilation and file inclusion only.
 
 
 <p>
 To build cpphs, use
-<pre>
-    hmake cpphs [-package base]
+<pre>    hmake cpphs [-package base]
 </pre>
 or
-<pre>
-    ghc --make cpphs
+<pre>    ghc --make cpphs
 </pre>
 or
-<pre>
-    runhugs cpphs
+<pre>    runhugs cpphs
 </pre>
 
+
+<hr>
+<center><h3><a name="diff">Differences from cpp</a></h3></center>
+<p>
+In general, cpphs is based on the <tt>-traditional</tt> behaviour, not
+ANSI C, and has the following main differences from the standard cpp.
+
+<p>
+<b>General</b>
+<ul>
+<li> The # that introduces any cpp directive must be in the first column.
+     (ANSI permits whitespace before the #.)
+<li> Generates the <tt>#line n "filename"</tt> syntax, not the <tt># n
+     "filename"</tt> variant.
+<li> C comments are only removed from within cpp directives.  They are
+     not stripped from other text.  Consider for instance that in
+     Haskell, all of the following are valid operator symbols:  /*
+     */  */*
+</ul>
+<p>
+<b>Macro language</b>
+<ul>
+<li> Accepts both <tt>##</tt> and <tt>/**/</tt> for token-pasting in
+     a macro definition.  (Cpp accepts the former only in ANSI mode,
+     the latter only in -traditional mode.)  However, <tt>/* */</tt>
+     (with any text between the open/close comment) inserts whitespace.
+<li> Replaces a macro formal parameter with the actual, even inside a
+     string (double or single quoted).  This is -traditional behaviour,
+     not supported in ANSI.
+<li> Does not understand the # stringisation operator in a macro definition.
+     (It is an ANSI addition, only needed because quoted stringisation
+     (above) is prohibited.)
+<li> Preserves whitespace within a textual replacement definition exactly, but
+     leading and trailing space is eliminated.
+<li> Preserves whitespace within a macro definition (and trailing it) exactly,
+     but leading space is eliminated.
+<li> Preserves whitespace within a macro call exactly, but
+     leading and trailing space is eliminated.
+<li> Line continuations in a macro definition are preserved as
+     line-breaks in the macro call.  (Useful for layout-sensitive
+     code in Haskell.)
+<li> In a macro definition, whitespace is permitted between any of the
+     initial name/argument/bracket/comma tokens.  (In cpp, there can be
+     no space between the name and the opening bracket.)
+</ul>
 
 <hr>
 <center><h3><a name="who">Contacts</a></h3></center>
 <p>
 I am interested in hearing your feedback on cpphs.  Bug reports
-especially welcome, since it is so new.  You can send Feature requests
-too, but I won't guarantee to attend to them, especially if they
-depart from ordinary cpp's behaviour.  Please mail
+especially welcome, since it is so new.  You can send feature requests
+too, but I won't guarantee to implement them if they depart much from
+the ordinary cpp's behaviour.  Please mail
 <ul>
 <li>    <a href="mailto:Malcolm.Wallace@cs.york.ac.uk">
         Malcolm.Wallace@cs.york.ac.uk</a> 
