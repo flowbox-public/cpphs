@@ -97,16 +97,16 @@ line continuations.  If you don't want <tt>#line</tt> directives in
 the final output, use the <tt>--noline</tt> option.
 
 <p>
-Any syntax errors in cpp directives, and any failure to find a
-#include'd file, gives a message to standard error and halts the
-program.
+Any syntax errors in cpp directives gives a message to stderr and
+halts the program.  Failure to find a #include'd file produces a
+warning to stderr, but processing continues.
 
 <hr>
 <center><h3><a name="how">How do I use it?</a></h3></center>
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
-              [--nomacro] [--noline] [--strip] [--hashes]
+              [--nomacro] [--noline] [--strip] [--hashes] [--layout]
        cpphs --version
 </pre></center>
 <p>
@@ -127,6 +127,7 @@ Options:
                       cpp directives</dd>
 <dt>--hashes</dt> <dd>recognise the ANSI # stringise operator, and ## for
                       token catenation, within macros</dd>
+<dt>--layout</dt> <dd>preserve newlines within macro expansions</dd>
 <dt>--version</dt><dd>report version number of cpphs and stop</dd>
 </dl>
 
@@ -134,9 +135,10 @@ Options:
 There are NO textual replacements defined by default.  (Normal cpp
 usually has definitions for machine, OS, etc.  These could easily
 be added to the cpphs source code if you wish.)  The search path is
-searched in order of the -I options, except that the current directory
-is always searched first.  Again, there is no default search path
-(and again, this could easily be changed).
+searched in order of the -I options, except that the directory of the
+calling file, then the current directory, are always searched first.
+Again, there is no default search path (and again, this could easily
+be changed).
 
 
 <hr>
@@ -157,6 +159,11 @@ By HTTP:
 <li> File inclusion now looks in the directory of the calling file.
 <li> Failure to find an include file is now merely a warning to stderr
      rather than an error.
+<li> Added a --layout flag.  Previously, line continuations in a macro
+     definition were always preserved in the output, permitting use
+     of the Haskell layout rule even inside a macro.  The default is now
+     to remove line continuations for conformance with cpp, but the option
+     of using --layout is still possible.
 </ul>
 
 <p>

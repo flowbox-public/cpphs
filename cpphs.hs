@@ -31,20 +31,21 @@ runCpphs prog args = do
       locat = not ("--noline" `elem` args)
       strip =      "--strip" `elem` args
       ansi  =      "--hashes" `elem` args
+      layout=      "--layout" `elem` args
       files = filter (not . isPrefixOf "-") args
   when ("--version" `elem` args)
        (do putStrLn (prog++" "++version)
            exitWith ExitSuccess)
   when (null files || length os > 1)
        (do putStrLn ("Usage: "++prog
-                    ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-                    ++"\t\t[--nomacro] [--noline] [--strip] [--hashes]")
+                ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
+                ++"\t\t[--nomacro] [--noline] [--strip] [--hashes] [--layout]")
            exitWith (ExitFailure 1))
   o <- if null os then return stdout else openFile (head os) WriteMode
   mapM_ (\f-> do c <- readFile f
                  let pass1 = cppIfdef (newfile f) (preDefine ds)
                                       is macro locat c
-                     pass2 = macroPass ds strip ansi pass1
+                     pass2 = macroPass ds strip ansi layout pass1
                  if not macro then hPutStr o pass1 else hPutStr o pass2
         ) files
 

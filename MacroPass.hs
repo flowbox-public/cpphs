@@ -24,10 +24,13 @@ import SymTab     (SymTab, lookupST, insertST, emptyST)
 macroPass :: [String]		-- ^ Pre-defined symbols
           -> Bool		-- ^ Strip C-comments?
           -> Bool		-- ^ Accept # and ## operators?
+          -> Bool		-- ^ Retain layout in macros?
           -> String		-- ^ The input file content
           -> String		-- ^ The file after processing
-macroPass syms strip hashes =
-    concat . macroProcess (preDefine hashes syms) . tokenise strip hashes
+macroPass syms strip hashes layout =
+    concat
+    . macroProcess layout (preDefine hashes syms)
+    . tokenise strip hashes
 
 
 -- | Command-line definitions via -D are parsed here
@@ -51,34 +54,37 @@ preDefine hashes defines =
 -- are discarded and replaced with blanks, except for #line markers.
 -- All valid identifiers are checked for the presence of a definition
 -- of that name in the symbol table, and if so, expanded appropriately.
-macroProcess :: SymTab HashDefine -> [WordStyle] -> [String]
-macroProcess st        []                     = []
-macroProcess st (Other x: ws)                 = x:    macroProcess st ws
-macroProcess st (Cmd Nothing: ws)             = "\n": macroProcess st ws
-macroProcess st (Cmd (Just (LineDrop x)): ws) = "\n":x: macroProcess st ws
-macroProcess st (Cmd (Just hd): ws)           =
+macroProcess :: Bool -> SymTab HashDefine -> [WordStyle] -> [String]
+macroProcess ly st        []                     = []
+macroProcess ly st (Other x: ws)                 = x:    macroProcess ly st ws
+macroProcess ly st (Cmd Nothing: ws)             = "\n": macroProcess ly st ws
+macroProcess ly st (Cmd (Just (LineDrop x)): ws) = "\n":x:macroProcess ly st ws
+macroProcess layout st (Cmd (Just hd): ws)       =
         let n = 1 + linebreaks hd in
-        replicate n "\n" ++ macroProcess (insertST (name hd, hd) st) ws
-macroProcess st (Ident x: ws) =
+        replicate n "\n" ++ macroProcess layout (insertST (name hd, hd) st) ws
+macroProcess layout st (Ident x: ws) =
         case lookupST x st of
-            Nothing -> x: macroProcess st ws
+            Nothing -> x: macroProcess layout st ws
             Just hd ->
                 case hd of
                     SymbolReplacement _ r _ ->
                         -- one-level expansion only:
-                        -- r: macroProcess st ws
+                        -- r: macroProcess layout st ws
                         -- multi-level expansion:
-                        macroProcess st (tokenise True False r ++ ws)
+                        let r' = if layout then r else filter (/='\n') r in
+                        macroProcess layout st (tokenise True False r' ++ ws)
                     MacroExpansion _ _ _ _  ->
                         case parseMacroCall ws of
-                            Nothing -> x: macroProcess st ws
+                            Nothing -> x: macroProcess layout st ws
                             Just (args,ws') ->
                                 if length args /= length (arguments hd) then
-                                     x: macroProcess st ws
+                                     x: macroProcess layout st ws
                                 else -- one-level expansion only:
-                                     -- expandMacro hd args: macroProcess st ws'
+                                     -- expandMacro hd args layout:
+                                     --         macroProcess layout st ws'
                                      -- multi-level expansion:
-                                     macroProcess st (tokenise True False
-                                                        (expandMacro hd args)
-                                                     ++ws')
+                                     macroProcess layout st
+                                              (tokenise True False
+                                                   (expandMacro hd args layout)
+                                              ++ws')
 

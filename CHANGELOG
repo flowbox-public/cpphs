@@ -8,6 +8,11 @@ Version 0.5
   * File inclusion now looks in the directory of the calling file.
   * Failure to find an include file is now merely a warning to stderr
     rather than an error.
+  * Added a --layout flag.  Previously, line continuations in a macro
+    definition were always preserved in the output, permitting use
+    of the Haskell layout rule even inside a macro.  The default is now
+    to remove line continuations for conformance with cpp, but the option
+    of using --layout is still possible.
 
 Version 0.4
 -----------

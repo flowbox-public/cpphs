@@ -14,7 +14,7 @@ or
 USAGE
 -----
 	cpphs  [filename | -Dsym | -Dsym=val | -Ipath]+  [-Ofile]
-               [--nomacro] [--noline] [--strip] [--hashes]
+               [--nomacro] [--noline] [--strip] [--hashes] [--layout]
 
 For fuller details, see docs/index.html
 

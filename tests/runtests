@@ -13,9 +13,9 @@ runtest "../cpphs --nomacro -Delif testfile" expect3
 runtest "../cpphs --nomacro -Dinclude testfile" expect4
 runtest "../cpphs --noline -Dinclude testfile" expect5
 runtest "../cpphs cpp" expect6
-runtest "../cpphs -D__GLASGOW_HASKELL__ Storable.hs " expect7
-runtest "../cpphs -DCALLCONV=ccall --hashes HsOpenGLExt.h" expect8
-runtest "../cpphs multiline" expect9
+runtest "../cpphs -D__GLASGOW_HASKELL__ --layout Storable.hs " expect7
+runtest "../cpphs -DCALLCONV=ccall --hashes --layout HsOpenGLExt.h" expect8
+runtest "../cpphs --layout multiline" expect9
 runtest "../cpphs --nomacro multiline" expect10
 runtest "../cpphs --hashes stringise" expect11
 runtest "../cpphs recursive" expect12

@@ -36,16 +36,19 @@ data HashDefine
 		}
     deriving (Eq,Show)
 
+-- Macro expansion text is divided into sections, each of which is classified
+-- as one of three kinds: a formal argument (Arg), plain text (Text),
+-- or a stringised formal argument (Str).
 data ArgOrText = Arg | Text | Str deriving (Eq,Show)
 
--- expand an instance of a macro
--- precondition: got a match on the macro name.
-expandMacro :: HashDefine -> [String] -> String
-expandMacro macro parameters =
+-- | Expand an instance of a macro.
+--   precondition: got a match on the macro name.
+expandMacro :: HashDefine -> [String] -> Bool -> String
+expandMacro macro parameters layout =
     let env = zip (arguments macro) parameters
         replace (Arg,s)  = maybe (error "formal param") id (lookup s env)
         replace (Str,s)  = maybe (error "formal param") str (lookup s env)
-        replace (Text,s) = s
+        replace (Text,s) = if layout then s else filter (/='\n') s
         str s = '"':s++"\""
     in
     concatMap replace (expansion macro)
@@ -63,23 +66,26 @@ parseHashDefine ansi def = (command . skip) def
     command _             = Nothing
     undef  (sym:_)   = SymbolReplacement { name=sym, replacement=sym }
     define (sym:xs)  = case skip xs of
-                           ("(":ys) -> (macro sym [] . skip) ys
+                           ("(":ys) -> (macroHead sym [] . skip) ys
                            ys       -> SymbolReplacement
                                            { name=sym, replacement=chop ys }
-    macro sym args (",":xs) = (macro sym args . skip) xs
-    macro sym args (")":xs) = MacroExpansion
+    macroHead sym args (",":xs) = (macroHead sym args . skip) xs
+    macroHead sym args (")":xs) = MacroExpansion
                                     { name =sym , arguments = reverse args
-                                    , expansion = classify args (skip xs) }
-    macro sym args (var:xs) = (macro sym (var:args) . skip) xs
-    macro sym args []       = error ("incomplete macro definition:\n"
-                                    ++"  #define "++sym++"("
-                                    ++concat (intersperse "," args))
-    classify args ("#":x:xs)| ansi &&
-                              x `elem` args    = (Str,x): classify args xs
-    classify args ("##":xs) | ansi             = classify args xs
-    classify args (word:xs) | word `elem` args = (Arg,word): classify args xs
-                            | otherwise        = (Text,word): classify args xs
-    classify args []        = []
+                                    , expansion = classifyRhs args (skip xs) }
+    macroHead sym args (var:xs) = (macroHead sym (var:args) . skip) xs
+    macroHead sym args []       = error ("incomplete macro definition:\n"
+                                        ++"  #define "++sym++"("
+                                        ++concat (intersperse "," args))
+    classifyRhs args ("#":x:xs)
+                          | ansi &&
+                            x `elem` args    = (Str,x): classifyRhs args xs
+    classifyRhs args ("##":xs)
+                          | ansi             = classifyRhs args xs
+    classifyRhs args (word:xs)
+                          | word `elem` args = (Arg,word): classifyRhs args xs
+                          | otherwise        = (Text,word): classifyRhs args xs
+    classifyRhs args []        = []
     count = length . filter (=='\n') . concat
     chop  = concat . reverse . dropWhile (all isSpace) . reverse
 

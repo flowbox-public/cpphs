@@ -12,8 +12,7 @@ f = 4
 
 
 
-g = do { putStr "Hello "; 
-  putStrLn "World" }
+g = do { putStr "Hello ";   putStrLn "World" }
 
                           
 
