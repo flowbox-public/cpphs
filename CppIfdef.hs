@@ -17,16 +17,17 @@ module CppIfdef
   , preDefine	-- :: [String] -> SymTab String
   ) where
 
+
 import SymTab
 import ParseLib
 -- import HashDefine
-import Position    (Posn,newline,newlines,cppline,hashline)
-import ReadFirst   (readFirst)
-import Tokenise    (linesCpp,reslash)
-import Char        (isDigit)
-import Numeric     (readHex)
-import Debug.Trace (trace)
+import Position  (Posn,newline,newlines,cppline,hashline)
+import ReadFirst (readFirst)
+import Tokenise  (linesCpp,reslash)
+import Char      (isDigit)
+import Numeric   (readHex)
 import System.IO.Unsafe (unsafePerformIO)
+import IO        (hPutStrLn,stderr)
 
 -- | Run a first pass of cpp, evaluating #ifdef's and processing #include's,
 --   whilst taking account of #define's and #undef's as we encounter them.
@@ -222,3 +223,9 @@ parseOp st =
       return (/=)
 
 ----
+-- copied in-line to avoid library bootstrapping problems
+trace :: String -> a -> a
+trace string expr = unsafePerformIO $ do
+    hPutStrLn stderr string
+    return expr
+
