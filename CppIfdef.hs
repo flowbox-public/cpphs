@@ -136,9 +136,11 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
 	-- define, undef, include, error, warning, pragma, line
 
 cpp p syms path leave ln Keep (x:xs) =
-    x:  cpp (newline p) syms path leave ln Keep xs
+    let p' = newline p in seq p' $
+    x:  cpp p' syms path leave ln Keep xs
 cpp p syms path leave ln d@(Drop n b) (x:xs) =
-    "": cpp (newline p) syms path leave ln d xs
+    let p' = newline p in seq p' $
+    "": cpp p' syms path leave ln d xs
 
 
 ----
