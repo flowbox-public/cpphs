@@ -16,6 +16,7 @@ module Position
   , newfile
   , addcol, newline, tab, newlines, hashline
   , cppline
+  , directory
   ) where
 
 -- | Source positions contain a filename, line, column, and an
@@ -53,15 +54,32 @@ hashline r Nothing  (Pn f _ c i) = Pn f r c i
 hashline r (Just ('"':f)) (Pn _ _ c i) = Pn (init f) r c i
 hashline r (Just f)       (Pn _ _ c i) = Pn f r c i
 
-{-
 -- | Projections
-lineno   :: Posn -> Int
-filename :: Posn -> String
 
-lineno   (Pn _ r _ _) = r
-filename (Pn f _ _ _) = f
--}
+--lineno    :: Posn -> Int
+--filename  :: Posn -> String
+directory :: Posn -> FilePath
+
+--lineno    (Pn _ r _ _) = r
+--filename  (Pn f _ _ _) = f
+directory (Pn f _ _ _) = dirname f
+
 
 -- | cpp-style printing
 cppline :: Posn -> String
 cppline (Pn f r c i) = "#line "++show r++" "++show f
+
+
+-- auxiliaries
+--   Strip directory and suffix from filenames (analogous to the shell
+--   command of the same name).
+basename :: String -> String
+basename = reverse .            takeWhile (not.(`elem`"\\/")) . reverse
+                                                                                
+--   Strip non-directory suffix from file name (analogous to the shell
+--   command of the same name).
+dirname :: String -> String
+dirname  = reverse . safetail . dropWhile (not.(`elem`"\\/")) . reverse
+  where safetail [] = []
+        safetail (_:x) = x
+

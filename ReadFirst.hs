@@ -15,15 +15,16 @@ module ReadFirst
   ( readFirst
   ) where
 
-import IO        (readFile)
+import IO        (readFile, hPutStrLn, stderr)
 import Directory (doesFileExist)
 import List      (intersperse)
-import Position  (Posn)
+import Position  (Posn,directory)
 import SymTab    (SymTab,lookupST)
 
 -- | Attempt to read the given file from any location within the search path.
 --   The first location found is returned, together with the file content.
---   (The current directory is always searched first.)
+--   (The directory of the calling file is always searched first, then
+--    the current directory, finally any specified search path.)
 readFirst :: String		-- ^ filename
 	-> Posn			-- ^ inclusion point
 	-> [String]		-- ^ search path
@@ -33,12 +34,17 @@ readFirst :: String		-- ^ filename
               )
 
 readFirst name demand path syms =
-    try (".":path)	-- always search current directory first
+    try (cons dd (".":path))
   where
+    dd = directory demand
+    cons x xs = if null x then xs else x:xs
     realname = real name syms
-    try [] = error ("Can't find file \""++realname++"\" in directories\n\t"
-                    ++concat (intersperse "\n\t" (".":path))
-                    ++"\n  Asked for by: "++show demand)
+    try [] = do
+        hPutStrLn stderr ("Warning: Can't find file \""++realname
+                         ++"\" in directories\n\t"
+                         ++concat (intersperse "\n\t" (cons dd (".":path)))
+                         ++"\n  Asked for by: "++show demand)
+        return ("missing file: "++realname,"")
     try (p:ps) = do
         let file = p++'/':realname
         ok <- doesFileExist file

@@ -5,6 +5,9 @@ Version 0.5
     as well.
   * Bugfix for #if 1, previously taken as false.
   * Bugfix for --nolines: it no longer adds extra spurious newlines.
+  * File inclusion now looks in the directory of the calling file.
+  * Failure to find an include file is now merely a warning to stderr
+    rather than an error.
 
 Version 0.4
 -----------

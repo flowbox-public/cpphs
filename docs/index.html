@@ -154,6 +154,9 @@ By HTTP:
      as well.
 <li> Bugfix for <tt>#if 1</tt>, previously interpreted as false.
 <li> Bugfix for --nolines: it no longer adds extra spurious newlines.
+<li> File inclusion now looks in the directory of the calling file.
+<li> Failure to find an include file is now merely a warning to stderr
+     rather than an error.
 </ul>
 
 <p>
