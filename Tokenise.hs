@@ -1,6 +1,18 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Tokenise
+-- Copyright   :  2004 Malcolm Wallace
+-- Licence     :  LGPL
+--
+-- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
+-- Stability   :  experimental
+-- Portability :  All
+--
 -- The purpose of this module is to lex a source file (language
 -- unspecified) into tokens such that cpp can recognise a replaceable
 -- symbol or macro-use, and do the right thing.
+-----------------------------------------------------------------------------
+
 module Tokenise
   ( linesCpp
   , reslash

@@ -2,6 +2,7 @@
 -- |
 -- Module      :  ListUtils
 -- Copyright   :  1995 Thomas Hallgren
+-- Licence     :  unknown
 -- 
 -- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
 -- Stability   :  Stable

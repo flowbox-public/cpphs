@@ -2,6 +2,7 @@
 -- |
 -- Module      :  CppIfdef
 -- Copyright   :  1999-2004 Malcolm Wallace
+-- Licence     :  LGPL
 -- 
 -- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
 -- Stability   :  experimental
