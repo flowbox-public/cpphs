@@ -21,7 +21,7 @@ module CppIfdef
 import SymTab
 import ParseLib
 -- import HashDefine
-import Position  (Posn,newline,newlines,cppline,hashline)
+import Position  (Posn,newline,newlines,cppline,newpos)
 import ReadFirst (readFirst)
 import Tokenise  (linesCpp,reslash)
 import Char      (isDigit)
@@ -69,9 +69,9 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
     let ws = words x
         cmd = head ws
         sym = head (tail ws)
-        val = maybe "1" id rest
-        rest = let v = tail (tail ws) in
-               if null v then Nothing else Just (unwords v)
+        rest = tail (tail ws)
+        val  = maybe "1" id (un rest)
+        un v = if null v then Nothing else Just (unwords v)
         down = if definedST sym syms then (Drop 1 False) else Keep
         up   = if definedST sym syms then Keep else (Drop 1 False)
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
@@ -101,10 +101,12 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	"error"  -> error (l++"\nin "++show p)
 	"line" | all isDigit sym
 	         -> (if ln then (l:) else id) $
-                    cpp (hashline (read sym) rest p) syms path leave ln Keep xs
+                    cpp (newpos (read sym) (un rest) p)
+                        syms path leave ln Keep xs
 	n | all isDigit n
 	         -> (if ln then (l:) else id) $
-	            cpp (hashline (read n) Nothing p) syms path leave ln Keep xs
+	            cpp (newpos (read n) (un (tail ws)) p)
+                        syms path leave ln Keep xs
           | otherwise
 	         -> error ("Unknown directive #"++cmd++"\nin "++show p)
 

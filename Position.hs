@@ -14,7 +14,7 @@
 module Position
   ( Posn(..)
   , newfile
-  , addcol, newline, tab, newlines, hashline
+  , addcol, newline, tab, newlines, newpos
   , cppline
   , directory
   ) where
@@ -49,10 +49,10 @@ tab     (Pn f r c i) = Pn f r (((c`div`8)+1)*8) i
 newlines :: Int -> Posn -> Posn
 newlines n (Pn f r c i) = Pn f (r+n) 1 i
 
-hashline :: Int -> Maybe String -> Posn -> Posn
-hashline r Nothing  (Pn f _ c i) = Pn f r c i
-hashline r (Just ('"':f)) (Pn _ _ c i) = Pn (init f) r c i
-hashline r (Just f)       (Pn _ _ c i) = Pn f r c i
+newpos :: Int -> Maybe String -> Posn -> Posn
+newpos r Nothing  (Pn f _ c i) = Pn f r c i
+newpos r (Just ('"':f)) (Pn _ _ c i) = Pn (init f) r c i
+newpos r (Just f)       (Pn _ _ c i) = Pn f r c i
 
 -- | Projections
 
