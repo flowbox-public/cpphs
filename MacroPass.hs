@@ -22,20 +22,23 @@ import Tokenise   (tokenise, WordStyle(..), parseMacroCall)
 import SymTab     (SymTab, lookupST, insertST, emptyST)
 
 macroPass :: [String]		-- ^ Pre-defined symbols
+          -> Bool		-- ^ Strip C-comments?
+          -> Bool		-- ^ Accept # stringise operator?
           -> String		-- ^ The input file content
           -> String		-- ^ The file after processing
-macroPass syms =
-    concat . macroProcess (preDefine syms) . tokenise
+macroPass syms strip stringise =
+    concat . macroProcess (preDefine stringise syms) . tokenise strip stringise
 
 
 -- | Command-line definitions via -D are parsed here
-preDefine :: [String] -> SymTab HashDefine
-preDefine defines =
+preDefine :: Bool -> [String] -> SymTab HashDefine
+preDefine stringise defines =
     foldr (insertST.defval) emptyST defines
   where
     defval sym =
         let (s,d) = break (=='=') sym
-            (Cmd (Just hd):_) = tokenise ("\n#define "++s++" "++rmEq d++"\n")
+            (Cmd (Just hd):_) = tokenise True stringise
+                                         ("\n#define "++s++" "++rmEq d++"\n")
             rmEq [] = []
             rmEq (x:xs) = xs
         in (name hd, hd)
@@ -58,7 +61,7 @@ macroProcess st (Ident x: ws) =
                         -- one-level expansion only:
                         -- r: macroProcess st ws
                         -- multi-level expansion:
-                        macroProcess st (tokenise r ++ ws)
+                        macroProcess st (tokenise True False r ++ ws)
                     MacroExpansion _ _ _ _  ->
                         case parseMacroCall ws of
                             Nothing -> x: macroProcess st ws
@@ -68,7 +71,7 @@ macroProcess st (Ident x: ws) =
                                 else -- one-level expansion only:
                                      -- expandMacro hd args: macroProcess st ws'
                                      -- multi-level expansion:
-                                     macroProcess st (tokenise
+                                     macroProcess st (tokenise True False
                                                         (expandMacro hd args)
                                                      ++ws')
 
