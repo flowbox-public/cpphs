@@ -189,8 +189,9 @@ parseComparison sym1 st =
       let val2 = convert sym2 st
       return (op val1 val2)
   +++
-  do  let val = lookupST sym1 st
-      return (if val == Nothing || val == Just "0" then False else True)
+  do  case convert sym1 st of
+        0 -> return False
+        _ -> return True
   where
     convert sym st =
       case lookupST sym st of
