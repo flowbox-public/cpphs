@@ -28,9 +28,11 @@ macroPass :: [String]		-- ^ Pre-defined symbols
           -> String		-- ^ The input file content
           -> String		-- ^ The file after processing
 macroPass syms strip hashes layout =
-    concat
+    tail		-- to remove extra "\n" inserted below
+    . concat
     . macroProcess layout (preDefine hashes syms)
     . tokenise strip hashes
+    . ('\n':)		-- to ensure recognition of "\n#" at start of file
 
 
 -- | Command-line definitions via -D are parsed here
