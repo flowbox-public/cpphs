@@ -6,7 +6,7 @@ TARGET   = $(CPPHS)
 
 SRCS	= CppIfdef.hs HashDefine.hs MacroPass.hs ParseLib.hs \
 	  Position.hs ReadFirst.hs SymTab.hs Tokenise.hs \
-	  cpphs.hs
+	  Cpphs.hs Main.hs
 
 OBJS    = $(patsubst %.hs, $(OBJDIR)/%.$O, $(SRCS))
 CFILES    = $(patsubst %.hs, %.$C, $(SRCS))
@@ -70,8 +70,9 @@ ${OBJDIR}/SymTab.o:
 ${OBJDIR}/CppIfdef.o:	${OBJDIR}/SymTab.o ${OBJDIR}/ParseLib.o \
 			${OBJDIR}/Position.o ${OBJDIR}/ReadFirst.o \
 			${OBJDIR}/Tokenise.o 
-${OBJDIR}/cpphs.o:	${OBJDIR}/CppIfdef.o ${OBJDIR}/Position.o \
+${OBJDIR}/Cpphs.o:	${OBJDIR}/CppIfdef.o ${OBJDIR}/Position.o \
 			${OBJDIR}/MacroPass.o 
+${OBJDIR}/Main.o:	${OBJDIR}/Cpphs.o 
 
 # C-files dependencies.		-- (needs updating)
 MacroPass.hc:	HashDefine.hc Tokenise.hc SymTab.hc 
@@ -82,4 +83,5 @@ Position.hc:
 ParseLib.hc:
 SymTab.hc:
 CppIfdef.hc:	SymTab.hc ParseLib.hc Position.hc ReadFirst.hc Tokenise.hc 
-cpphs.hc:	CppIfdef.hc Position.hc MacroPass.hc 
+Cpphs.hc:	CppIfdef.hc Position.hc MacroPass.hc 
+Main.hc:	Cpphs.hc

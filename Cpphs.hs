@@ -5,8 +5,8 @@
 -- This file is GPL, although the libraries it uses are either standard
 -- Haskell'98 or distributed under the LGPL.
 -}
-module Main where
-import System   (getArgs, getProgName, exitWith, ExitCode(..))
+module Cpphs ( runCpphs ) where
+import System   (exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)
 import IO       (stdout, IOMode(WriteMode), openFile, hPutStr)
@@ -17,12 +17,6 @@ import MacroPass(macroPass)
 
 version :: String
 version = "0.5"
-
-main :: IO ()
-main = do
-  args <- getArgs
-  prog <- getProgName
-  runCpphs prog args
 
 runCpphs :: String -> [String] -> IO ()
 runCpphs prog args = do

@@ -3,45 +3,41 @@
 
 -- Copyright (c) 2004 Graham Klyne
 -}
-module CpphsTest where
+module Main where
 
 import Cpphs( runCpphs )
-import IO
-    ( Handle, stdout, IOMode(WriteMode)
-    , openFile, hClose, hPutStr, hPutStrLn )
-import HUnit
-    ( Test(TestCase,TestList,TestLabel)
-    , assertEqual, runTestTT, runTestText, putTextToHandle )
-
+import Test.HUnit ( Test(TestCase,TestList), Counts, assertEqual, runTestTT )
 
 runCpphsTest :: [String] -> String -> String -> Test
 runCpphsTest args result expect = TestCase $ do
   runCpphs "cpphs" (("-O"++result):args)
   res <- readFile result
-  exp <- readFile expect
-  assertEqual ("cpphs "++concatMap (' ':) args) exp res
+  exP <- readFile expect
+  assertEqual ("cpphs "++concatMap (' ':) args) exP res
 
+test1, test2, test3, test4, test5, test6, test7, test8, test9, test10 :: Test
 test1 = runCpphsTest ["-Itests/","--nomacro","tests/testfile"]
-                     "tests/resultfile" "tests/expectfile1"
+                     "tests/resultfile" "tests/expect1"
 test2 = runCpphsTest ["-Itests/","--nomacro","-Dnoelif","tests/testfile"]
-                     "tests/resultfile" "tests/expectfile2"
+                     "tests/resultfile" "tests/expect2"
 test3 = runCpphsTest ["-Itests/","--nomacro","-Delif","tests/testfile"]
-                     "tests/resultfile" "tests/expectfile3"
+                     "tests/resultfile" "tests/expect3"
 test4 = runCpphsTest ["-Itests/","--nomacro","-Dinclude","tests/testfile"]
-                     "tests/resultfile" "tests/expectfile4"
+                     "tests/resultfile" "tests/expect4"
 test5 = runCpphsTest ["-Itests/","--noline","-Dinclude","tests/testfile"]
-                     "tests/resultfile" "tests/expectfile5"
+                     "tests/resultfile" "tests/expect5"
 test6 = runCpphsTest ["-Itests/","tests/cpp"]
-                     "tests/resultfile" "tests/expectfile6"
+                     "tests/resultfile" "tests/expect6"
 test7 = runCpphsTest ["-Itests/","-D__GLASGOW_HASKELL__","tests/Storable.hs"]
-                     "tests/resultfile" "tests/expectfile7"
+                     "tests/resultfile" "tests/expect7"
 test8 = runCpphsTest ["-Itests/","-DCALLCONV=ccall","tests/HsOpenGLExt.h"]
-                     "tests/resultfile" "tests/expectfile8"
+                     "tests/resultfile" "tests/expect8"
 test9 = runCpphsTest ["-Itests/","tests/multiline"]
-                     "tests/resultfile" "tests/expectfile9"
+                     "tests/resultfile" "tests/expect9"
 test10 = runCpphsTest ["-Itests/","--nomacro","tests/multiline"]
-                     "tests/resultfile" "tests/expectfile10"
+                     "tests/resultfile" "tests/expect10"
 
+allTests :: Test
 allTests = TestList
     [ test1
     , test2
@@ -55,6 +51,8 @@ allTests = TestList
     , test10
     ]
 
+run :: Test -> IO Counts
 run t = runTestTT t
 
---  To run  run allTests
+main :: IO ()
+main = run allTests >>= print
