@@ -12,7 +12,6 @@ import Monad    (when)
 import IO       (stdout, IOMode(WriteMode), openFile, hPutStr)
 
 import CppIfdef (cppIfdef)
-import Position (newfile)
 import MacroPass(macroPass)
 
 version :: String
@@ -39,7 +38,7 @@ runCpphs prog args = do
            exitWith (ExitFailure 1))
   o <- if null os then return stdout else openFile (head os) WriteMode
   mapM_ (\f-> do c <- readFile f
-                 let pass1 = cppIfdef (newfile f) ds is macro locat c
+                 let pass1 = cppIfdef f ds is macro locat c
                      pass2 = macroPass ds strip ansi layout pass1
                  if not macro then hPutStr o pass1 else hPutStr o pass2
         ) files

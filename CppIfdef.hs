@@ -22,7 +22,7 @@ module CppIfdef
 import SymTab
 import ParseLib
 -- import HashDefine
-import Position  (Posn,newline,newlines,cppline,newpos)
+import Position  (Posn,newfile,newline,newlines,cppline,newpos)
 import ReadFirst (readFirst)
 import Tokenise  (linesCpp,reslash)
 import Char      (isDigit)
@@ -32,16 +32,17 @@ import IO        (hPutStrLn,stderr)
 
 -- | Run a first pass of cpp, evaluating #ifdef's and processing #include's,
 --   whilst taking account of #define's and #undef's as we encounter them.
-cppIfdef :: Posn		-- ^ Position info for error reports
+cppIfdef :: FilePath		-- ^ File for error reports
 	-> [String]		-- ^ Pre-defined symbols
 	-> [String]		-- ^ Search path for #includes
 	-> Bool			-- ^ Leave #define and #undef in output?
 	-> Bool			-- ^ Place #line droppings in output?
 	-> String		-- ^ The input file content
 	-> String		-- ^ The file after processing
-cppIfdef posn syms search leave locat =
+cppIfdef fp syms search leave locat =
     unlines . cpp posn defs search leave locat Keep . (cppline posn:) . linesCpp
   where
+    posn = newfile fp
     defs = preDefine syms
 -- Notice that the symbol table is a very simple one mapping strings
 -- to strings.  This pass does not need anything more elaborate, in
