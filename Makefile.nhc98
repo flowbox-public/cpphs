@@ -23,9 +23,11 @@ ifeq "ghc" "$(findstring ghc, ${HC})"
 HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base)
 endif
 ifeq "hbc" "$(findstring hbc, ${HC})"
-hbc: CppIfdef.hs
+hbc: CppIfdef.hs MacroPass.hs
 	sed -e 's/System.IO.Unsafe/IOExts/' CppIfdef.hs >hbc
-	cp -a hbc CppIfdef.hs
+	mv hbc CppIfdef.hs
+	sed -e 's/System.IO.Unsafe/IOExts/' MacroPass.hs >hbc
+	cp -a hbc MacroPass.hs
 all: hbc
 endif
 

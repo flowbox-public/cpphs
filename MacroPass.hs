@@ -21,6 +21,9 @@ import HashDefine (HashDefine(..), expandMacro)
 import Tokenise   (tokenise, WordStyle(..), parseMacroCall)
 import SymTab     (SymTab, lookupST, insertST, emptyST)
 import Position   (Posn, newfile, filename, lineno)
+import System.IO.Unsafe (unsafePerformIO)
+import Time       (getClockTime, toCalendarTime, formatCalendarTime)
+import Locale     (defaultTimeLocale)
 
 noPos :: Posn
 noPos = newfile "preDefined"
@@ -72,8 +75,12 @@ macroProcess layout st (Ident p x: ws) =
     case x of
       "__FILE__" -> filename p:      macroProcess layout st ws
       "__LINE__" -> show (lineno p): macroProcess layout st ws
- --   "__DATE__" ->
- --   "__TIME__" ->
+      "__DATE__" -> formatCalendarTime defaultTimeLocale "%d %b %Y"
+                        (unsafePerformIO (getClockTime>>=toCalendarTime)):
+                                     macroProcess layout st ws
+      "__TIME__" -> formatCalendarTime defaultTimeLocale "%H:%M:%S"
+                        (unsafePerformIO (getClockTime>>=toCalendarTime)):
+                                     macroProcess layout st ws
       _ ->
         case lookupST x st of
             Nothing -> x: macroProcess layout st ws
