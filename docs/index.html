@@ -107,7 +107,7 @@ warning to stderr, but processing continues.
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
               [--nomacro] [--noline] [--strip] [--hashes] [--layout]
-       cpphs --version
+       cpphs --version                                             
 </pre></center>
 <p>
 You can give any number of filenames on the command-line.  The
@@ -256,14 +256,14 @@ ANSI C, and has the following main differences from the standard cpp.
      an ANSI addition, only needed because quoted stringisation (above)
      is prohibited.)
 <li> Preserves whitespace within a textual replacement definition
-     exactly, but leading and trailing space is eliminated.
+     exactly (modulo newlines), but leading and trailing space is eliminated.
 <li> Preserves whitespace within a macro definition (and trailing it)
-     exactly, but leading space is eliminated.
-<li> Preserves whitespace within macro call arguments exactly, but
-     leading and trailing space is eliminated.
-<li> Line continuations in a macro definition are preserved as
-     line-breaks in the macro call.  (Useful for layout-sensitive
-     code in Haskell.)
+     exactly (modulo newlines), but leading space is eliminated.
+<li> Preserves whitespace within macro call arguments exactly
+     (including newlines), but leading and trailing space is eliminated.
+<li> With the <tt>--layout</tt> option, line continuations in a textual
+     replacement or macro definition are preserved as line-breaks in the
+     macro call.  (Useful for layout-sensitive code in Haskell.)
 <li> In a macro definition, whitespace is permitted between any of the
      initial name/argument/bracket/comma tokens.  (In cpp, there can be
      no space between the name and the opening bracket.)
