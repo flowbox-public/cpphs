@@ -4,12 +4,11 @@ the C pre-processor, in Haskell.
 TO BUILD
 --------
 Just use
-    hmake Main [-package base]
+    hmake cpphs [-package base]
 or
-    ghc --make Main
+    ghc --make cpphs
 or
-    runhugs Main
-and rename the resulting executable to 'cpphs'.
+    runhugs cpphs	# or rename the script cpphs.hugs to cpphs
 
 
 USAGE

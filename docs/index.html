@@ -23,7 +23,7 @@
 
 <center><h3><a name="what">What is cpphs?</a></h3></center>
 <p>
-<b>cpphs</b> is a simplified re-implementation of
+<b>cpphs</b> is a liberalised re-implementation of
 <a href="http://gcc.gnu.org/onlinedocs/gcc-2.95.3/cpp.html">cpp</a>,
 the C pre-processor, in <a href="http://haskell.org/">Haskell</a>.
 
@@ -161,6 +161,18 @@ be changed).
 <p>
 <b>Current version:</b>
 <p>
+cpphs-0.8, release date 2004.xx.xx<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.8.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.8.zip">.zip</a>,
+<a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>.
+<ul>
+<li> Just shuffled some files around.
+</ul>
+
+<p>
+<b>Older versions:</b>
+<p>
 cpphs-0.7, release date 2004.09.01<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.7.tar.gz">.tar.gz</a>,
@@ -172,8 +184,6 @@ By HTTP:
      DIY error messages.
 </ul>
 
-<p>
-<b>Older versions:</b>
 <p>
 cpphs-0.6, release date 2004.07.30<br>
 By HTTP:
@@ -264,13 +274,13 @@ Initial release: implements conditional compilation and file inclusion only.
 <b>Building instructions</b>
 <p>
 To build cpphs, use
-<pre>    hmake Main [-package base]; mv Main cpphs
+<pre>    hmake cpphs [-package base]
 </pre>
 or
-<pre>    ghc --make Main; mv Main cpphs
+<pre>    ghc --make cpphs
 </pre>
 or
-<pre>    runhugs Main
+<pre>    mv cpphs.hugs cpphs	# a simple runhugs script
 </pre>
 
 
@@ -284,7 +294,7 @@ ANSI C, and has the following main differences from the standard cpp.
 <b>General</b>
 <ul>
 <li> The <tt>#</tt> that introduces any cpp directive must be in the first
-     column of a line (whereas ANSI permits whitespace before the #).
+     column of a line (whereas ANSI permits whitespace before the <tt>#</tt>).
 <li> Generates the <tt>#line n "filename"</tt> syntax, not the <tt># n
      "filename"</tt> variant.
 <li> C comments are only removed from within cpp directives.  They are

@@ -5,7 +5,7 @@
 -- This file is GPL, although the libraries it uses are either standard
 -- Haskell'98 or distributed under the LGPL.
 -}
-module Cpphs ( runCpphs ) where
+module RunCpphs ( runCpphs ) where
 import System   (exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)

@@ -6,12 +6,12 @@ TARGET   = $(CPPHS)
 
 SRCS	= CppIfdef.hs HashDefine.hs MacroPass.hs ParseLib.hs \
 	  Position.hs ReadFirst.hs SymTab.hs Tokenise.hs \
-	  Cpphs.hs Main.hs
+	  RunCpphs.hs cpphs.hs
 
 OBJS    = $(patsubst %.hs, $(OBJDIR)/%.$O, $(SRCS))
 CFILES    = $(patsubst %.hs, %.$C, $(SRCS))
 
-AUX     = Makefile* README LICENCE* CHANGELOG TODO docs tests
+AUX     = Makefile* README LICENCE* CHANGELOG TODO docs tests cpphs.hugs
 
 HC = $(LOCAL)nhc98	# can be overridden by caller HC=...
 HFLAGS = $(shell echo $(BUILDOPTS)) #-$(CFG)
@@ -78,9 +78,9 @@ ${OBJDIR}/SymTab.o:
 ${OBJDIR}/CppIfdef.o:	${OBJDIR}/SymTab.o ${OBJDIR}/ParseLib.o \
 			${OBJDIR}/Position.o ${OBJDIR}/ReadFirst.o \
 			${OBJDIR}/Tokenise.o 
-${OBJDIR}/Cpphs.o:	${OBJDIR}/CppIfdef.o ${OBJDIR}/Position.o \
+${OBJDIR}/RunCpphs.o:	${OBJDIR}/CppIfdef.o ${OBJDIR}/Position.o \
 			${OBJDIR}/MacroPass.o 
-${OBJDIR}/Main.o:	${OBJDIR}/Cpphs.o 
+${OBJDIR}/cpphs.o:	${OBJDIR}/RunCpphs.o 
 
 # C-files dependencies.		-- (needs updating)
 MacroPass.hc:	HashDefine.hc Tokenise.hc SymTab.hc 
@@ -91,5 +91,5 @@ Position.hc:
 ParseLib.hc:
 SymTab.hc:
 CppIfdef.hc:	SymTab.hc ParseLib.hc Position.hc ReadFirst.hc Tokenise.hc 
-Cpphs.hc:	CppIfdef.hc Position.hc MacroPass.hc 
-Main.hc:	Cpphs.hc
+RunCpphs.hc:	CppIfdef.hc Position.hc MacroPass.hc 
+cpphs.hc:	RunCpphs.hc

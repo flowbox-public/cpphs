@@ -5,7 +5,7 @@
 -}
 module Main where
 
-import Cpphs( runCpphs )
+import RunCpphs ( runCpphs )
 import Test.HUnit ( Test(TestCase,TestList), Counts, assertEqual, runTestTT )
 
 runCpphsTest :: [String] -> String -> String -> Test

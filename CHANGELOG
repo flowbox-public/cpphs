@@ -1,3 +1,7 @@
+Version 0.8
+-----------
+  * Shuffle a few files around to make it easier to say 'hmake cpphs'.
+
 Version 0.7
 -----------
   * Enable the __FILE__, __LINE__, __DATE__, and __TIME__ specials, which
