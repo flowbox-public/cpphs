@@ -35,7 +35,7 @@ runCpphs prog args = do
   when ("--version" `elem` args)
        (do putStrLn (prog++" "++version)
            exitWith ExitSuccess)
-  when (null files)
+  when (null files || length os > 1)
        (do putStrLn ("Usage: "++prog
                     ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
                     ++"\t\t[--nomacro] [--noline] [--strip] [--hashes]")
