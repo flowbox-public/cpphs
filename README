@@ -29,7 +29,7 @@ except for ParseLib (Copyright (c) 1995 Graham Hutton and Erik Meijer)
 LICENCE
 -------
 These library modules are distributed under the terms of the LGPL.
-The application module 'cpphs.hs' is GPL.
+The application module 'Main.hs' is GPL.
 
 This software comes with no warranty.  Use at your own risk.
 
