@@ -83,8 +83,8 @@ deWordStyle (Cmd _)     = "\n"
 --   No errors can be raised.
 --   The inverse of tokenise is (concatMap deWordStyle).
 tokenise :: Bool -> Bool -> [(Posn,String)] -> [WordStyle]
-tokenise strip ansi [] = []
-tokenise strip ansi ((p,x):xs) = haskell Any [] p xs x
+tokenise _     _    [] = []
+tokenise strip ansi ((pos,str):pos_strs) = haskell Any [] pos pos_strs str
  where
     -- rules to lex Haskell
   haskell :: SubMode -> String -> Posn -> [(Posn,String)]
@@ -143,7 +143,7 @@ tokenise strip ansi ((p,x):xs) = haskell Any [] p xs x
                                             haskell Any [] p ls xs
   haskell CComment acc p ls (_:xs)        = haskell CComment (' ':acc) p ls xs
   haskell mode acc _ ((p,l):ls) []        = haskell mode acc p ls ('\n':l)
-  haskell _    acc p [] []                = emit acc $ []
+  haskell _    acc _ [] []                = emit acc $ []
 
   -- rules to lex Cpp
   cpp :: SubMode -> String -> [String] -> Posn -> [(Posn,String)]
