@@ -52,6 +52,7 @@ readFirst name demand path syms =
           else do content <- readFile file
                   return (file,content)
 
+real :: String -> SymTab String -> String
 real name syms = case name of
                    ('"':ns) -> init ns
                    ('<':ns) -> init ns

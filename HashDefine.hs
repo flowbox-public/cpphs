@@ -38,6 +38,7 @@ data HashDefine
     deriving (Eq,Show)
 
 -- 'smart' constructor to avoid warnings from ghc (undefined fields)
+symbolReplacement :: HashDefine
 symbolReplacement =
     SymbolReplacement
 	 { name=undefined, replacement=undefined, linebreaks=undefined }

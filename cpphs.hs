@@ -15,8 +15,10 @@ import CppIfdef (cppIfdef, preDefine)
 import Position (newfile)
 import MacroPass(macroPass)
 
+version :: String
 version = "0.5"
 
+main :: IO ()
 main = do
   args <- getArgs
   prog <- getProgName

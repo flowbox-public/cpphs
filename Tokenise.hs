@@ -39,11 +39,11 @@ linesCpp  []                 = []
 linesCpp (x:xs) | x=='#'     = tok Cpp     ['#'] xs
                 | otherwise  = tok Haskell [] (x:xs)
   where
-    tok Cpp   acc ('\\':'\n':xs)   = tok Cpp ('\n':acc) xs
-    tok _     acc ('\n':'#':xs)    = reverse acc: tok Cpp ['#'] xs
-    tok _     acc ('\n':xs)        = reverse acc: tok Haskell [] xs
+    tok Cpp   acc ('\\':'\n':ys)   = tok Cpp ('\n':acc) ys
+    tok _     acc ('\n':'#':ys)    = reverse acc: tok Cpp ['#'] ys
+    tok _     acc ('\n':ys)        = reverse acc: tok Haskell [] ys
     tok _     acc []               = reverse acc: []
-    tok mode  acc (x:xs)           = tok mode (x:acc) xs
+    tok mode  acc (y:ys)           = tok mode (y:acc) ys
 
 -- | Put back the line-continuation characters.
 reslash :: String -> String
@@ -65,6 +65,7 @@ data SubMode = Any | Pred (Char->Bool) (String->WordStyle)
 data WordStyle = Ident String | Other String | Cmd (Maybe HashDefine)
   deriving (Eq,Show)
 
+deWordStyle :: WordStyle -> String
 deWordStyle (Ident i) = i
 deWordStyle (Other i) = i
 deWordStyle (Cmd _)   = "\n"
@@ -107,10 +108,10 @@ tokenise strip ansi = haskell Any []
                                          haskell (Pred ident1 Ident) [x] xs
     haskell Any acc (x:xs)             = haskell Any (x:acc) xs
 
-    haskell pred@(Pred p ws) acc (x:xs)
-                           | p x       = haskell pred (x:acc) xs
+    haskell pre@(Pred p ws) acc (x:xs)
+                           | p x       = haskell pre (x:acc) xs
                            | otherwise = ws (reverse acc): haskell Any [] (x:xs)
-    haskell      (Pred _ ws) acc []    = ws (reverse acc): []
+    haskell     (Pred _ ws) acc []     = ws (reverse acc): []
     haskell (String c) acc ('\\':x:xs)
                            | x=='\\'   = haskell (String c) ('\\':'\\':acc) xs
                            | x==c      = haskell (String c) (c:'\\':acc) xs
@@ -153,8 +154,8 @@ tokenise strip ansi = haskell Any []
                         | symbol x  = cpp (Pred symbol  Other) [x] (w*/*l) xs
                         | otherwise = cpp Any (x:w) l xs
 
-    cpp pred@(Pred p _) w l (x:xs)
-                        | p x       = cpp pred (x:w) l xs
+    cpp pre@(Pred p _)  w l (x:xs)
+                        | p x       = cpp pre (x:w) l xs
                         | otherwise = cpp Any [] (w*/*l) (x:xs)
     cpp      (Pred _ _) w l []      = cpp Any [] (w*/*l) "\n"
     cpp (String c) w l ('\\':x:xs)

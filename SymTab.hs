@@ -79,8 +79,8 @@ class Hashable a where
     hash = hashWithMax maxHash
 
 instance Enum a => Hashable [a] where
-    hashWithMax m = h m 0
-        where h _ a [] = a
-              h m a (c:cs) = h m ((17*(fromEnum c)+19*a)`rem`m) cs
+    hashWithMax m = h 0
+        where h a []     = a
+              h a (c:cs) = h ((17*(fromEnum c)+19*a)`rem`m) cs
 
 ----

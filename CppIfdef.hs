@@ -75,10 +75,10 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
         down = if definedST sym syms then (Drop 1 False) else Keep
         up   = if definedST sym syms then Keep else (Drop 1 False)
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
-        skipn cpp p syms path ud xs =
+        skipn cpp' p' syms' path' ud xs' =
             let n = 1 + length (filter (=='\n') l) in
             (if leave then (reslash l:) else (replicate n "" ++)) $
-            cpp (newlines n p) syms path leave ln ud xs
+            cpp' (newlines n p') syms' path' leave ln ud xs'
     in case cmd of
 	"define" -> skipn cpp p (insertST (sym,val) syms) path Keep xs
 	"undef"  -> skipn cpp p (deleteST sym syms) path Keep xs
@@ -121,9 +121,9 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
         keep str | n==1      = if gatherDefined p syms str then Keep
                                else (Drop 1) b
                  | otherwise = Drop n b
-        skipn cpp p syms path ud xs =
-                 let n = 1 + length (filter (=='\n') x) in
-                 replicate n "" ++ cpp (newlines n p) syms path leave ln ud xs
+        skipn cpp' p' syms' path' ud xs' =
+                 let n' = 1 + length (filter (=='\n') x) in
+                 replicate n' "" ++ cpp' (newlines n' p') syms' path' leave ln ud xs'
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
@@ -144,12 +144,14 @@ cpp p syms path leave ln d@(Drop _ _) (_:xs) =
 
 
 ----
+gatherDefined :: Posn -> SymTab String -> String -> Bool
 gatherDefined p st inp =
   case papply (parseBoolExp st) inp of
     []      -> error ("Cannot parse #if directive in file "++show p)
     [(b,_)] -> b
     _       -> error ("Ambiguous parse for #if directive in file "++show p)
 
+parseBoolExp :: SymTab String -> Parser Bool
 parseBoolExp st =
   do  a <- parseExp1 st
       skip (string "||")
@@ -158,6 +160,7 @@ parseBoolExp st =
   +++
       parseExp1 st
 
+parseExp1 :: SymTab String -> Parser Bool
 parseExp1 st =
   do  a <- parseExp0 st
       skip (string "&&")
@@ -166,6 +169,7 @@ parseExp1 st =
   +++
       parseExp0 st
 
+parseExp0 :: SymTab String -> Parser Bool
 parseExp0 st =
   do  skip (string "defined")
       sym <- bracket (skip (char '(')) (skip (many1 alphanum)) (skip (char ')'))
@@ -189,8 +193,8 @@ parseExp0 st =
         0 -> return False
         _ -> return True
   where
-    convert sym st =
-      case lookupST sym st of
+    convert sym st' =
+      case lookupST sym st' of
         Nothing  -> safeRead sym
         (Just a) -> safeRead a
     safeRead s =
@@ -203,6 +207,7 @@ parseExp0 st =
         []        -> 0 :: Integer
         ((n,_):_) -> n :: Integer
 
+parseOp :: SymTab String -> Parser (Integer -> Integer -> Bool)
 parseOp _ =
   do  skip (string ">=")
       return (>=)
@@ -225,7 +230,7 @@ parseOp _ =
 ----
 -- copied in-line to avoid library bootstrapping problems
 trace :: String -> a -> a
-trace string expr = unsafePerformIO $ do
-    hPutStrLn stderr string
+trace str expr = unsafePerformIO $ do
+    hPutStrLn stderr str
     return expr
 
