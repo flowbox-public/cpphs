@@ -88,6 +88,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	"else"   -> skipn cpp p syms path (Drop 1 False) xs
 	"elif"   -> skipn cpp p syms path (Drop 1 True) xs
 	"endif"  -> skipn cpp p syms path  Keep xs
+	"pragma" -> skipn cpp p syms path  Keep xs
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (unwords (tail ws))
                                                      p path syms)
@@ -97,7 +98,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
                                                   ++ cppline p :"": xs)
 	"warning"-> trace (l++"\nin "++show p) $
 	            skipn cpp p syms path  Keep xs
-	"error"  ->  error (l++"\nin "++show p)
+	"error"  -> error (l++"\nin "++show p)
 	"line" | all isDigit sym
 	         -> (if ln then (l:) else id) $
                     cpp (hashline (read sym) rest p) syms path leave ln Keep xs
@@ -122,13 +123,7 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
                  let n = 1 + length (filter (=='\n') x) in
                  replicate n "" ++ cpp (newlines n p) syms path leave ln ud xs
     in
-    if      cmd == "define"  ||
-            cmd == "undef"   ||
-            cmd == "error"   ||
-            cmd == "include" ||
-            cmd == "warning" ||
-            cmd == "line"   then  skipn cpp p syms path (Drop n b) xs
-    else if cmd == "ifndef" ||
+    if      cmd == "ifndef" ||
             cmd == "if"     ||
             cmd == "ifdef"  then  skipn cpp p syms path (Drop (n+1) b) xs
     else if cmd == "elif"   then  skipn cpp p syms path
@@ -136,6 +131,7 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
     else if cmd == "else"   then  skipn cpp p syms path delse xs
     else if cmd == "endif"  then  skipn cpp p syms path dend xs
     else skipn cpp p syms path (Drop n b) xs
+	-- define, undef, include, error, warning, pragma, line
 
 cpp p syms path leave ln Keep (x:xs) =
     x:  cpp (newline p) syms path leave ln Keep xs
