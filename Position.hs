@@ -26,7 +26,7 @@ data Posn = Pn String !Int !Int (Maybe Posn)
         deriving (Eq)
 
 instance Show Posn where
-      showsPrec p (Pn f l c i) = showString f .
+      showsPrec _ (Pn f l c i) = showString f .
                                  showString "  at line " . shows l .
                                  showString " col " . shows c .
                                  ( case i of
@@ -43,11 +43,11 @@ addcol :: Int -> Posn -> Posn
 addcol n (Pn f r c i) = Pn f r (c+n) i
 
 newline, tab :: Posn -> Posn
-newline (Pn f r c i) = Pn f (r+1) 1 i
+newline (Pn f r _ i) = Pn f (r+1) 1 i
 tab     (Pn f r c i) = Pn f r (((c`div`8)+1)*8) i
 
 newlines :: Int -> Posn -> Posn
-newlines n (Pn f r c i) = Pn f (r+n) 1 i
+newlines n (Pn f r _ i) = Pn f (r+n) 1 i
 
 newpos :: Int -> Maybe String -> Posn -> Posn
 newpos r Nothing  (Pn f _ c i) = Pn f r c i
@@ -67,14 +67,8 @@ directory (Pn f _ _ _) = dirname f
 
 -- | cpp-style printing
 cppline :: Posn -> String
-cppline (Pn f r c i) = "#line "++show r++" "++show f
+cppline (Pn f r _ _) = "#line "++show r++" "++show f
 
-
--- auxiliaries
---   Strip directory and suffix from filenames (analogous to the shell
---   command of the same name).
-basename :: String -> String
-basename = reverse .            takeWhile (not.(`elem`"\\/")) . reverse
                                                                                 
 --   Strip non-directory suffix from file name (analogous to the shell
 --   command of the same name).

@@ -92,7 +92,7 @@ parseHashDefine ansi def = (command . skip) def
     classifyRhs args (word:xs)
                           | word `elem` args = (Arg,word): classifyRhs args xs
                           | otherwise        = (Text,word): classifyRhs args xs
-    classifyRhs args []        = []
+    classifyRhs _    []                      = []
     count = length . filter (=='\n') . concat
     chop  = concat . reverse . dropWhile (all isSpace) . reverse
 

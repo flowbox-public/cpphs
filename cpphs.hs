@@ -9,7 +9,7 @@ module Main where
 import System   (getArgs, getProgName, exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)
-import IO       (stdout, IOMode(WriteMode), openFile, hClose, hPutStr)
+import IO       (stdout, IOMode(WriteMode), openFile, hPutStr)
 
 import CppIfdef (cppIfdef, preDefine)
 import Position (newfile)

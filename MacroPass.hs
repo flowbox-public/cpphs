@@ -45,7 +45,7 @@ preDefine hashes defines =
             (Cmd (Just hd):_) = tokenise True hashes
                                          ("\n#define "++s++" "++rmEq d++"\n")
             rmEq [] = []
-            rmEq (x:xs) = xs
+            rmEq (_:xs) = xs
         in (name hd, hd)
 
 
@@ -57,7 +57,7 @@ preDefine hashes defines =
 -- All valid identifiers are checked for the presence of a definition
 -- of that name in the symbol table, and if so, expanded appropriately.
 macroProcess :: Bool -> SymTab HashDefine -> [WordStyle] -> [String]
-macroProcess ly st        []                     = []
+macroProcess _  _         []                     = []
 macroProcess ly st (Other x: ws)                 = x:    macroProcess ly st ws
 macroProcess ly st (Cmd Nothing: ws)             = "\n": macroProcess ly st ws
 macroProcess ly st (Cmd (Just (LineDrop x)): ws) = "\n":x:macroProcess ly st ws

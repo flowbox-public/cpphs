@@ -67,7 +67,7 @@ data WordStyle = Ident String | Other String | Cmd (Maybe HashDefine)
 
 deWordStyle (Ident i) = i
 deWordStyle (Other i) = i
-deWordStyle (Cmd i)   = "\n"
+deWordStyle (Cmd _)   = "\n"
 
 -- | tokenise is, broadly-speaking, Prelude.words, except that:
 --    * each word-like "token" is categorised as one of {Ident,Other,Cmd}
@@ -110,7 +110,7 @@ tokenise strip ansi = haskell Any []
     haskell pred@(Pred p ws) acc (x:xs)
                            | p x       = haskell pred (x:acc) xs
                            | otherwise = ws (reverse acc): haskell Any [] (x:xs)
-    haskell pred@(Pred p ws) acc []    = ws (reverse acc): []
+    haskell      (Pred _ ws) acc []    = ws (reverse acc): []
     haskell (String c) acc ('\\':x:xs)
                            | x=='\\'   = haskell (String c) ('\\':'\\':acc) xs
                            | x==c      = haskell (String c) (c:'\\':acc) xs
@@ -131,7 +131,7 @@ tokenise strip ansi = haskell Any []
     haskell (NestComment n) acc (x:xs) = haskell (NestComment n) (x:acc) xs
     haskell CComment acc ('*':'/':xs)  = emit ("  "++acc) $
                                          haskell Any [] xs
-    haskell CComment acc (x:xs)        = haskell CComment (' ':acc) xs
+    haskell CComment acc (_:xs)        = haskell CComment (' ':acc) xs
     haskell _   acc []                 = emit acc $ []
 
     -- rules to lex Cpp
@@ -156,7 +156,7 @@ tokenise strip ansi = haskell Any []
     cpp pred@(Pred p _) w l (x:xs)
                         | p x       = cpp pred (x:w) l xs
                         | otherwise = cpp Any [] (w*/*l) (x:xs)
-    cpp pred@(Pred p _) w l []      = cpp Any [] (w*/*l) "\n"
+    cpp      (Pred _ _) w l []      = cpp Any [] (w*/*l) "\n"
     cpp (String c) w l ('\\':x:xs)
                         | x=='\\'   = cpp (String c) ('\\':'\\':w) l xs
                         | x==c      = cpp (String c) (c:'\\':w) l xs
@@ -166,11 +166,11 @@ tokenise strip ansi = haskell Any []
     cpp LineComment w l ('\\':'\n':xs)
                                     = cpp LineComment [] (('\n':w)*/*l) xs
     cpp LineComment w l xs@('\n':_) = cpp Any w l xs
-    cpp LineComment w l (x:xs)      = cpp LineComment (' ':w) l xs
-    cpp (NestComment n) w l ('*':'/':xs)
+    cpp LineComment w l (_:xs)      = cpp LineComment (' ':w) l xs
+    cpp (NestComment _) w l ('*':'/':xs)
                                     = cpp Any [] (w*/*l) xs
-    cpp (NestComment n) w l (x:xs)  = cpp (NestComment n) (' ':w) l xs
-    cpp _   w l []                  = []
+    cpp (NestComment n) w l (_:xs)  = cpp (NestComment n) (' ':w) l xs
+    cpp _   _ _ []                  = []
 
     -- predicates for lexing Haskell.
     ident0 x = isAlpha x    || x `elem` "_`"
@@ -190,8 +190,8 @@ tokenise strip ansi = haskell Any []
 parseMacroCall :: [WordStyle] -> Maybe ([String],[WordStyle])
 parseMacroCall = call . skip
   where
-    skip xss@(Other x:xs) | all isSpace x = skip xs
-    skip xss              | otherwise     = xss
+    skip (Other x:xs) | all isSpace x = skip xs
+    skip xss                          = xss
     call (Other "(":xs)   = (args (0::Int) [] [] . skip) xs
     call _                = Nothing
     args 0 w acc (Other ",":xs) = args 0 [] (addone w acc) (skip xs)
@@ -200,5 +200,5 @@ parseMacroCall = call . skip
     args n w acc (Other ")":xs) = args (n-1) (")":w) acc xs
     args n w acc (Ident var:xs) = args n (var:w) acc xs
     args n w acc (Other var:xs) = args n (var:w) acc xs
-    args n w acc _              = Nothing
+    args _ _ _   _              = Nothing
     addone w acc = concat (reverse (dropWhile (all isSpace) w)): acc

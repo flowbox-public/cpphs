@@ -58,11 +58,11 @@ instance Monad Parser where
    (P p) >>= f     = P (\inp -> concat [papply (f v) out | (v,out) <- p inp])
 
    -- fail        :: String -> Parser a
-   fail _          = P (\inp -> [])
+   fail _          = P (\_ -> [])
 
 instance MonadPlus Parser where
    -- mzero       :: Parser a
-   mzero           = P (\inp -> [])
+   mzero           = P (\_ -> [])
 
    -- mplus       :: Parser a -> Parser a -> Parser a
    (P p) `mplus` (P q)  = P (\inp -> (p inp ++ q inp))
@@ -76,14 +76,10 @@ item                = P (\inp -> case inp of
                                    []     -> []
                                    (x:xs) -> [(x,xs)])
 
-force             :: Parser a -> Parser a
-force (P p)        = P (\inp -> let x = p inp in
-                                (fst (head x), snd (head x)) : tail x)
-
 first             :: Parser a -> Parser a
 first (P p)        = P (\inp -> case p inp of
-                                   []     -> []
-                                   (x:xs) -> [x])
+                                   []    -> []
+                                   (x:_) -> [x])
 
 papply            :: Parser a -> [Token] -> [(a,[Token])]
 papply (P p) inp   = p inp

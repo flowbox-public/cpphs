@@ -15,7 +15,7 @@ module ReadFirst
   ( readFirst
   ) where
 
-import IO        (readFile, hPutStrLn, stderr)
+import IO        (hPutStrLn, stderr)
 import Directory (doesFileExist)
 import List      (intersperse)
 import Position  (Posn,directory)

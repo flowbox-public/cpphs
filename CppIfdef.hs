@@ -138,7 +138,7 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
 cpp p syms path leave ln Keep (x:xs) =
     let p' = newline p in seq p' $
     x:  cpp p' syms path leave ln Keep xs
-cpp p syms path leave ln d@(Drop n b) (x:xs) =
+cpp p syms path leave ln d@(Drop _ _) (_:xs) =
     let p' = newline p in seq p' $
     "": cpp p' syms path leave ln d xs
 
@@ -203,7 +203,7 @@ parseExp0 st =
         []        -> 0 :: Integer
         ((n,_):_) -> n :: Integer
 
-parseOp st =
+parseOp _ =
   do  skip (string ">=")
       return (>=)
   +++
