@@ -52,7 +52,7 @@ can be distributed with compilers.
 <p>
 This version of the C pre-processor is pretty-much feature-complete,
 and compatible with the <tt>-traditional</tt> style.
-It has two modes:
+It has two main modes:
 <ul>
   <li> conditional compilation only (--nomacro),
   <li> and full macro-expansion (default).
@@ -112,12 +112,13 @@ warning to stderr, but processing continues.
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
-              [--nomacro] [--noline] [--strip] [--hashes] [--layout]
+              [--nomacro|--noline|--strip|--text|--hashes|--layout]*
        cpphs --version                                             
 </pre></center>
 <p>
-You can give any number of filenames on the command-line.  The
-results are catenated on standard output.
+You can give any number of filenames on the command-line.  The results
+are catenated on standard output.  (Macro definitions in one file do
+not carry over into the next.)
 
 <p>
 Options:
@@ -140,6 +141,8 @@ Options:
 <tr><td>--hashes</td>
     <td>recognise the ANSI # stringise operator, and ## for
                       token catenation, within macros</td></tr>
+<tr><td>--text</td>
+    <td>treat input as plain text, not Haskell code</td></tr>
 <tr><td>--layout</td>
     <td>preserve newlines within macro expansions</td></tr>
 <tr><td>--version</td>
@@ -148,12 +151,11 @@ Options:
 
 <p>
 There are NO textual replacements defined by default.  (Normal cpp
-usually has definitions for machine, OS, etc.  These could easily
-be added to the cpphs source code if you wish.)  The search path is
-searched in order of the -I options, except that the directory of the
-calling file, then the current directory, are always searched first.
-Again, there is no default search path (and again, this could easily
-be changed).
+usually has definitions for machine, OS, etc.  You can easily create
+a wrapper script if you need these.) The search path is searched in
+order of the -I options, except that the directory of the calling file,
+then the current directory, are always searched first.  Again, there
+is no default search path (unless you define one via a wrapper script).
 
 
 <hr>
@@ -167,7 +169,10 @@ By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.8.zip">.zip</a>,
 <a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>.
 <ul>
-<li> Just shuffled some files around.
+<li> Added the <tt>--text</tt> option, to signify the input should not
+     be lexed as Haskell.  This causes macros to be defined or expanded
+     regardless of their location within comments, string delimiters, etc.
+<li> Shuffled some source files around.
 </ul>
 
 <p>
@@ -303,7 +308,8 @@ ANSI C, and has the following main differences from the standard cpp.
      */  */*</tt>   However, you can turn on C-comment removal with the
      <tt>--strip</tt> option.
 <li> Macros are never expanded within Haskell comments, strings,
-     or character constants.
+     or character constants, unless you give the <tt>--text</tt> option to
+     disable lexing the input as Haskell.
 <li> Macros are always expanded recursively, unlike ANSI, which detects
      and prevents self-recursion.  For instance, <tt>#define foo x:foo</tt>
      expands <tt>foo</tt> once only to <tt>x:foo</tt> in ANSI, but in cpphs

@@ -82,15 +82,16 @@ deWordStyle (Cmd _)     = "\n"
 --    * Any cpp line continuations are respected.
 --   No errors can be raised.
 --   The inverse of tokenise is (concatMap deWordStyle).
-tokenise :: Bool -> Bool -> [(Posn,String)] -> [WordStyle]
-tokenise _     _    [] = []
-tokenise strip ansi ((pos,str):pos_strs) = haskell Any [] pos pos_strs str
+tokenise :: Bool -> Bool -> Bool -> [(Posn,String)] -> [WordStyle]
+tokenise _     _    _     [] = []
+tokenise strip ansi lang ((pos,str):pos_strs) =
+    (if lang then haskell else plaintext) Any [] pos pos_strs str
  where
     -- rules to lex Haskell
   haskell :: SubMode -> String -> Posn -> [(Posn,String)]
              -> String -> [WordStyle]
   haskell Any acc p ls ('\n':'#':xs)      = emit acc $  -- emit "\n" $
-                                            cpp Any [] [] p ls xs
+                                            cpp Any haskell [] [] p ls xs
     -- warning: non-maximal munch on comment
   haskell Any acc p ls ('-':'-':xs)       = emit acc $
                                             haskell LineComment "--" p ls xs
@@ -146,50 +147,81 @@ tokenise strip ansi ((pos,str):pos_strs) = haskell Any [] pos pos_strs str
   haskell _    acc _ [] []                = emit acc $ []
 
   -- rules to lex Cpp
-  cpp :: SubMode -> String -> [String] -> Posn -> [(Posn,String)]
+  cpp :: SubMode -> (SubMode -> String -> Posn -> [(Posn,String)]
+                     -> String -> [WordStyle])
+         -> String -> [String] -> Posn -> [(Posn,String)]
          -> String -> [WordStyle]
-  cpp Any w l p ls ('/':'*':xs)        = cpp (NestComment 0) "" (w*/*l) p ls xs
-  cpp Any w l p ls ('/':'/':xs)        = cpp LineComment "  " (w*/*l) p ls xs
-  cpp Any w l _ ((p,l'):ls) ('\\':[])  = cpp Any [] ("\n":w*/*l) p ls l'
-  cpp Any w l p ls ('\\':'\n':xs)      = cpp Any [] ("\n":w*/*l) p ls xs
-  cpp Any w l p ls xs@('\n':_)         = Cmd (parseHashDefine ansi
+  cpp mode next word line pos remaining input =
+    lexcpp mode word line remaining input
+   where
+    lexcpp Any w l ls ('/':'*':xs)   = lexcpp (NestComment 0) "" (w*/*l) ls xs
+    lexcpp Any w l ls ('/':'/':xs)   = lexcpp LineComment "  " (w*/*l) ls xs
+    lexcpp Any w l ((p,l'):ls) ('\\':[])  = cpp Any next [] ("\n":w*/*l) p ls l'
+    lexcpp Any w l ls ('\\':'\n':xs) = lexcpp Any [] ("\n":w*/*l) ls xs
+    lexcpp Any w l ls xs@('\n':_)    = Cmd (parseHashDefine ansi
                                                            (reverse (w*/*l))):
-                                         haskell Any [] p ls xs
- -- cpp Any w l p ls ('"':xs)          = cpp (String '"') ['"'] (w*/*l) p ls xs
- -- cpp Any w l p ls ('\'':xs)         = cpp (String '\'') "'"  (w*/*l) p ls xs
-  cpp Any w l p ls ('"':xs)            = cpp Any [] ("\"":(w*/*l)) p ls xs
-  cpp Any w l p ls ('\'':xs)           = cpp Any [] ("'": (w*/*l)) p ls xs
-  cpp Any [] l p ls (x:xs) | ident0 x  = cpp (Pred ident1 Ident) [x] l p ls xs
- -- cpp Any w l p ls (x:xs) | ident0 x  = cpp (Pred ident1 Ident) [x] (w*/*l) p ls xs
-  cpp Any w l p ls (x:xs)  | single x  = cpp Any [] ([x]:w*/*l) p ls xs
-                           | space x   = cpp (Pred space other) [x] (w*/*l)
+                                       next Any [] pos ls xs
+ -- lexcpp Any w l ls ('"':xs)     = lexcpp (String '"') ['"'] (w*/*l) ls xs
+ -- lexcpp Any w l ls ('\'':xs)    = lexcpp (String '\'') "'"  (w*/*l) ls xs
+    lexcpp Any w l ls ('"':xs)       = lexcpp Any [] ("\"":(w*/*l)) ls xs
+    lexcpp Any w l ls ('\'':xs)      = lexcpp Any [] ("'": (w*/*l)) ls xs
+    lexcpp Any [] l ls (x:xs)
+                    | ident0 x  = lexcpp (Pred ident1 Ident) [x] l ls xs
+ -- lexcpp Any w l ls (x:xs) | ident0 x  = lexcpp (Pred ident1 Ident) [x] (w*/*l) ls xs
+    lexcpp Any w l ls (x:xs)
+                    | single x  = lexcpp Any [] ([x]:w*/*l) ls xs
+                    | space x   = lexcpp (Pred space other) [x] (w*/*l) ls xs
+                    | symbol x  = lexcpp (Pred symbol other) [x] (w*/*l) ls xs
+                    | otherwise = lexcpp Any (x:w) l ls xs
+    lexcpp pre@(Pred pred _) w l ls (x:xs)
+                    | pred x    = lexcpp pre (x:w) l ls xs
+                    | otherwise = lexcpp Any [] (w*/*l) ls (x:xs)
+    lexcpp      (Pred _ _) w l [] []      = lexcpp Any [] (w*/*l) [] "\n"
+    lexcpp (String c) w l ls ('\\':x:xs)
+                    | x=='\\'   = lexcpp (String c) ('\\':'\\':w) l ls xs
+                    | x==c      = lexcpp (String c) (c:'\\':w) l ls xs
+    lexcpp (String c) w l ls (x:xs)
+                    | x==c      = lexcpp Any [] ((c:w)*/*l) ls xs
+                    | otherwise = lexcpp (String c) (x:w) l ls xs
+    lexcpp LineComment w l ((p,l'):ls) ('\\':[])
+                             = cpp LineComment next [] (('\n':w)*/*l) pos ls l'
+    lexcpp LineComment w l ls ('\\':'\n':xs)
+                                = lexcpp LineComment [] (('\n':w)*/*l) ls xs
+    lexcpp LineComment w l ls xs@('\n':_) = lexcpp Any w l ls xs
+    lexcpp LineComment w l ls (_:xs)      = lexcpp LineComment (' ':w) l ls xs
+    lexcpp (NestComment _) w l ls ('*':'/':xs)
+                                          = lexcpp Any [] (w*/*l) ls xs
+    lexcpp (NestComment n) w l ls (_:xs)  = lexcpp (NestComment n) (' ':w) l
+                                                                        ls xs
+    lexcpp mode w l ((p,l'):ls) []        = cpp mode next w l pos ls ('\n':l')
+    lexcpp _    _ _ []          []        = []
+
+    -- rules to lex non-Haskell, non-cpp text
+  plaintext :: SubMode -> String -> Posn -> [(Posn,String)]
+            -> String -> [WordStyle]
+  plaintext Any acc p ls ('\n':'#':xs)  = emit acc $  -- emit "\n" $
+                                          cpp Any plaintext [] [] p ls xs
+  plaintext Any acc p ls ('/':'*':xs)|strip = emit acc $
+                                              plaintext CComment "  " p ls xs
+  plaintext Any acc p ls (x:xs) | single x  = emit acc $ emit [x] $
+                                              plaintext Any [] p ls xs
+  plaintext Any acc p ls (x:xs) | space x   = emit acc $
+                                              plaintext (Pred space other) [x]
                                                                         p ls xs
-                           | symbol x  = cpp (Pred symbol other) [x] (w*/*l)
+  plaintext Any acc p ls (x:xs) | ident0 x  = emit acc $
+                                              plaintext (Pred ident1 Ident) [x]
                                                                         p ls xs
-                           | otherwise = cpp Any (x:w) l p ls xs
-  cpp pre@(Pred pred _) w l p ls (x:xs)
-                           | pred x    = cpp pre (x:w) l p ls xs
-                           | otherwise = cpp Any [] (w*/*l) p ls (x:xs)
-  cpp      (Pred _ _) w l p [] []      = cpp Any [] (w*/*l) p [] "\n"
-  cpp (String c) w l p ls ('\\':x:xs)
-                           | x=='\\'   = cpp (String c) ('\\':'\\':w) l p ls xs
-                           | x==c      = cpp (String c) (c:'\\':w) l p ls xs
-  cpp (String c) w l p ls (x:xs)
-                           | x==c      = cpp Any [] ((c:w)*/*l) p ls xs
-                           | otherwise = cpp (String c) (x:w) l p ls xs
-  cpp LineComment w l _ ((p,l'):ls) ('\\':[])
-                                       = cpp LineComment [] (('\n':w)*/*l)
-                                                                        p ls l'
-  cpp LineComment w l p ls ('\\':'\n':xs)
-                                       = cpp LineComment [] (('\n':w)*/*l)
-                                                                        p ls xs
-  cpp LineComment w l p ls xs@('\n':_) = cpp Any w l p ls xs
-  cpp LineComment w l p ls (_:xs)      = cpp LineComment (' ':w) l p ls xs
-  cpp (NestComment _) w l p ls ('*':'/':xs)
-                                       = cpp Any [] (w*/*l) p ls xs
-  cpp (NestComment n) w l p ls (_:xs)  = cpp (NestComment n) (' ':w) l p ls xs
-  cpp mode w l _ ((p,l'):ls) []        = cpp mode w l p ls ('\n':l')
-  cpp _ _ _ _ [] []                    = []
+  plaintext Any acc p ls (x:xs)             = plaintext Any (x:acc) p ls xs
+  plaintext pre@(Pred pred ws) acc p ls (x:xs)
+                                | pred x    = plaintext pre (x:acc) p ls xs
+                                | otherwise = ws p (reverse acc):
+                                              plaintext Any [] p ls (x:xs)
+  plaintext (Pred _ ws) acc p [] []         = ws p (reverse acc): []
+  plaintext CComment acc p ls ('*':'/':xs)  = emit ("  "++acc) $
+                                              plaintext Any [] p ls xs
+  plaintext CComment acc p ls (_:xs)    = plaintext CComment (' ':acc) p ls xs
+  plaintext mode acc _ ((p,l):ls) []    = plaintext mode acc p ls ('\n':l)
+  plaintext _    acc _ [] []            = emit acc $ []
 
   -- predicates for lexing Haskell.
   ident0 x = isAlpha x    || x `elem` "_`"
@@ -221,3 +253,52 @@ parseMacroCall = call . skip
     args n w acc (Other var:xs)   = args n (var:w) acc xs
     args _ _ _   _                = Nothing
     addone w acc = concat (reverse (dropWhile (all isSpace) w)): acc
+
+{-
+  -- rules to lex Cpp
+  cpp :: SubMode -> (SubMode -> String -> Posn -> [(Posn,String)]
+                     -> String -> [WordStyle])
+         -> String -> [String] -> Posn -> [(Posn,String)]
+         -> String -> [WordStyle]
+  cpp Any k w l p ls ('/':'*':xs)   = cpp (NestComment 0) k "" (w*/*l) p ls xs
+  cpp Any k w l p ls ('/':'/':xs)   = cpp LineComment k "  " (w*/*l) p ls xs
+  cpp Any k w l _ ((p,l'):ls) ('\\':[])  = cpp Any k [] ("\n":w*/*l) p ls l'
+  cpp Any k w l p ls ('\\':'\n':xs) = cpp Any k [] ("\n":w*/*l) p ls xs
+  cpp Any k w l p ls xs@('\n':_)    = Cmd (parseHashDefine ansi
+                                                           (reverse (w*/*l))):
+                                      k Any [] p ls xs
+ -- cpp Any k w l p ls ('"':xs)     = cpp (String '"') k ['"'] (w*/*l) p ls xs
+ -- cpp Any k w l p ls ('\'':xs)    = cpp (String '\'') k "'"  (w*/*l) p ls xs
+  cpp Any k w l p ls ('"':xs)       = cpp Any k [] ("\"":(w*/*l)) p ls xs
+  cpp Any k w l p ls ('\'':xs)      = cpp Any k [] ("'": (w*/*l)) p ls xs
+  cpp Any k [] l p ls (x:xs)
+                    | ident0 x  = cpp (Pred ident1 Ident) k [x] l p ls xs
+ -- cpp Any k w l p ls (x:xs) | ident0 x  = cpp (Pred ident1 Ident) k [x] (w*/*l) p ls xs
+  cpp Any k w l p ls (x:xs)
+                    | single x  = cpp Any k [] ([x]:w*/*l) p ls xs
+                    | space x   = cpp (Pred space other) k [x] (w*/*l) p ls xs
+                    | symbol x  = cpp (Pred symbol other) k [x] (w*/*l) p ls xs
+                    | otherwise = cpp Any k (x:w) l p ls xs
+  cpp pre@(Pred pred _) k w l p ls (x:xs)
+                    | pred x    = cpp pre k (x:w) l p ls xs
+                    | otherwise = cpp Any k [] (w*/*l) p ls (x:xs)
+  cpp      (Pred _ _) k w l p [] []      = cpp Any k [] (w*/*l) p [] "\n"
+  cpp (String c) k w l p ls ('\\':x:xs)
+                    | x=='\\'   = cpp (String c) k ('\\':'\\':w) l p ls xs
+                    | x==c      = cpp (String c) k (c:'\\':w) l p ls xs
+  cpp (String c) k w l p ls (x:xs)
+                    | x==c      = cpp Any k [] ((c:w)*/*l) p ls xs
+                    | otherwise = cpp (String c) k (x:w) l p ls xs
+  cpp LineComment k w l _ ((p,l'):ls) ('\\':[])
+                                = cpp LineComment k [] (('\n':w)*/*l) p ls l'
+  cpp LineComment k w l p ls ('\\':'\n':xs)
+                                = cpp LineComment k [] (('\n':w)*/*l) p ls xs
+  cpp LineComment k w l p ls xs@('\n':_) = cpp Any k w l p ls xs
+  cpp LineComment k w l p ls (_:xs)      = cpp LineComment k (' ':w) l p ls xs
+  cpp (NestComment _) k w l p ls ('*':'/':xs)
+                                         = cpp Any k [] (w*/*l) p ls xs
+  cpp (NestComment n) k w l p ls (_:xs)  = cpp (NestComment n) k (' ':w) l
+                                                                        p ls xs
+  cpp mode k w l _ ((p,l'):ls) []        = cpp mode k w l p ls ('\n':l')
+  cpp _ _ _ _ _ [] []                    = []
+-}

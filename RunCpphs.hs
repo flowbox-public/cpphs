@@ -24,6 +24,7 @@ runCpphs prog args = do
       is    = map (trail "/\\" . drop 2) (filter ("-I"`isPrefixOf`) args)
       macro = not ("--nomacro" `elem` args)
       locat = not ("--noline" `elem` args)
+      lang  = not ("--text" `elem` args)
       strip =      "--strip" `elem` args
       ansi  =      "--hashes" `elem` args
       layout=      "--layout" `elem` args
@@ -34,12 +35,13 @@ runCpphs prog args = do
   when (null files || length os > 1)
        (do putStrLn ("Usage: "++prog
                 ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-                ++"\t\t[--nomacro] [--noline] [--strip] [--hashes] [--layout]")
+                ++"\t\t[--nomacro] [--noline] [--text]"
+                ++" [--strip] [--hashes] [--layout]")
            exitWith (ExitFailure 1))
   o <- if null os then return stdout else openFile (head os) WriteMode
   mapM_ (\f-> do c <- readFile f
                  let pass1 = cppIfdef f ds is macro locat c
-                     pass2 = macroPass ds strip ansi layout pass1
+                     pass2 = macroPass ds strip ansi layout lang pass1
                  if not macro then hPutStr o (unlines (map snd pass1))
                               else hPutStr o pass2
         ) files

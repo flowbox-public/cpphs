@@ -33,4 +33,6 @@ runtest "$CPPHS -Dc -Dd -De -Df -Dg -Dh chains" expect20
 runtest "$CPPHS --hashes specials" expect21
 runtest "$CPPHS --hashes specialinclude" expect22
 runtest "$CPPHS incomplete" expect23
+runtest "$CPPHS text" expect24
+runtest "$CPPHS --text text" expect25
 exit $FAIL
