@@ -79,7 +79,7 @@ deWordStyle (Cmd i)   = "\n"
 --   No errors can be raised.
 --   The inverse of tokenise is (concatMap deWordStyle).
 tokenise :: Bool -> Bool -> String -> [WordStyle]
-tokenise strip stringise = haskell Any []
+tokenise strip ansi = haskell Any []
   where
     -- rules to lex Haskell
     haskell :: SubMode -> String -> String -> [WordStyle]
@@ -139,7 +139,7 @@ tokenise strip stringise = haskell Any []
     cpp Any w l ('/':'*':xs)        = cpp (NestComment 0) "" (w*/*l) xs
     cpp Any w l ('/':'/':xs)        = cpp LineComment "  " (w*/*l) xs
     cpp Any w l ('\\':'\n':xs)      = cpp Any [] ("\n":w*/*l) xs
-    cpp Any w l xs@('\n':_)         = Cmd (parseHashDefine stringise
+    cpp Any w l xs@('\n':_)         = Cmd (parseHashDefine ansi
                                                            (reverse (w*/*l))):
                                       haskell Any [] xs
  -- cpp Any w l ('"':xs)            = cpp (String '"') ['"'] (w*/*l) xs

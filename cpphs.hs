@@ -28,17 +28,17 @@ runCpphs prog args = do
       macro = not ("--nomacro" `elem` args)
       locat = not ("--noline" `elem` args)
       strip =      "--strip" `elem` args
-      stringise  = "--stringise" `elem` args
+      ansi  =      "--hashes" `elem` args
       files = filter (not . isPrefixOf "-") args
   when (null files)
        (error ("Usage: "++prog
               ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-              ++"\t\t[--nomacro] [--noline] [--strip] [--stringise]"))
+              ++"\t\t[--nomacro] [--noline] [--strip] [--hashes]"))
   o <- if null os then return stdout else openFile (head os) WriteMode
   mapM_ (\f-> do c <- readFile f
                  let pass1 = cppIfdef (newfile f) (preDefine ds)
                                       is macro locat c
-                     pass2 = macroPass ds strip stringise pass1
+                     pass2 = macroPass ds strip ansi pass1
                  if not macro then hPutStr o pass1 else hPutStr o pass2
         ) files
 

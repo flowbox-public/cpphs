@@ -52,7 +52,7 @@ expandMacro macro parameters =
 
 -- | parse a #define, or #undef, ignoring other # directives
 parseHashDefine :: Bool -> [String] -> Maybe HashDefine
-parseHashDefine stringise def = (command . skip) def
+parseHashDefine ansi def = (command . skip) def
   where
     skip xss@(x:xs) | all isSpace x = skip xs
                     | otherwise     = xss
@@ -74,9 +74,9 @@ parseHashDefine stringise def = (command . skip) def
     macro sym args []       = error ("incomplete macro definition:\n"
                                     ++"  #define "++sym++"("
                                     ++concat (intersperse "," args))
-    classify args ("#":x:xs)| stringise &&
+    classify args ("#":x:xs)| ansi &&
                               x `elem` args    = (Str,x): classify args xs
-    classify args ("##":xs) = classify args xs
+    classify args ("##":xs) | ansi             = classify args xs
     classify args (word:xs) | word `elem` args = (Arg,word): classify args xs
                             | otherwise        = (Text,word): classify args xs
     classify args []        = []

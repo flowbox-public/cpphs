@@ -23,21 +23,21 @@ import SymTab     (SymTab, lookupST, insertST, emptyST)
 
 macroPass :: [String]		-- ^ Pre-defined symbols
           -> Bool		-- ^ Strip C-comments?
-          -> Bool		-- ^ Accept # stringise operator?
+          -> Bool		-- ^ Accept # and ## operators?
           -> String		-- ^ The input file content
           -> String		-- ^ The file after processing
-macroPass syms strip stringise =
-    concat . macroProcess (preDefine stringise syms) . tokenise strip stringise
+macroPass syms strip hashes =
+    concat . macroProcess (preDefine hashes syms) . tokenise strip hashes
 
 
 -- | Command-line definitions via -D are parsed here
 preDefine :: Bool -> [String] -> SymTab HashDefine
-preDefine stringise defines =
+preDefine hashes defines =
     foldr (insertST.defval) emptyST defines
   where
     defval sym =
         let (s,d) = break (=='=') sym
-            (Cmd (Just hd):_) = tokenise True stringise
+            (Cmd (Just hd):_) = tokenise True hashes
                                          ("\n#define "++s++" "++rmEq d++"\n")
             rmEq [] = []
             rmEq (x:xs) = xs
