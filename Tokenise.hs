@@ -85,7 +85,6 @@ tokenise = haskell Any []
   where
     -- rules to lex Haskell
     haskell :: SubMode -> String -> String -> [WordStyle]
-    haskell _   acc []                 = emit acc $ []
     haskell Any acc ('\n':'#':xs)      = emit acc $  -- emit "\n" $
                                          cpp Any [] [] xs
 						-- warning: non-maximal munch
@@ -111,6 +110,7 @@ tokenise = haskell Any []
     haskell pred@(Pred p ws) acc (x:xs)
                            | p x       = haskell pred (x:acc) xs
                            | otherwise = ws (reverse acc): haskell Any [] (x:xs)
+    haskell pred@(Pred p ws) acc []    = ws (reverse acc): []
     haskell (String c) acc ('\\':x:xs)
                            | x=='\\'   = haskell (String c) ('\\':'\\':acc) xs
                            | x==c      = haskell (String c) (c:'\\':acc) xs
@@ -129,10 +129,10 @@ tokenise = haskell Any []
                                        = haskell (NestComment (n-1))
                                                                  ("}-"++acc) xs
     haskell (NestComment n) acc (x:xs) = haskell (NestComment n) (x:acc) xs
+    haskell _   acc []                 = emit acc $ []
 
     -- rules to lex Cpp
     cpp :: SubMode -> String -> [String] -> String -> [WordStyle]
-    cpp _   w l []                  = []
     cpp Any w l ('/':'*':xs)        = cpp (NestComment 0) "" (w*/*l) xs
     cpp Any w l ('/':'/':xs)        = cpp LineComment "  " (w*/*l) xs
     cpp Any w l ('\\':'\n':xs)      = cpp Any [] ("\n":w*/*l) xs
@@ -143,6 +143,7 @@ tokenise = haskell Any []
     cpp Any w l ('"':xs)            = cpp Any [] ("\"":(w*/*l)) xs
     cpp Any w l ('\'':xs)           = cpp Any [] ("'": (w*/*l)) xs
     cpp Any [] l (x:xs) | ident0 x  = cpp (Pred ident1 Ident) [x] l xs
+ -- cpp Any w l (x:xs)  | ident0 x  = cpp (Pred ident1 Ident) [x] (w*/*l) xs
     cpp Any w l (x:xs)  | single x  = cpp Any [] ([x]:w*/*l) xs
                         | space x   = cpp (Pred space Other) [x] (w*/*l) xs
                         | symbol x  = cpp (Pred symbol  Other) [x] (w*/*l) xs
@@ -151,6 +152,7 @@ tokenise = haskell Any []
     cpp pred@(Pred p _) w l (x:xs)
                         | p x       = cpp pred (x:w) l xs
                         | otherwise = cpp Any [] (w*/*l) (x:xs)
+    cpp pred@(Pred p _) w l []      = cpp Any [] (w*/*l) "\n"
     cpp (String c) w l ('\\':x:xs)
                         | x=='\\'   = cpp (String c) ('\\':'\\':w) l xs
                         | x==c      = cpp (String c) (c:'\\':w) l xs
@@ -164,6 +166,7 @@ tokenise = haskell Any []
     cpp (NestComment n) w l ('*':'/':xs)
                                     = cpp Any [] (w*/*l) xs
     cpp (NestComment n) w l (x:xs)  = cpp (NestComment n) (' ':w) l xs
+    cpp _   w l []                  = []
 
     -- predicates for lexing Haskell.
     ident0 x = isAlpha x    || x `elem` "_`"
@@ -185,7 +188,7 @@ parseMacroCall = call . skip
   where
     skip xss@(Other x:xs) | all isSpace x = skip xs
     skip xss              | otherwise     = xss
-    call (Other "(":xs)   = (args 0 [] [] . skip) xs
+    call (Other "(":xs)   = (args (0::Int) [] [] . skip) xs
     call _                = Nothing
     args 0 w acc (Other ",":xs) = args 0 [] (addone w acc) (skip xs)
     args n w acc (Other "(":xs) = args (n+1) ("(":w) acc xs
