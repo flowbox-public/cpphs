@@ -1,5 +1,6 @@
-new
----
+Version 0.4
+-----------
+  * New flag -Ofile to redirect output
   * Bugfix for precedence in   #if !False && False
   * Bugfix for whitespace between # and if
   * Bugfix for #define F "blah"; #include F
