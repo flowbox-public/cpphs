@@ -14,7 +14,7 @@ or
 USAGE
 -----
 	cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
-               [ --nomacro ] [ --noline ]
+               [--nomacro] [--noline] [--strip] [--stringise]
 
 You can give any number of filenames on the command-line.  The
 results are catenated on standard output.
@@ -25,6 +25,9 @@ Options:
     -Ipath	add a directory to the search path for #include's
     --nomacro	only process #ifdef's and #include's, do not expand macros
     --noline	remove #line droppings from the output
+    --strip	convert C-style comments to whitespace, even outside
+                cpp directives
+    --stringise	recognise the # stringise operator within macros
 
 There are NO symbols defined by default.  (This could easily be
 changed in the source code though.)  The search path is searched in
