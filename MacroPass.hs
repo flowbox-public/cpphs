@@ -35,7 +35,9 @@ preDefine defines =
   where
     defval sym =
         let (s,d) = break (=='=') sym
-            (Cmd (Just hd):_) = tokenise ("\n#define "++s++" "++tail d++"\n")
+            (Cmd (Just hd):_) = tokenise ("\n#define "++s++" "++rmEq d++"\n")
+            rmEq [] = []
+            rmEq (x:xs) = xs
         in (name hd, hd)
 
 
