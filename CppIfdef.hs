@@ -96,8 +96,9 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 		    cpp p syms path leave ln Keep (("#line 1 "++show inc)
                                                   : linesCpp content
                                                   ++ cppline p :"": xs)
-	"warning"-> trace (l++"\nin "++show p) $
-	            skipn cpp p syms path  Keep xs
+	"warning"-> unsafePerformIO $ do
+                       hPutStrLn stderr (l++"\nin "++show p)
+                       return $ skipn cpp p syms path  Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line" | all isDigit sym
 	         -> (if ln then (l:) else id) $
@@ -226,11 +227,3 @@ parseOp _ =
   +++
   do  skip (string "!=")
       return (/=)
-
-----
--- copied in-line to avoid library bootstrapping problems
-trace :: String -> a -> a
-trace str expr = unsafePerformIO $ do
-    hPutStrLn stderr str
-    return expr
-
