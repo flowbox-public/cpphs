@@ -9,7 +9,7 @@ module RunCpphs ( runCpphs ) where
 import System   (exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)
-import IO       (stdout, IOMode(WriteMode), openFile, hPutStr)
+import IO       (stdout, IOMode(WriteMode), openFile, hPutStr, hFlush)
 
 import CppIfdef (cppIfdef)
 import MacroPass(macroPass)
@@ -45,6 +45,7 @@ runCpphs prog args = do
                  if not macro then hPutStr o (unlines (map snd pass1))
                               else hPutStr o pass2
         ) files
+  hFlush o
 
 trail :: (Eq a) => [a] -> [a] -> [a]
 trail xs = reverse . dropWhile (`elem`xs) . reverse
