@@ -1,17 +1,20 @@
 include Makefile.inc
 
-OBJDIR   = $(BUILDDIR)/$(OBJ)/cpphs
-CPPHS    = $(DST)/cpphs$(EXE)
-TARGET   = $(CPPHS)
+OBJDIR	= $(BUILDDIR)/$(OBJ)/cpphs
+CPPHS	= $(DST)/cpphs$(EXE)
+TARGET	= $(CPPHS)
+VERSION	= 0.8
 
 SRCS	= CppIfdef.hs HashDefine.hs MacroPass.hs ParseLib.hs \
 	  Position.hs ReadFirst.hs SymTab.hs Tokenise.hs \
 	  RunCpphs.hs cpphs.hs
 
-OBJS    = $(patsubst %.hs, $(OBJDIR)/%.$O, $(SRCS))
-CFILES    = $(patsubst %.hs, %.$C, $(SRCS))
+OBJS	= $(patsubst %.hs, $(OBJDIR)/%.$O, $(SRCS))
+CFILES	= $(patsubst %.hs, %.$C, $(SRCS))
 
-AUX     = Makefile* README LICENCE* CHANGELOG TODO docs tests cpphs.hugs
+AUX	= README LICENCE* CHANGELOG cpphs.hugs \
+		tests/[A-BD-Z]* tests/[a-np-z]* \
+		docs/[a-z]*
 
 HC = $(LOCAL)nhc98	# can be overridden by caller HC=...
 HFLAGS = $(shell echo $(BUILDOPTS)) #-$(CFG)
@@ -48,7 +51,11 @@ realclean: cleanC
 	rm -f *.raw *.html haddock.css haskell_icon.gif
 	rm -f $(TARGET)
 package:
-	tar zcvf cpphs.tar.gz $(SRCS) $(AUX)
+	tar cf tmp.tar $(SRCS) $(AUX)
+	mkdir cpphs-$(VERSION)
+	cd cpphs-$(VERSION); tar xf ../tmp.tar
+	tar zcf cpphs-$(VERSION).tar.gz cpphs-$(VERSION)
+	rm -r tmp.tar cpphs-$(VERSION)
 haddock: $(SRCS)
 	haddock -h $(SRCS)
 

@@ -1,6 +1,10 @@
 Version 0.8
 -----------
+  * Added the --text option, to signify the input should not
+    be lexed as Haskell.  This causes macros to be defined or expanded
+    regardless of their location within comments, string delimiters, etc.
   * Shuffle a few files around to make it easier to say 'hmake cpphs'.
+    There is also now a runhugs script to invoke cpphs nicely.
 
 Version 0.7
 -----------
