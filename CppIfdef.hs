@@ -149,47 +149,41 @@ gatherDefined p st inp =
     _       -> error ("Ambiguous parse for #if directive in file "++show p)
 
 parseBoolExp st =
-  do  a <- bracket (skip (char '(')) (parseBoolExp st) (skip (char ')'))
-      parseCont a st
+  do  a <- parseExp1 st
+      skip (string "||")
+      b <- first (skip (parseBoolExp st))
+      return (a || b)
   +++
-  do  skip (char '!')
-      a <- skip (parseSym st)		-- deals with !x && y
-      parseCont (not a) st
-  +++
-  do  skip (char '!')
-      a <- parseBoolExp st		-- deals with !(x && y)
-      parseCont (not a) st
-  +++
-  do  a <- skip (parseSym st)
-      parseCont a st
+      parseExp1 st
 
-parseSym st =
+parseExp1 st =
+  do  a <- parseExp0 st
+      skip (string "&&")
+      b <- first (skip (parseExp1 st))
+      return (a && b)
+  +++
+      parseExp0 st
+
+parseExp0 st =
   do  skip (string "defined")
       sym <- bracket (skip (char '(')) (skip (many1 alphanum)) (skip (char ')'))
       return (definedST sym st)
   +++
-  do  sym <- skip (many1 alphanum)
-      parseComparison sym st
-
-parseCont a st =
-  do  skip (string "||")
-      b <- first (skip (parseBoolExp st))
-      return (a || b)
+  do  bracket (skip (char '(')) (parseBoolExp st) (skip (char ')'))
   +++
-  do  skip (string "&&")
-      b <- first (skip (parseBoolExp st))
-      return (a && b)
+  do  skip (char '!')
+      a <- parseExp0 st
+      return (not a)
   +++
-  do  return a
-
-parseComparison sym1 st =
-  do  op <- parseOp st
+  do  sym1 <- skip (many1 alphanum)
+      op <- parseOp st
       sym2 <- skip (many1 alphanum)
       let val1 = convert sym1 st
       let val2 = convert sym2 st
       return (op val1 val2)
   +++
-  do  case convert sym1 st of
+  do  sym <- skip (many1 alphanum)
+      case convert sym st of
         0 -> return False
         _ -> return True
   where

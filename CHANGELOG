@@ -5,6 +5,8 @@ CVS
     at the top of the file appeared in the output.
   * Fix chained parenthesised boolean exprs in #if, e.g.
         #if ( foo ) && ( bar )
+  * Fix precedence in chained unparenthesised boolean exprs in #if, e.g.
+        #if foo && bar || baz && frob
 
 Version 0.5
 -----------
