@@ -25,3 +25,4 @@ runtest "../cpphs indirect" expect15
 runtest "../cpphs numbers" expect16
 runtest "../cpphs pragma" expect17
 runtest "../cpphs --noline pragma" expect18
+runtest "../cpphs -D__NHC__=117 parens" expect19
