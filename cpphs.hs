@@ -2,13 +2,15 @@
 -- The main program for cpphs, a simple C pre-processor written in Haskell.
 
 -- Copyright (c) 2004 Malcolm Wallace
--- This file is placed in the public domain, but the library modules it
--- refers to are either standard Haskell'98, or distributed under the LGPL.
+-- This file is GPL, although the libraries it uses are either standard
+-- Haskell'98 or distributed under the LGPL.
 -}
 module Main where
 import System   (getArgs, getProgName)
 import List     (isPrefixOf)
 import Monad    (when)
+import IO       (stdout, IOMode(WriteMode), openFile, hClose, hPutStr)
+
 import CppIfdef (cppIfdef, preDefine)
 import Position (newfile)
 import MacroPass(macroPass)
@@ -16,17 +18,29 @@ import MacroPass(macroPass)
 main = do
   args <- getArgs
   prog <- getProgName
+  runCpphs prog args
+
+runCpphs :: String -> [String] -> IO ()
+runCpphs prog args = do
   let ds    = map (drop 2) (filter ("-D"`isPrefixOf`) args)
-      is    = map (drop 2) (filter ("-I"`isPrefixOf`) args)
+      os    = map (drop 2) (filter ("-O"`isPrefixOf`) args)
+      is    = map (trail "/\\" . drop 2) (filter ("-I"`isPrefixOf`) args)
       macro = not ("--nomacro" `elem` args)
       locat = not ("--noline" `elem` args)
+      strip =      "--strip" `elem` args
+      stringise  = "--stringise" `elem` args
       files = filter (not . isPrefixOf "-") args
   when (null files)
-       (error ("Usage: "++prog++" file ... [-Dsym]* |-Dsym=val]* [-Ipath]*"
-                              ++" [--nomacro] [--noline]"))
+       (error ("Usage: "++prog
+              ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
+              ++"\t\t[--nomacro] [--noline] [--strip] [--stringise]"))
+  o <- if null os then return stdout else openFile (head os) WriteMode
   mapM_ (\f-> do c <- readFile f
                  let pass1 = cppIfdef (newfile f) (preDefine ds)
                                       is macro locat c
-                     pass2 = macroPass ds pass1
-                 if not macro then putStr pass1 else putStr pass2
+                     pass2 = macroPass ds strip stringise pass1
+                 if not macro then hPutStr o pass1 else hPutStr o pass2
         ) files
+
+trail :: (Eq a) => [a] -> [a] -> [a]
+trail xs = reverse . dropWhile (`elem`xs) . reverse
