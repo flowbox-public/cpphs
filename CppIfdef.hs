@@ -13,8 +13,9 @@
 -----------------------------------------------------------------------------
 
 module CppIfdef
-  ( cppIfdef	-- :: Posn -> SymTab String -> String -> String
-  , preDefine	-- :: [String] -> SymTab String
+  ( cppIfdef	-- :: Posn -> [String] -> [String] -> Bool -> Bool
+		--      -> String -> String
+--  , preDefine	-- :: [String] -> SymTab String
   ) where
 
 
@@ -32,14 +33,16 @@ import IO        (hPutStrLn,stderr)
 -- | Run a first pass of cpp, evaluating #ifdef's and processing #include's,
 --   whilst taking account of #define's and #undef's as we encounter them.
 cppIfdef :: Posn		-- ^ Position info for error reports
-	-> SymTab String	-- ^ Pre-defined symbols
+	-> [String]		-- ^ Pre-defined symbols
 	-> [String]		-- ^ Search path for #includes
 	-> Bool			-- ^ Leave #define and #undef in output?
 	-> Bool			-- ^ Place #line droppings in output?
 	-> String		-- ^ The input file content
 	-> String		-- ^ The file after processing
 cppIfdef posn syms search leave locat =
-    unlines . cpp posn syms search leave locat Keep . (cppline posn:) . linesCpp
+    unlines . cpp posn defs search leave locat Keep . (cppline posn:) . linesCpp
+  where
+    defs = preDefine syms
 -- Notice that the symbol table is a very simple one mapping strings
 -- to strings.  This pass does not need anything more elaborate, in
 -- particular it is not required to deal with any parameterised macros.
