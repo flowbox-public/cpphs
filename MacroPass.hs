@@ -44,6 +44,13 @@ preDefine hashes defines =
         in (name hd, hd)
 
 
+-- Trundle through the document, one word at a time, using the WordStyle
+-- classification introduced by 'tokenise' to decide whether to expand a
+-- word or macro.  Encountering a #define or #undef causes that symbol to
+-- be overwritten in the symbol table.  Any other remaining cpp directives
+-- are discarded and replaced with blanks, except for #line markers.
+-- All valid identifiers are checked for the presence of a definition
+-- of that name in the symbol table, and if so, expanded appropriately.
 macroProcess :: SymTab HashDefine -> [WordStyle] -> [String]
 macroProcess st        []                     = []
 macroProcess st (Other x: ws)                 = x:    macroProcess st ws
