@@ -36,6 +36,11 @@ data HashDefine
 		}
     deriving (Eq,Show)
 
+-- 'smart' constructor to avoid warnings from ghc (undefined fields)
+symbolReplacement =
+    SymbolReplacement
+	 { name=undefined, replacement=undefined, linebreaks=undefined }
+
 -- Macro expansion text is divided into sections, each of which is classified
 -- as one of three kinds: a formal argument (Arg), plain text (Text),
 -- or a stringised formal argument (Str).
@@ -64,15 +69,16 @@ parseHashDefine ansi def = (command . skip) def
     command ("define":xs) = Just (((define . skip) xs) { linebreaks=count def })
     command ("undef":xs)  = Just (((undef  . skip) xs) { linebreaks=count def })
     command _             = Nothing
-    undef  (sym:_)   = SymbolReplacement { name=sym, replacement=sym }
+    undef  (sym:_)   = symbolReplacement { name=sym, replacement=sym }
     define (sym:xs)  = case skip xs of
                            ("(":ys) -> (macroHead sym [] . skip) ys
-                           ys       -> SymbolReplacement
+                           ys       -> symbolReplacement
                                            { name=sym, replacement=chop ys }
     macroHead sym args (",":xs) = (macroHead sym args . skip) xs
     macroHead sym args (")":xs) = MacroExpansion
                                     { name =sym , arguments = reverse args
-                                    , expansion = classifyRhs args (skip xs) }
+                                    , expansion = classifyRhs args (skip xs)
+                                    , linebreaks = undefined }
     macroHead sym args (var:xs) = (macroHead sym (var:args) . skip) xs
     macroHead sym args []       = error ("incomplete macro definition:\n"
                                         ++"  #define "++sym++"("
