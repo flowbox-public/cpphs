@@ -36,7 +36,7 @@ data HashDefine
 		}
     deriving (Eq,Show)
 
-data ArgOrText = Arg | Text deriving (Eq,Show)
+data ArgOrText = Arg | Text | Str deriving (Eq,Show)
 
 -- expand an instance of a macro
 -- precondition: got a match on the macro name.
@@ -44,7 +44,9 @@ expandMacro :: HashDefine -> [String] -> String
 expandMacro macro parameters =
     let env = zip (arguments macro) parameters
         replace (Arg,s)  = maybe (error "formal param") id (lookup s env)
+        replace (Str,s)  = maybe (error "formal param") str (lookup s env)
         replace (Text,s) = s
+        str s = '"':s++"\""
     in
     concatMap replace (expansion macro)
 
@@ -72,6 +74,7 @@ parseHashDefine def = (command . skip) def
     macro sym args []       = error ("incomplete macro definition:\n"
                                     ++"  #define "++sym++"("
                                     ++concat (intersperse "," args))
+ -- classify args ("#":x:xs)| x `elem` args    = (Str,x): classify args xs
     classify args ("##":xs) = classify args xs
     classify args (word:xs) | word `elem` args = (Arg,word): classify args xs
                             | otherwise        = (Text,word): classify args xs
