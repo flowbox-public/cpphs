@@ -1,5 +1,10 @@
-CVS
----
+Version 0.7
+-----------
+  * Enable the __FILE__, __LINE__, __DATE__, and __TIME__ specials, which
+    can be useful for creating DIY error messages.
+
+Version 0.6
+-----------
   * Recognise and ignore the #pragma cpp directive.
   * Fix beginning-of-file bug, where in --noline mode, a # cpp directive
     at the top of the file appeared in the output.
@@ -16,7 +21,6 @@ CVS
     with arguments in the parens, and no expansion.  Now, the space
     indicates that this is a textual replacement, and the parenthesised
     expression is in fact the replacement.
-
 
 Version 0.5
 -----------

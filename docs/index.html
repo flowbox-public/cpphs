@@ -78,7 +78,12 @@ Working Features:
 <dt>#line</dt>   <dd>line number directives</dd>
 <dt>\\n</dt>     <dd>line continuations within all # directives</dd>
 <dt>/**/</dt>    <dd>token catenation within a macro definition</dd>
-<dt>## #</dt>    <dd>ANSI-style token catenation and stringisation</dd>
+<dt>##</dt>      <dd>ANSI-style token catenation</dd>
+<dt>#</dt>       <dd>ANSI-style token stringisation</dd>
+<dt>__FILE__</dt><dd>special text replacement for DIY error messages</dd>
+<dt>__LINE__</dt><dd>special text replacement for DIY error messages</dd>
+<dt>__DATE__</dt><dd>special text replacement</dd>
+<dt>__TIME__</dt><dd>special text replacement</dd>
 </dl>
 
 <p>
@@ -147,6 +152,20 @@ be changed).
 <p>
 <b>Current version:</b>
 <p>
+cpphs-0.7, release date 2004.09.01<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.7.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.7.zip">.zip</a>,
+<a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>.
+<ul>
+<li> Enable the <tt>__FILE__</tt>, <tt>__LINE__</tt>, <tt>__DATE__</tt>,
+     and <tt>__TIME__</tt> specials, which can be useful for creating
+     DIY error messages.
+</ul>
+
+<p>
+<b>Older versions:</b>
+<p>
 cpphs-0.6, release date 2004.07.30<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.6.tar.gz">.tar.gz</a>,
@@ -172,8 +191,6 @@ By HTTP:
      replacement.
 </ul>
 
-<p>
-<b>Older versions:</b>
 <p>
 cpphs-0.5, release date 2004.06.07<br>
 By HTTP:
@@ -282,7 +299,7 @@ ANSI C, and has the following main differences from the standard cpp.
 <li> Recognises the <tt>#</tt> stringisation operator in a macro
      definition only if you use the <tt>--hashes</tt> option.  (It is
      an ANSI addition, only needed because quoted stringisation (above)
-     is prohibited.)
+     is prohibited by ANSI.)
 <li> Preserves whitespace within a textual replacement definition
      exactly (modulo newlines), but leading and trailing space is eliminated.
 <li> Preserves whitespace within a macro definition (and trailing it)
