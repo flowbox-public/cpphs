@@ -147,6 +147,34 @@ be changed).
 <p>
 <b>Current version:</b>
 <p>
+cpphs-0.6, release date 2004.0x.xx<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.6.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.6.zip">.zip</a>,
+<a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>.
+<ul>
+<li> Recognise and ignore the <tt>#pragma</tt> cpp directive.
+<li> Fix beginning-of-file bug, where in <tt>--noline</tt> mode, a
+     <tt>#line</tt> cpp directive appeared at the top of the output file.
+<li> Fix chained parenthesised boolean exprs in <tt>#if</tt>, e.g.
+        <pre>#if ( foo ) &amp;&amp; ( bar )</pre>
+<li> Fix precedence in chained unparenthesised boolean exprs in
+     <tt>#if</tt>, e.g.
+        <pre>#if foo &amp;&amp; bar || baz &amp;&amp; frob</pre>
+<li> For better compatibility with cpp, and because otherwise
+     there are certain constructs that cannot be expressed, we no
+     longer permit whitespace in a <tt>#define</tt> between the
+     symbolname and an opening parenthesis, e.g.  
+     <pre>#define f (f' id)</pre>.  Previously, this was interpreted
+     as a parametrised macro, with arguments in the parens, and
+     no expansion.  Now, the space indicates that this is a textual
+     replacement, and the parenthesised expression is in fact the
+     replacement.
+</ul>
+
+<p>
+<b>Older versions:</b>
+<p>
 cpphs-0.5, release date 2004.06.07<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.5.tar.gz">.tar.gz</a>,
@@ -168,8 +196,6 @@ By HTTP:
      of using --layout is still possible.
 </ul>
 
-<p>
-<b>Older versions:</b>
 <p>
 cpphs-0.4, release date 2004.05.19<br>
 By HTTP:
@@ -266,9 +292,6 @@ ANSI C, and has the following main differences from the standard cpp.
 <li> With the <tt>--layout</tt> option, line continuations in a textual
      replacement or macro definition are preserved as line-breaks in the
      macro call.  (Useful for layout-sensitive code in Haskell.)
-<li> In a macro definition, whitespace is permitted between any of the
-     initial name/argument/bracket/comma tokens.  (In cpp, there can be
-     no space between the name and the opening bracket.)
 </ul>
 
 <hr>

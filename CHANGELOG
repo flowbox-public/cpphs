@@ -7,6 +7,16 @@ CVS
         #if ( foo ) && ( bar )
   * Fix precedence in chained unparenthesised boolean exprs in #if, e.g.
         #if foo && bar || baz && frob
+  * For better compatibility with cpp, and because otherwise
+    there are certain constructs that cannot be expressed, we no
+    longer permit whitespace in a <tt>#define</tt> between the
+    symbolname and an opening parenthesis, e.g.
+        #define f (f' id)
+    Previously, this was interpreted as a parametrised macro,
+    with arguments in the parens, and no expansion.  Now, the space
+    indicates that this is a textual replacement, and the parenthesised
+    expression is in fact the replacement.
+
 
 Version 0.5
 -----------

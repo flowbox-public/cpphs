@@ -72,10 +72,11 @@ parseHashDefine ansi def = (command . skip) def
     command ("undef":xs)  = Just (((undef  . skip) xs) { linebreaks=count def })
     command _             = Nothing
     undef  (sym:_)   = symbolReplacement { name=sym, replacement=sym }
-    define (sym:xs)  = case skip xs of
+    define (sym:xs)  = case {-skip-} xs of
                            ("(":ys) -> (macroHead sym [] . skip) ys
                            ys       -> symbolReplacement
-                                           { name=sym, replacement=chop ys }
+                                           { name=sym
+                                           , replacement=chop (skip ys) }
     macroHead sym args (",":xs) = (macroHead sym args . skip) xs
     macroHead sym args (")":xs) = MacroExpansion
                                     { name =sym , arguments = reverse args
