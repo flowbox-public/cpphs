@@ -1,0 +1,72 @@
+This directory contains 'cpphs', a simplified implementation of cpp,
+the C pre-processor, in Haskell.
+
+TO BUILD
+--------
+Just use
+    hmake cpphs [-package base]
+or
+    ghc --make cpphs
+or
+    runhugs cpphs
+
+
+USAGE
+-----
+	cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+
+
+You can give any number of filenames on the command-line.  The
+results are catenated on standard output.
+
+Options:
+    -Dsym	define a symbol
+    -Dsym=val	define a symbol with a specific value
+    -Ipath	add a directory to the search path for #include's
+
+There are NO symbols defined by default.  Could easily be changed in
+the source code though.  The search path is searched in order of the -I
+options, except that the current directory is always searched first.
+Again, there is no default search path (and again, could easily
+be changed).
+
+
+DESCRIPTION
+-----------
+This cut-down version of the C pre-processor is incomplete.
+For now, it only operates on lines beginning with a #.  No
+attempt is made to expand symbols or parametrised macros
+within lines (except as required to resolve #if's).
+
+Features that do work:
+    #ifdef	simple conditional compilation
+    #if		the full boolean language of defined(), &&, ||, ==, etc.
+    #elif	chained conditionals
+    #define	in-line definitions (symbols only, not macros)
+    #undef	in-line revocation of definitions
+    #include	file inclusion
+    #line	line number directives
+
+Numbering of lines in the output is preserved so that any later
+processor can give meaningful error messages.  When a file is
+#include'd, cpphs inserts #line directives for the same reason.
+
+Any syntax errors in cpp directives, and any failure to find a
+#include'd file, gives a message to standard error and halts the
+program.
+
+
+COPYRIGHT
+---------
+Copyright (c) 2004 Malcolm Wallace (Malcolm.Wallace@cs.york.ac.uk)
+
+except for ParseLib (Copyright (c) 1995 Graham Hutton and Erik Meijer)
+
+
+LICENCE
+-------
+These library modules are distributed under the terms of the LGPL.
+The application module 'cpphs.hs' itself is trivial (since all
+the functionality is inside the library) and so is placed into the
+public domain.
+
+This software comes with no warranty.  Use at your own risk.

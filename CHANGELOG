@@ -1,0 +1,9 @@
+2004-Apr-21
+-----------
+  * Now accept multi-line # commands via the \ line continuation operator.
+    The original file line numbering is preserved in the output by
+    some tricky acrobatics.
+
+Version 0.1
+-----------
+  * Initial release.

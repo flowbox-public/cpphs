@@ -1,0 +1,8 @@
+#define aLongMacroDefinition(x,y)	\
+	some line here;	\
+	and some more;	\
+	finish now
+5 back to ordinary text.
+#include "inclusion"
+7 hello again
+8 some more
