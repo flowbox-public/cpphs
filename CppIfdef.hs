@@ -13,8 +13,8 @@
 -----------------------------------------------------------------------------
 
 module CppIfdef
-  ( cppIfdef	-- :: Posn -> [String] -> [String] -> Bool -> Bool
-		--      -> String -> String
+  ( cppIfdef	-- :: FilePath -> [String] -> [String] -> Bool -> Bool
+		--      -> String -> [(Posn,String)]
 --  , preDefine	-- :: [String] -> SymTab String
   ) where
 
@@ -38,9 +38,9 @@ cppIfdef :: FilePath		-- ^ File for error reports
 	-> Bool			-- ^ Leave #define and #undef in output?
 	-> Bool			-- ^ Place #line droppings in output?
 	-> String		-- ^ The input file content
-	-> String		-- ^ The file after processing
+	-> [(Posn,String)]	-- ^ The file after processing (in lines)
 cppIfdef fp syms search leave locat =
-    unlines . cpp posn defs search leave locat Keep . (cppline posn:) . linesCpp
+    cpp posn defs search leave locat Keep . (cppline posn:) . linesCpp
   where
     posn = newfile fp
     defs = preDefine syms
@@ -66,7 +66,7 @@ data KeepState = Keep | Drop Int Bool
 
 -- | Return just the list of lines that the real cpp would decide to keep.
 cpp :: Posn -> SymTab String -> [String] -> Bool -> Bool -> KeepState
-       -> [String] -> [String]
+       -> [String] -> [(Posn,String)]
 cpp _ _ _ _ _ _ [] = []
 
 cpp p syms path leave ln Keep (l@('#':x):xs) =
@@ -81,7 +81,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
         skipn cpp' p' syms' path' ud xs' =
             let n = 1 + length (filter (=='\n') l) in
-            (if leave then (reslash l:) else (replicate n "" ++)) $
+            (if leave then ((p,reslash l):) else (replicate n (p,"") ++)) $
             cpp' (newlines n p') syms' path' leave ln ud xs'
     in case cmd of
 	"define" -> skipn cpp p (insertST (sym,val) syms) path Keep xs
@@ -105,11 +105,11 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
                        return $ skipn cpp p syms path  Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line" | all isDigit sym
-	         -> (if ln then (l:) else id) $
+	         -> (if ln then ((p,l):) else id) $
                     cpp (newpos (read sym) (un rest) p)
                         syms path leave ln Keep xs
 	n | all isDigit n
-	         -> (if ln then (l:) else id) $
+	         -> (if ln then ((p,l):) else id) $
 	            cpp (newpos (read n) (un (tail ws)) p)
                         syms path leave ln Keep xs
           | otherwise
@@ -128,7 +128,8 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
                  | otherwise = Drop n b
         skipn cpp' p' syms' path' ud xs' =
                  let n' = 1 + length (filter (=='\n') x) in
-                 replicate n' "" ++ cpp' (newlines n' p') syms' path' leave ln ud xs'
+                 replicate n' (p,"")
+                 ++ cpp' (newlines n' p') syms' path' leave ln ud xs'
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
@@ -142,10 +143,10 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
 
 cpp p syms path leave ln Keep (x:xs) =
     let p' = newline p in seq p' $
-    x:  cpp p' syms path leave ln Keep xs
+    (p,x):  cpp p' syms path leave ln Keep xs
 cpp p syms path leave ln d@(Drop _ _) (_:xs) =
     let p' = newline p in seq p' $
-    "": cpp p' syms path leave ln d xs
+    (p,""): cpp p' syms path leave ln d xs
 
 
 ----

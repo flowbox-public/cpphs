@@ -16,7 +16,7 @@ module Position
   , newfile
   , addcol, newline, tab, newlines, newpos
   , cppline
-  , directory
+  , filename, lineno, directory
   ) where
 
 -- | Source positions contain a filename, line, column, and an
@@ -56,12 +56,12 @@ newpos r (Just f)       (Pn _ _ c i) = Pn f r c i
 
 -- | Projections
 
---lineno    :: Posn -> Int
---filename  :: Posn -> String
+lineno    :: Posn -> Int
+filename  :: Posn -> String
 directory :: Posn -> FilePath
 
---lineno    (Pn _ r _ _) = r
---filename  (Pn f _ _ _) = f
+lineno    (Pn _ r _ _) = r
+filename  (Pn f _ _ _) = f
 directory (Pn f _ _ _) = dirname f
 
 
