@@ -23,7 +23,6 @@ import ParseLib
 import Position    (Posn,newline,newlines,cppline,hashline)
 import ReadFirst   (readFirst)
 import Tokenise    (linesCpp,reslash)
-import ListUtil    (takeUntil)
 import Char        (isDigit)
 import Numeric     (readHex)
 import Debug.Trace (trace)
@@ -84,12 +83,13 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	"undef"  -> skipn cpp p (deleteST sym syms) path Keep xs
 	"ifndef" -> skipn cpp p syms path  down xs
 	"ifdef"  -> skipn cpp p syms path  up   xs
-	"if"     -> skipn cpp p syms path (keep (drop 2 x)) xs
+	"if"     -> skipn cpp p syms path (keep (unwords (tail ws))) xs
 	"else"   -> skipn cpp p syms path (Drop 1 False) xs
 	"elif"   -> skipn cpp p syms path (Drop 1 True) xs
 	"endif"  -> skipn cpp p syms path  Keep xs
 	"include"-> let (inc,content) =
-	                  unsafePerformIO (readFirst (unwords (tail ws)) p path)
+	                  unsafePerformIO (readFirst (unwords (tail ws))
+                                                     p path syms)
 	            in
 		    cpp p syms path leave ln Keep (("#line 1 "++show inc)
                                                   : linesCpp content
@@ -130,7 +130,8 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
     else if cmd == "ifndef" ||
             cmd == "if"     ||
             cmd == "ifdef"  then  skipn cpp p syms path (Drop (n+1) b) xs
-    else if cmd == "elif"   then  skipn cpp p syms path (keep (drop 4 x)) xs
+    else if cmd == "elif"   then  skipn cpp p syms path
+                                                  (keep (unwords (tail ws))) xs
     else if cmd == "else"   then  skipn cpp p syms path delse xs
     else if cmd == "endif"  then  skipn cpp p syms path dend xs
     else skipn cpp p syms path (Drop n b) xs
@@ -152,7 +153,11 @@ parseBoolExp st =
   do  bracket (skip (char '(')) (parseBoolExp st) (skip (char ')'))
   +++
   do  skip (char '!')
-      a <- parseBoolExp st
+      a <- skip (parseSym st)		-- deals with !x && y
+      parseCont (not a) st
+  +++
+  do  skip (char '!')
+      a <- parseBoolExp st		-- deals with !(x && y)
       parseCont (not a) st
   +++
   do  a <- skip (parseSym st)
