@@ -12,7 +12,7 @@ SRCS	= CppIfdef.hs HashDefine.hs MacroPass.hs ParseLib.hs \
 OBJS	= $(patsubst %.hs, $(OBJDIR)/%.$O, $(SRCS))
 CFILES	= $(patsubst %.hs, %.$C, $(SRCS))
 
-AUX	= README LICENCE* CHANGELOG cpphs.hugs \
+AUX	= README LICENCE* CHANGELOG cpphs.hugs cpphs.compat cpphs.cabal \
 		tests/[A-BD-Z]* tests/[a-np-z]* \
 		docs/[a-z]*
 
