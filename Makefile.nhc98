@@ -3,7 +3,7 @@ include Makefile.inc
 OBJDIR	= $(BUILDDIR)/$(OBJ)/cpphs
 CPPHS	= $(DST)/cpphs$(EXE)
 TARGET	= $(CPPHS)
-VERSION	= 0.8
+VERSION	= 0.9
 
 SRCS	= CppIfdef.hs HashDefine.hs MacroPass.hs ParseLib.hs \
 	  Position.hs ReadFirst.hs SymTab.hs Tokenise.hs \

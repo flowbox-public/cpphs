@@ -1,6 +1,6 @@
 Version 0.9
 -----------
-  * Bugfix for ghc -O: flush the output buffer.
+  * Bugfix for ghc-6.4 -O: flush the output buffer.
 
 Version 0.8
 -----------
