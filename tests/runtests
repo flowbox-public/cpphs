@@ -17,5 +17,8 @@ runtest "../cpphs -D__GLASGOW_HASKELL__ Storable.hs " expect7
 runtest "../cpphs -DCALLCONV=ccall HsOpenGLExt.h" expect8
 runtest "../cpphs multiline" expect9
 runtest "../cpphs --nomacro multiline" expect10
-runtest "../cpphs stringise" expect11
+runtest "../cpphs --stringise stringise" expect11
 runtest "../cpphs recursive" expect12
+runtest "../cpphs --strip ross" expect13
+runtest "../cpphs precedence" expect14
+runtest "../cpphs indirect" expect15
