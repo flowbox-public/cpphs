@@ -35,4 +35,6 @@ runtest "$CPPHS --hashes specialinclude" expect22
 runtest "$CPPHS incomplete" expect23
 runtest "$CPPHS text" expect24
 runtest "$CPPHS --text text" expect25
+runtest "$CPPHS --text nastyhack" expect26
+runtest "$CPPHS nastyhack" expect27
 exit $FAIL
