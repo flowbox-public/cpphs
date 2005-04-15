@@ -74,14 +74,14 @@ macroProcess layout lang st (Cmd (Just hd): ws)  =
     replicate n "\n" ++ macroProcess layout lang (insertST (name hd, hd) st) ws
 macroProcess layout lang st (Ident p x: ws) =
     case x of
-      "__FILE__" -> filename p:      macroProcess layout lang st ws
-      "__LINE__" -> show (lineno p): macroProcess layout lang st ws
-      "__DATE__" -> formatCalendarTime defaultTimeLocale "%d %b %Y"
+      "__FILE__" -> show (filename p): macroProcess layout lang st ws
+      "__LINE__" -> show (lineno p):   macroProcess layout lang st ws
+      "__DATE__" -> formatCalendarTime defaultTimeLocale "\"%d %b %Y\""
                         (unsafePerformIO (getClockTime>>=toCalendarTime)):
-                                     macroProcess layout lang st ws
-      "__TIME__" -> formatCalendarTime defaultTimeLocale "%H:%M:%S"
+                                       macroProcess layout lang st ws
+      "__TIME__" -> formatCalendarTime defaultTimeLocale "\"%H:%M:%S\""
                         (unsafePerformIO (getClockTime>>=toCalendarTime)):
-                                     macroProcess layout lang st ws
+                                       macroProcess layout lang st ws
       _ ->
         case lookupST x st of
             Nothing -> x: macroProcess layout lang st ws
