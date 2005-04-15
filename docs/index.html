@@ -116,9 +116,10 @@ Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
        cpphs --version                                             
 </pre></center>
 <p>
-You can give any number of filenames on the command-line.  The results
-are catenated on standard output.  (Macro definitions in one file do
-not carry over into the next.)
+You can give any number of filenames on the command-line.  If no
+filename is given, cpphs reads from standard input.  The results are
+catenated on standard output.  (Macro definitions in one file do not
+carry over into the next.)
 
 <p>
 Options:
@@ -127,6 +128,8 @@ Options:
     <td>define a textual replacement (default value is 1)</td></tr>
 <tr><td>-Dsym=val</td>
     <td>define a textual replacement with a specific value</td></tr>
+<tr><td>-Dsym(args)=val</td>
+    <td>define a macro with arguments</td></tr>
 <tr><td>-Ipath</td>
     <td>add a directory to the search path for #include's</td></tr>
 <tr><td>-Ofile</td>
@@ -160,21 +163,36 @@ is no default search path (unless you define one via a wrapper script).
 
 <hr>
 <center><h3><a name="download">Downloads</a></h3></center>
+
 <p>
 <b>Current version:</b>
+<p>
+cpphs-1.0, release date 2005.xx.xx<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.0.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.0.zip">.zip</a>,
+<a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
+<a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
+<ul>
+<li> Included the <tt>cpphs.compat</tt> script for argument
+     compatibility with the original <em>cpp</em>.
+<li> Placed quotes around replacements for special macros __FILE__, __DATE__,
+     and __TIME__.
+<li> If no files are specified, read from stdin.
+
+</ul>
+
+<p>
+<b>Older versions:</b>
 <p>
 cpphs-0.9, release date 2005.03.17<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.9.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-0.9.zip">.zip</a>,
-<a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
-<a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
 <ul>
 <li> Bugfix for <tt>ghc-6.4 -O</tt>: flush output buffer.
 </ul>
 
-<p>
-<b>Older versions:</b>
 <p>
 cpphs-0.8, release date 2004.11.14<br>
 By HTTP:
@@ -294,6 +312,18 @@ or
 </pre>
 or
 <pre>    mv cpphs.hugs cpphs	# a simple runhugs script
+</pre>
+
+<p>
+You will notice that the command-line arguments for <em>cpphs</em>
+are not the same as for the original <em>cpp</em>.  If you want
+to use <em>cpphs</em> as a completely drop-in replacement for
+the real <em>cpp</em>, that is, to accept the same arguments, and
+have broadly the same behaviour in response to them, then edit the
+<tt>cpphs.compat</tt> script to point to the installed location of
+<em>cpphs</em>, then use this script instead of <em>cpp</em>, e.g.
+<pre>
+    ghc -cpp -pgmP cpphs.compat
 </pre>
 
 

@@ -1,3 +1,12 @@
+Version 1.0
+-----------
+  * Add a compatibility script cpphs.compat, allowing cpphs to act as
+    a drop-in replacement for cpp, e.g.
+        ghc -cpp -pgmP cpphs.compat
+  * Place quotes around replacements for special macros __FILE__, __DATE__,
+    and __TIME__.
+  * If no files are specified, read from stdin.
+
 Version 0.9
 -----------
   * Bugfix for ghc-6.4 -O: flush the output buffer.
