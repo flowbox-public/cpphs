@@ -32,19 +32,21 @@ runCpphs prog args = do
   when ("--version" `elem` args)
        (do putStrLn (prog++" "++version)
            exitWith ExitSuccess)
-  when ("--help" `elem` args || null files || length os > 1)
+  when ("--help" `elem` args || length os > 1)
        (do putStrLn ("Usage: "++prog
-                ++" file ... [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
+                ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
                 ++"\t\t[--nomacro] [--noline] [--text]"
                 ++" [--strip] [--hashes] [--layout]")
            exitWith (ExitFailure 1))
   o <- if null os then return stdout else openFile (head os) WriteMode
-  mapM_ (\f-> do c <- readFile f
+  mapM_ (\(f,action)->
+              do c <- action
                  let pass1 = cppIfdef f ds is macro locat c
                      pass2 = macroPass ds strip ansi layout lang pass1
                  if not macro then hPutStr o (unlines (map snd pass1))
                               else hPutStr o pass2
-        ) files
+        ) (if null files then [("stdin",getContents)]
+                         else map (\f->(f,readFile f)) files)
   hFlush o
 
 trail :: (Eq a) => [a] -> [a] -> [a]
