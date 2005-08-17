@@ -93,6 +93,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	"elif"   -> skipn cpp p syms path (Drop 1 True) xs
 	"endif"  -> skipn cpp p syms path  Keep xs
 	"pragma" -> skipn cpp p syms path  Keep xs
+        ('!':_)  -> skipn cpp p syms path Keep xs	-- #!runhs scripts
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (unwords (tail ws))
                                                      p path syms)
@@ -104,7 +105,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
                        hPutStrLn stderr (l++"\nin "++show p)
                        return $ skipn cpp p syms path  Keep xs
 	"error"  -> error (l++"\nin "++show p)
-	"line" | all isDigit sym
+	"line"   | all isDigit sym
 	         -> (if ln then ((p,l):) else id) $
                     cpp (newpos (read sym) (un rest) p)
                         syms path leave ln Keep xs
