@@ -6,6 +6,9 @@ Version 1.0
   * Place quotes around replacements for special macros __FILE__, __DATE__,
     and __TIME__.
   * If no files are specified, read from stdin.
+  * Ignore #! lines (e.g. in scripts)
+  * Parse -D commandline options once only, and consistently with cpp,
+    i.e. -Dfoo means foo=1
 
 Version 0.9
 -----------
