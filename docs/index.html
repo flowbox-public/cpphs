@@ -167,7 +167,7 @@ is no default search path (unless you define one via a wrapper script).
 <p>
 <b>Current version:</b>
 <p>
-cpphs-1.0, release date 2005.xx.xx<br>
+cpphs-1.0, release date 2005.10.05<br>
 By HTTP:
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.0.tar.gz">.tar.gz</a>,
 <a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.0.zip">.zip</a>,
@@ -183,6 +183,9 @@ By HTTP:
 <li> Ignore #! lines (e.g. in scripts)
 <li> Parse -D commandline options consistently with cpp,
      i.e. -Dfoo means foo=1
+<li> Fix compatibility with preprocessors like hsc2hs, which use
+     non-cpp directives like #def.  They are now passed through to the
+     output with a warning to stderr.
 
 </ul>
 

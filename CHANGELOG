@@ -9,6 +9,9 @@ Version 1.0
   * Ignore #! lines (e.g. in scripts)
   * Parse -D commandline options once only, and consistently with cpp,
     i.e. -Dfoo means foo=1
+  * Fix compatibility with preprocessors like hsc2hs, which use
+    non-cpp directives like #def.  They are now passed through to the
+    output with a warning to stderr.
 
 Version 0.9
 -----------
