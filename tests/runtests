@@ -3,7 +3,7 @@ CPPHS=${1:-"../cpphs"}
 FAIL=0
 
 runtest() {
-  if $1 >out && diff -q $2 out >/dev/null
+  if $1 >out 2>/dev/null && diff -q $2 out >/dev/null
   then echo "passed: " $1
   else FAIL=$?
        echo "FAILED: ($2) " $1
@@ -38,4 +38,5 @@ runtest "$CPPHS --text text" expect25
 runtest "$CPPHS --text nastyhack" expect26
 runtest "$CPPHS nastyhack" expect27
 runtest "$CPPHS -DXXX symbolvalue" expect28
+runtest "$CPPHS Test.hsc" expect29
 exit $FAIL
