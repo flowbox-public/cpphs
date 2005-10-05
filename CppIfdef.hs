@@ -93,7 +93,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
                                                   ++ cppline p :"": xs)
 	"warning"-> unsafePerformIO $ do
                        hPutStrLn stderr (l++"\nin "++show p)
-                       return $ skipn cpp p syms path  Keep xs
+                       return $ skipn cpp p syms path Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
 	         -> (if ln then ((p,l):) else id) $
@@ -104,7 +104,11 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	            cpp (newpos (read n) (un (tail ws)) p)
                         syms path leave ln Keep xs
           | otherwise
-	         -> error ("Unknown directive #"++cmd++"\nin "++show p)
+	         -> unsafePerformIO $ do
+                       hPutStrLn stderr ("Warning: unknown directive #"++n
+                                        ++"\nin "++show p)
+                       return $
+                         ((p,l): cpp (newline p) syms path leave ln Keep xs)
 
 cpp p syms path leave ln (Drop n b) (('#':x):xs) =
     let ws = words x
