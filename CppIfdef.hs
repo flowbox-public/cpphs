@@ -13,9 +13,8 @@
 -----------------------------------------------------------------------------
 
 module CppIfdef
-  ( cppIfdef	-- :: FilePath -> [String] -> [String] -> Bool -> Bool
+  ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Bool -> Bool
 		--      -> String -> [(Posn,String)]
---  , preDefine	-- :: [String] -> SymTab String
   ) where
 
 
@@ -33,7 +32,7 @@ import IO        (hPutStrLn,stderr)
 -- | Run a first pass of cpp, evaluating #ifdef's and processing #include's,
 --   whilst taking account of #define's and #undef's as we encounter them.
 cppIfdef :: FilePath		-- ^ File for error reports
-	-> [String]		-- ^ Pre-defined symbols
+	-> [(String,String)]	-- ^ Pre-defined symbols and their values
 	-> [String]		-- ^ Search path for #includes
 	-> Bool			-- ^ Leave #define and #undef in output?
 	-> Bool			-- ^ Place #line droppings in output?
@@ -43,19 +42,10 @@ cppIfdef fp syms search leave locat =
     cpp posn defs search leave locat Keep . (cppline posn:) . linesCpp
   where
     posn = newfile fp
-    defs = preDefine syms
+    defs = foldr insertST emptyST syms
 -- Notice that the symbol table is a very simple one mapping strings
 -- to strings.  This pass does not need anything more elaborate, in
 -- particular it is not required to deal with any parameterised macros.
-
-
--- | Command-line definitions via -D are parsed here.
-preDefine :: [String] -> SymTab String
-preDefine defines =
-    foldr (insertST.defval) emptyST defines
-  where
-    defval sym = let (s,d) = break (=='=') sym
-                 in (s, if null d then "1" else tail d)
 
 
 -- | Internal state for whether lines are being kept or dropped.

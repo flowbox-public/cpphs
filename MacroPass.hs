@@ -28,7 +28,7 @@ import Locale     (defaultTimeLocale)
 noPos :: Posn
 noPos = newfile "preDefined"
 
-macroPass :: [String]		-- ^ Pre-defined symbols
+macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> Bool		-- ^ Strip C-comments?
           -> Bool		-- ^ Accept # and ## operators?
           -> Bool		-- ^ Retain layout in macros?
@@ -43,17 +43,14 @@ macroPass syms strip hashes layout language =
     . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
 
 
--- | Command-line definitions via -D are parsed here
-preDefine :: Bool -> Bool -> [String] -> SymTab HashDefine
+-- | Turn command-line definitions (from @-D@) into 'HashDefine's.
+preDefine :: Bool -> Bool -> [(String,String)] -> SymTab HashDefine
 preDefine hashes lang defines =
     foldr (insertST.defval) emptyST defines
   where
-    defval sym =
-        let (s,d) = break (=='=') sym
-            (Cmd (Just hd):_) = tokenise True hashes lang
-                                   [(noPos,"\n#define "++s++" "++rmEq d++"\n")]
-            rmEq [] = []
-            rmEq (_:xs) = xs
+    defval (s,d) =
+        let (Cmd (Just hd):_) = tokenise True hashes lang
+                                   [(noPos,"\n#define "++s++" "++d++"\n")]
         in (name hd, hd)
 
 

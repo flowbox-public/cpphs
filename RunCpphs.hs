@@ -19,7 +19,7 @@ version = "0.9"
 
 runCpphs :: String -> [String] -> IO ()
 runCpphs prog args = do
-  let ds    = map (drop 2) (filter ("-D"`isPrefixOf`) args)
+  let ds    = map (preDefine . drop 2) (filter ("-D"`isPrefixOf`) args)
       os    = map (drop 2) (filter ("-O"`isPrefixOf`) args)
       is    = map (trail "/\\" . drop 2) (filter ("-I"`isPrefixOf`) args)
       macro = not ("--nomacro" `elem` args)
@@ -48,6 +48,11 @@ runCpphs prog args = do
         ) (if null files then [("stdin",getContents)]
                          else map (\f->(f,readFile f)) files)
   hFlush o
+
+-- | Parse the body of a @-D@ option: the default value is 1.
+preDefine :: String -> (String, String)
+preDefine defn = (s, if null d then "1" else tail d)
+  where (s,d) = break (=='=') defn
 
 trail :: (Eq a) => [a] -> [a] -> [a]
 trail xs = reverse . dropWhile (`elem`xs) . reverse
