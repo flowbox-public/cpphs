@@ -13,6 +13,7 @@ OBJS	= $(patsubst %.hs, $(OBJDIR)/%.$O, $(SRCS))
 CFILES	= $(patsubst %.hs, %.$C, $(SRCS))
 
 AUX	= README LICENCE* CHANGELOG cpphs.hugs cpphs.compat cpphs.cabal \
+		Setup.hs \
 		tests/[A-BD-Z]* tests/[a-np-z]* \
 		docs/[a-z]*
 
