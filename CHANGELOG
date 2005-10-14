@@ -1,3 +1,8 @@
+Version 1.1
+-----------
+  * Fix the .cabal way of building cpphs.
+  * Update the --version reported (forgotten in 1.0, which still reports 0.9)
+
 Version 1.0
 -----------
   * Add a compatibility script cpphs.compat, allowing cpphs to act as

@@ -1,5 +1,5 @@
 Name: cpphs
-Version: 0.9
+Version: 1.1
 Copyright: 2004-5, Malcolm Wallace
 Build-Depends: base, haskell98
 License: LGPL
@@ -22,6 +22,6 @@ Category: Development
 Executable: cpphs
 Main-Is: cpphs.hs
 Other-Modules:
-	CppIfdef, CpphsTest, HashDefine, MacroPass, ParseLib,
+	CppIfdef, HashDefine, MacroPass, ParseLib,
 	Position, ReadFirst, RunCpphs, SymTab, Tokenise
 

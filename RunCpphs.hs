@@ -15,7 +15,7 @@ import CppIfdef (cppIfdef)
 import MacroPass(macroPass)
 
 version :: String
-version = "0.9"
+version = "1.1"
 
 runCpphs :: String -> [String] -> IO ()
 runCpphs prog args = do
