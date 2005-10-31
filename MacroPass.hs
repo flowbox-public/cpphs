@@ -36,11 +36,14 @@ macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> [(Posn,String)]	-- ^ The input file content
           -> String		-- ^ The file after processing
 macroPass syms strip hashes layout language =
-    tail		-- to remove extra "\n" inserted below
+    safetail		-- to remove extra "\n" inserted below
     . concat
     . macroProcess layout language (preDefine hashes language syms)
     . tokenise strip hashes language
     . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
+  where
+    safetail [] = []
+    safetail (_:xs) = xs
 
 
 -- | Turn command-line definitions (from @-D@) into 'HashDefine's.

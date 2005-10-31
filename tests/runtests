@@ -10,6 +10,8 @@ runtest() {
   fi
 }
 
+if $CPPHS </dev/null; then echo -n "passed: "; else echo -n "FAILED: "; fi
+echo " $CPPHS </dev/null"
 runtest "$CPPHS --nomacro testfile" expect1
 runtest "$CPPHS --nomacro -Dnoelif testfile" expect2
 runtest "$CPPHS --nomacro -Delif testfile" expect3

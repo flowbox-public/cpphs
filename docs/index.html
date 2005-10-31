@@ -178,6 +178,7 @@ By HTTP:
 <li> Fixed the .cabal way of building cpphs.
 <li> Update the --version reported (forgotten in 1.0, which still
      mistakenly reports 0.9).
+<li> No longer throws an error on an empty file.
 </ul>
 
 <p>
@@ -325,7 +326,7 @@ To build cpphs, use
 <pre>    hmake cpphs [-package base]
 </pre>
 or
-<pre>    ghc --make cpphs
+<pre>    ghc --make cpphs [-o cpphs]
 </pre>
 or
 <pre>    mv cpphs.hugs cpphs	# a simple runhugs script
