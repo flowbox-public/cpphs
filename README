@@ -6,7 +6,7 @@ TO BUILD
 Just use
     hmake cpphs [-package base]
 or
-    ghc --make cpphs
+    ghc --make cpphs [-o cpphs]		#  -o needed for ghc <= 6.4.1 ]
 or
     runhugs cpphs	# or rename the script cpphs.hugs to cpphs
 
