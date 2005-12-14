@@ -1,7 +1,7 @@
 {-
 -- A test module for cpphs
-
 -- Copyright (c) 2004 Graham Klyne
+-- Note: this file is no longer up-to-date with respect to tests/runtests
 -}
 module Main where
 
