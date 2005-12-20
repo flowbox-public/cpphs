@@ -3,7 +3,7 @@ include Makefile.inc
 OBJDIR	= $(BUILDDIR)/$(OBJ)/cpphs
 CPPHS	= $(DST)/cpphs$(EXE)
 TARGET	= $(CPPHS)
-VERSION	= 0.9
+VERSION	= 1.1
 
 SRCS	= CppIfdef.hs HashDefine.hs MacroPass.hs ParseLib.hs \
 	  Position.hs ReadFirst.hs SymTab.hs Tokenise.hs \
@@ -43,12 +43,14 @@ fromC: $(OBJDIR)
 	cd $(OBJDIR); $(LOCAL)nhc98 -H8M -o $(TARGET) *.$O
 	$(STRIP) $(TARGET)
 
-clean:
+clean: cleanHi cleanO
+cleanO:
 	rm -f $(OBJS)
+cleanHi:
 	rm -f *.hi
-cleanC: clean
+cleanC:
 	rm -f *.hc *.c
-realclean: cleanC
+realclean: clean cleanC
 	rm -f *.raw *.html haddock.css haskell_icon.gif
 	rm -f $(TARGET)
 package:
