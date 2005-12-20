@@ -2,6 +2,7 @@ Version 1.1
 -----------
   * Fix the .cabal way of building cpphs.
   * Update the --version reported (forgotten in 1.0, which still reports 0.9)
+  * No longer throws an error when given an empty file as input.
 
 Version 1.0
 -----------
