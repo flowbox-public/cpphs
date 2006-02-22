@@ -13,7 +13,7 @@
 -- symbol or macro-use, and do the right thing.
 -----------------------------------------------------------------------------
 
-module Tokenise
+module Language.Preprocessor.Cpphs.Tokenise
   ( linesCpp
   , reslash
   , tokenise
@@ -23,8 +23,8 @@ module Tokenise
   ) where
 
 import Char
-import HashDefine
-import Position
+import Language.Preprocessor.Cpphs.HashDefine
+import Language.Preprocessor.Cpphs.Position
 
 -- | A Mode value describes whether to tokenise a la Haskell, or a la Cpp.
 --   The main difference is that in Cpp mode we should recognise line

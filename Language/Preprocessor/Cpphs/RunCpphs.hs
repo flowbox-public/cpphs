@@ -5,14 +5,14 @@
 -- This file is GPL, although the libraries it uses are either standard
 -- Haskell'98 or distributed under the LGPL.
 -}
-module RunCpphs ( runCpphs ) where
+module Language.Preprocessor.Cpphs.RunCpphs ( runCpphs ) where
 import System   (exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)
 import IO       (stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose)
 
-import CppIfdef (cppIfdef)
-import MacroPass(macroPass)
+import Language.Preprocessor.Cpphs.CppIfdef (cppIfdef)
+import Language.Preprocessor.Cpphs.MacroPass(macroPass)
 
 version :: String
 version = "1.1"

@@ -12,15 +12,15 @@
 -- whilst doing symbol replacement and macro expansion.
 -----------------------------------------------------------------------------
 
-module MacroPass
+module Language.Preprocessor.Cpphs.MacroPass
   ( macroPass
   , preDefine
   ) where
 
-import HashDefine (HashDefine(..), expandMacro)
-import Tokenise   (tokenise, WordStyle(..), parseMacroCall)
-import SymTab     (SymTab, lookupST, insertST, emptyST)
-import Position   (Posn, newfile, filename, lineno)
+import Language.Preprocessor.Cpphs.HashDefine (HashDefine(..), expandMacro)
+import Language.Preprocessor.Cpphs.Tokenise   (tokenise, WordStyle(..), parseMacroCall)
+import Language.Preprocessor.Cpphs.SymTab     (SymTab, lookupST, insertST, emptyST)
+import Language.Preprocessor.Cpphs.Position   (Posn, newfile, filename, lineno)
 import System.IO.Unsafe (unsafePerformIO)
 import Time       (getClockTime, toCalendarTime, formatCalendarTime)
 import Locale     (defaultTimeLocale)

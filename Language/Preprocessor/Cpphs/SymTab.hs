@@ -12,7 +12,7 @@
 --   Keys are always Strings.  Stored values can be any type.
 -----------------------------------------------------------------------------
 
-module SymTab
+module Language.Preprocessor.Cpphs.SymTab
   ( SymTab
   , emptyST
   , insertST

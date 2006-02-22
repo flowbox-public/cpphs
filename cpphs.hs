@@ -14,7 +14,7 @@
 module Main where
 
 import System ( getArgs, getProgName )
-import RunCpphs  ( runCpphs )
+import Language.Preprocessor.Cpphs ( runCpphs )
 
 main :: IO ()
 main = do

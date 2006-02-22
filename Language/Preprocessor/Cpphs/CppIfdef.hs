@@ -12,18 +12,18 @@
 -- and #include's.
 -----------------------------------------------------------------------------
 
-module CppIfdef
+module Language.Preprocessor.Cpphs.CppIfdef
   ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Bool -> Bool
 		--      -> String -> [(Posn,String)]
   ) where
 
 
-import SymTab
+import Language.Preprocessor.Cpphs.SymTab
 import Text.ParserCombinators.HuttonMeijer
 -- import HashDefine
-import Position  (Posn,newfile,newline,newlines,cppline,newpos)
-import ReadFirst (readFirst)
-import Tokenise  (linesCpp,reslash)
+import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines,cppline,newpos)
+import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
+import Language.Preprocessor.Cpphs.Tokenise  (linesCpp,reslash)
 import Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafePerformIO)

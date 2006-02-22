@@ -11,15 +11,15 @@
 -- Read the first file that matches in a list of search paths.
 -----------------------------------------------------------------------------
 
-module ReadFirst
+module Language.Preprocessor.Cpphs.ReadFirst
   ( readFirst
   ) where
 
 import IO        (hPutStrLn, stderr)
 import Directory (doesFileExist)
 import List      (intersperse)
-import Position  (Posn,directory)
-import SymTab    (SymTab,lookupST)
+import Language.Preprocessor.Cpphs.Position  (Posn,directory)
+import Language.Preprocessor.Cpphs.SymTab    (SymTab,lookupST)
 
 -- | Attempt to read the given file from any location within the search path.
 --   The first location found is returned, together with the file content.

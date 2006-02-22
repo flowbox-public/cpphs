@@ -11,7 +11,7 @@
 -- What structures are declared in a #define.
 -----------------------------------------------------------------------------
  
-module HashDefine
+module Language.Preprocessor.Cpphs.HashDefine
   ( HashDefine(..)
   , ArgOrText(..)
   , expandMacro

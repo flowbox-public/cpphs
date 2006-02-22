@@ -11,7 +11,7 @@
 -- Simple file position information, with recursive inclusion points.
 -----------------------------------------------------------------------------
 
-module Position
+module Language.Preprocessor.Cpphs.Position
   ( Posn(..)
   , newfile
   , addcol, newline, tab, newlines, newpos
