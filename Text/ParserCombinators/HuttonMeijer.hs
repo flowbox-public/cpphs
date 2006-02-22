@@ -27,7 +27,7 @@
 -----------------------------------------------------------------------------
 
 
-module ParseLib
+module Text.ParserCombinators.HuttonMeijer
    (Parser(..), item, first, papply, (+++), sat, {-tok,-} many, many1,
     sepby, sepby1, chainl,
     chainl1, chainr, chainr1, ops, bracket, char, digit, lower, upper,

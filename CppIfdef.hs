@@ -19,7 +19,7 @@ module CppIfdef
 
 
 import SymTab
-import ParseLib
+import Text.ParserCombinators.HuttonMeijer
 -- import HashDefine
 import Position  (Posn,newfile,newline,newlines,cppline,newpos)
 import ReadFirst (readFirst)
