@@ -9,7 +9,7 @@ module RunCpphs ( runCpphs ) where
 import System   (exitWith, ExitCode(..))
 import List     (isPrefixOf)
 import Monad    (when)
-import IO       (stdout, IOMode(WriteMode), openFile, hPutStr, hFlush)
+import IO       (stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose)
 
 import CppIfdef (cppIfdef)
 import MacroPass(macroPass)
@@ -48,6 +48,7 @@ runCpphs prog args = do
         ) (if null files then [("stdin",getContents)]
                          else map (\f->(f,readFile f)) files)
   hFlush o
+  if null os then return () else hClose o
 
 -- | Parse the body of a @-D@ option: the default value is 1.
 preDefine :: String -> (String, String)
