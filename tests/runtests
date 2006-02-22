@@ -3,7 +3,7 @@ CPPHS=${1:-"../cpphs"}
 FAIL=0
 
 runtest() {
-  if $1 >out 2>/dev/null && diff -q $2 out >/dev/null
+  if $1 >out 2>/dev/null && diff $2 out >/dev/null
   then echo "passed: " $1
   else FAIL=$?
        echo "FAILED: ($2) " $1
