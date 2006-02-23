@@ -1,7 +1,7 @@
 #!/bin/sh
 #	A minimal compatibility script to make cpphs accept the same
 #	arguments as real cpp, wherever possible.
-CPPHS=/usr/malcolm/local/haskell/compilers/nhc98/src/cpphs/cpphs
+CPPHS=/usr/malcolm/Haskell/cpphs/cpphs
 
 processArgs () {
   TRADITIONAL=no

@@ -16,6 +16,7 @@
 <a href="#download">Downloads</a><br>
 </td><td width=200 align=center>
 <a href="#diff">Differences to cpp</a><br>
+<a href="#library">cpphs as a library</a><br>
 <a href="#who">Contacts</a><br>
 </td></tr></table>
 </center>
@@ -40,7 +41,7 @@ cpp, aside from the obvious aesthetic ones:
   <li> For some Haskell systems, notably Hugs on Windows, a true cpp
        is not available by default.
   <li> Even for the other Haskell systems, the common cpp provided by
-       the gcc 3.x series is changing subtly in ways that are
+       the gcc 3.x and 4.x series has changed subtly in ways that are
        incompatible with Haskell's syntax.  There have always been
        problems with, for instance, string gaps, and prime characters
        in identifiers.  These problems are only going to get worse.
@@ -103,9 +104,9 @@ line continuations.  If you don't want <tt>#line</tt> directives in
 the final output, use the <tt>--noline</tt> option.
 
 <p>
-Any syntax errors in cpp directives gives a message to stderr and
-halts the program.  Failure to find a #include'd file produces a
-warning to stderr, but processing continues.
+Any syntax error in a cpp directive gives a warning message to stderr.
+Failure to find a #include'd file also produces a warning to stderr.  In
+both cases, processing continues on the rest of the input.
 
 <hr>
 <center><h3><a name="how">How do I use it?</a></h3></center>
@@ -167,18 +168,17 @@ is no default search path (unless you define one via a wrapper script).
 <p>
 <b>Current stable version:</b>
 <p>
-cpphs-1.1, release date 2005.10.14<br>
+cpphs-1.2, release date 2006.02.xx<br>
 By HTTP:
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.1.tar.gz">.tar.gz</a>,
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.1.zip">.zip</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.2.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.2.zip">.zip</a>,
 <a href="http://www.haskell.org/fedora/">Fedora package</a>,
 <a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
 <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
 <ul>
-<li> Fixed the .cabal way of building cpphs.
-<li> Update the --version reported (forgotten in 1.0, which still
-     mistakenly reports 0.9).
-<li> No longer throws an error on an empty file.
+<li> Re-arranged the source files into hierarchical libraries.
+<li> Exposed the library interface as an installable Cabal package, with
+     Haddock documentation.
 </ul>
 
 <p>
@@ -196,6 +196,18 @@ be browsed on-line through
 
 <p>
 <b>Older versions:</b>
+<p>
+cpphs-1.1, release date 2005.10.14<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.1.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.1.zip">.zip</a>,
+<ul>
+<li> Fixed the .cabal way of building cpphs.
+<li> Update the --version reported (forgotten in 1.0, which still
+     mistakenly reports 0.9).
+<li> No longer throws an error on an empty file.
+</ul>
+
 <p>
 cpphs-1.0, release date 2005.10.05<br>
 By HTTP:
@@ -354,7 +366,7 @@ have broadly the same behaviour in response to them, then edit the
 <tt>cpphs.compat</tt> script to point to the installed location of
 <em>cpphs</em>, then use this script instead of <em>cpp</em>, e.g.
 <pre>
-    ghc -cpp -pgmP cpphs.compat
+    ghc -cpp -pgmPcpphs.compat
 </pre>
 
 
@@ -413,6 +425,15 @@ ANSI C, and has the following main differences from the standard cpp.
 </ul>
 
 <hr>
+<center><h3><a name="library">cpphs as a library</a></h3></center>
+<p>
+You can use cpphs as a library from within a Haskell program.  The main
+interface is in <tt>Language.Preprocessor.Cpphs</tt>.  Haddock
+documentation is <a href="cpphs/">here</a>.  To make the library
+available to your haskell compiler, you must install the cpphs package
+using Cabal.
+
+<hr>
 <center><h3><a name="who">Contacts</a></h3></center>
 <p>
 I am interested in hearing your feedback on cpphs.  Bug reports
@@ -424,13 +445,13 @@ cpp's behaviour.  Please mail
         Malcolm.Wallace@cs.york.ac.uk</a> 
 </ul>
 
-<p><b>Copyright:</b> &copy; 2004-2005 Malcolm Wallace,
+<p><b>Copyright:</b> &copy; 2004-2006 Malcolm Wallace,
 except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
 
 <p><b>License:</b> The library modules in cpphs are distributed under
 the terms of the LGPL (see file <a href="LICENCE-LGPL">LICENCE-LGPL</a>
 for more details).  If that's a problem for you, contact me to make
-other arrangements.  The application module 'Main.hs' itself is GPL
+other arrangements.  The application module 'cpphs.hs' itself is GPL
 (see file <a href="LICENCE-GPL">LICENCE-GPL</a>).
 
 <p>

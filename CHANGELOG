@@ -1,3 +1,9 @@
+Version 1.2
+-----------
+  * Re-arranged the source files into hierarchical libraries.
+  * Exposed the library interface as an installable Cabal package, with
+    Haddock documentation.
+
 Version 1.1
 -----------
   * Fix the .cabal way of building cpphs.

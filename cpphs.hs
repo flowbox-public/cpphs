@@ -3,10 +3,8 @@
 -- written in Haskell.
 
 -- Author: Malcolm Wallace, 2004
--- This file is placed into the public domain, as it is so trivial that it
--- probably is unprotectable.  Note however, that it uses modules 'RunCpphs',
--- which is GPL, and 'System' which is Haskell'98.  All other modules used
--- in turn by those are either distributed under the LGPL, or are Haskell'98.
+-- This file is licensed under the GPL.  Note however, that all other
+-- modules used by it are either distributed under the LGPL, or are Haskell'98.
 --
 -- Thus, when compiled as a standalone executable, this program will fall
 -- under the GPL.
@@ -16,11 +14,11 @@ module Main where
 import System ( getArgs, getProgName, exitWith, ExitCode(..) )
 import Maybe
 import Language.Preprocessor.Cpphs ( runCpphs, CpphsOption, parseOption )
-import IO       (stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose)
+import IO     ( stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose )
 
 
 version :: String
-version = "1.1"
+version = "1.2"
 
 
 main :: IO ()
@@ -70,9 +68,9 @@ parseOptions xs = f ([], [], []) xs
         f (opts, ins, outs) [] = Right (reverse opts, reverse ins, reverse outs)
 
 
--- | Execute the preprocessor
---   Using the given arguments, an output and an input
---   If the filepath is Nothing then default to stdout/stdin as appropriate
+-- | Execute the preprocessor,
+--   using the given options; an output path; and an input path.
+--   If the filepath is Nothing then default to stdout/stdin as appropriate.
 execute :: [CpphsOption] -> Maybe FilePath -> Maybe FilePath -> IO ()
 execute opts output input = do
   let (filename, action) =

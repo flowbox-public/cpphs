@@ -1,6 +1,6 @@
 Name: cpphs
-Version: 1.1
-Copyright: 2004-5, Malcolm Wallace
+Version: 1.2
+Copyright: 2004-6, Malcolm Wallace
 Build-Depends: base, haskell98
 License: LGPL
 License-File: LICENCE-LGPL
@@ -22,6 +22,15 @@ Category: Development
 Executable: cpphs
 Main-Is: cpphs.hs
 Other-Modules:
-	CppIfdef, HashDefine, MacroPass, ParseLib,
-	Position, ReadFirst, RunCpphs, SymTab, Tokenise
+	Language.Preprocessor.Cpphs,
+	Language.Preprocessor.Cpphs.CppIfdef,
+	Language.Preprocessor.Cpphs.HashDefine,
+	Language.Preprocessor.Cpphs.MacroPass,
+	Language.Preprocessor.Cpphs.Options,
+	Language.Preprocessor.Cpphs.Position,
+	Language.Preprocessor.Cpphs.ReadFirst,
+	Language.Preprocessor.Cpphs.RunCpphs,
+	Language.Preprocessor.Cpphs.SymTab,
+	Language.Preprocessor.Cpphs.Tokenise,
+	Text.ParserCombinators.HuttonMeijer
 
