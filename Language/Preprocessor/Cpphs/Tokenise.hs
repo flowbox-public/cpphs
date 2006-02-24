@@ -32,8 +32,8 @@ import Language.Preprocessor.Cpphs.Position
 data Mode = Haskell | Cpp
 
 -- | linesCpp is, broadly speaking, Prelude.lines, except that
---   on a line beginning with a #, line continuation characters are
---   recognised.  In a continuation, the newline character is
+--   on a line beginning with a \#, line continuation characters are
+--   recognised.  In a line continuation, the newline character is
 --   preserved, but the backslash is not.
 linesCpp :: String -> [String]
 linesCpp  []                 = []
@@ -59,9 +59,9 @@ data SubMode = Any | Pred (Char->Bool) (Posn->String->WordStyle)
              | String Char | LineComment | NestComment Int
              | CComment
 
--- | Each token is classified as one of Ident, Other, or Cmd
+-- | Each token is classified as one of Ident, Other, or Cmd:
 --   * Ident is a word that could potentially match a macro name.
---   * Cmd is a complete cpp directive (#define etc).
+--   * Cmd is a complete cpp directive (\#define etc).
 --   * Other is anything else.
 data WordStyle = Ident Posn String | Other String | Cmd (Maybe HashDefine)
   deriving (Eq,Show)
@@ -75,7 +75,7 @@ deWordStyle (Cmd _)     = "\n"
 -- | tokenise is, broadly-speaking, Prelude.words, except that:
 --    * the input is already divided into lines
 --    * each word-like "token" is categorised as one of {Ident,Other,Cmd}
---    * #define's are parsed and returned out-of-band using the Cmd variant
+--    * \#define's are parsed and returned out-of-band using the Cmd variant
 --    * All whitespace is preserved intact as tokens.
 --    * C-comments are converted to white-space (depending on first param)
 --    * Parens and commas are tokens in their own right.
@@ -237,7 +237,7 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
   w */* l  = reverse w : l
 
 
--- | parse a possible macro call, returning argument list and remaining input
+-- | Parse a possible macro call, returning argument list and remaining input
 parseMacroCall :: [WordStyle] -> Maybe ([String],[WordStyle])
 parseMacroCall = call . skip
   where

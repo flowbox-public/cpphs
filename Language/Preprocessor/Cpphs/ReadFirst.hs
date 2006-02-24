@@ -28,10 +28,10 @@ import Language.Preprocessor.Cpphs.SymTab    (SymTab,lookupST)
 readFirst :: String		-- ^ filename
 	-> Posn			-- ^ inclusion point
 	-> [String]		-- ^ search path
-	-> SymTab String	-- ^ #defined symbols
-	-> IO ( FilePath	-- ^ discovered file name, inc path
-              , String		-- ^ file contents
-              )
+	-> SymTab String	-- ^ \#defined symbols
+	-> IO ( FilePath
+              , String
+              )			-- ^ discovered filepath, and file contents
 
 readFirst name demand path syms =
     try (cons dd (".":path))

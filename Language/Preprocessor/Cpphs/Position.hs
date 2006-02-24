@@ -71,7 +71,7 @@ cppline :: Posn -> String
 cppline (Pn f r _ _) = "#line "++show r++" "++show f
 
                                                                                 
---   Strip non-directory suffix from file name (analogous to the shell
+-- | Strip non-directory suffix from file name (analogous to the shell
 --   command of the same name).
 dirname :: String -> String
 dirname  = reverse . safetail . dropWhile (not.(`elem`"\\/")) . reverse

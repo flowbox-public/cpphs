@@ -8,8 +8,8 @@
 -- Stability   :  experimental
 -- Portability :  All
 --
--- Perform a cpp.first-pass, gathering #define's and evaluating #ifdef's.
--- and #include's.
+-- Perform a cpp.first-pass, gathering \#define's and evaluating \#ifdef's.
+-- and \#include's.
 -----------------------------------------------------------------------------
 
 module Language.Preprocessor.Cpphs.CppIfdef
@@ -29,13 +29,13 @@ import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafePerformIO)
 import IO        (hPutStrLn,stderr)
 
--- | Run a first pass of cpp, evaluating #ifdef's and processing #include's,
---   whilst taking account of #define's and #undef's as we encounter them.
+-- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
+--   whilst taking account of \#define's and \#undef's as we encounter them.
 cppIfdef :: FilePath		-- ^ File for error reports
 	-> [(String,String)]	-- ^ Pre-defined symbols and their values
-	-> [String]		-- ^ Search path for #includes
-	-> Bool			-- ^ Leave #define and #undef in output?
-	-> Bool			-- ^ Place #line droppings in output?
+	-> [String]		-- ^ Search path for \#includes
+	-> Bool			-- ^ Leave \#define and \#undef in output?
+	-> Bool			-- ^ Place \#line droppings in output?
 	-> String		-- ^ The input file content
 	-> [(Posn,String)]	-- ^ The file after processing (in lines)
 cppIfdef fp syms search leave locat =
@@ -83,7 +83,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	"elif"   -> skipn cpp p syms path (Drop 1 True) xs
 	"endif"  -> skipn cpp p syms path  Keep xs
 	"pragma" -> skipn cpp p syms path  Keep xs
-        ('!':_)  -> skipn cpp p syms path Keep xs	-- #!runhs scripts
+        ('!':_)  -> skipn cpp p syms path Keep xs	-- \#!runhs scripts
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (unwords (tail ws))
                                                      p path syms)

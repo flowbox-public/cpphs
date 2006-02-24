@@ -8,7 +8,7 @@
 -- Stability   :  experimental
 -- Portability :  All
 --
--- What structures are declared in a #define.
+-- What structures are declared in a \#define.
 -----------------------------------------------------------------------------
  
 module Language.Preprocessor.Cpphs.HashDefine
@@ -37,19 +37,19 @@ data HashDefine
 		}
     deriving (Eq,Show)
 
--- 'smart' constructor to avoid warnings from ghc (undefined fields)
+-- | 'smart' constructor to avoid warnings from ghc (undefined fields)
 symbolReplacement :: HashDefine
 symbolReplacement =
     SymbolReplacement
 	 { name=undefined, replacement=undefined, linebreaks=undefined }
 
--- Macro expansion text is divided into sections, each of which is classified
--- as one of three kinds: a formal argument (Arg), plain text (Text),
--- or a stringised formal argument (Str).
+-- | Macro expansion text is divided into sections, each of which is classified
+--   as one of three kinds: a formal argument (Arg), plain text (Text),
+--   or a stringised formal argument (Str).
 data ArgOrText = Arg | Text | Str deriving (Eq,Show)
 
 -- | Expand an instance of a macro.
---   precondition: got a match on the macro name.
+--   Precondition: got a match on the macro name.
 expandMacro :: HashDefine -> [String] -> Bool -> String
 expandMacro macro parameters layout =
     let env = zip (arguments macro) parameters
@@ -60,7 +60,7 @@ expandMacro macro parameters layout =
     in
     concatMap replace (expansion macro)
 
--- | parse a #define, or #undef, ignoring other # directives
+-- | Parse a \#define, or \#undef, ignoring other \# directives
 parseHashDefine :: Bool -> [String] -> Maybe HashDefine
 parseHashDefine ansi def = (command . skip) def
   where

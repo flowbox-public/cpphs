@@ -8,7 +8,7 @@
 -- Stability   :  experimental
 -- Portability :  All
 --
--- Perform a cpp.second-pass, accumulating #define's and #undef's,
+-- Perform a cpp.second-pass, accumulating \#define's and \#undef's,
 -- whilst doing symbol replacement and macro expansion.
 -----------------------------------------------------------------------------
 
@@ -30,9 +30,9 @@ noPos = newfile "preDefined"
 
 macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> Bool		-- ^ Strip C-comments?
-          -> Bool		-- ^ Accept # and ## operators?
+          -> Bool		-- ^ Accept \# and \## operators?
           -> Bool		-- ^ Retain layout in macros?
-          -> Bool		-- ^ Input language (Haskell/not)
+          -> Bool		-- ^ Input language (Haskell\/not)
           -> [(Posn,String)]	-- ^ The input file content
           -> String		-- ^ The file after processing
 macroPass syms strip hashes layout language =
@@ -57,13 +57,13 @@ preDefine hashes lang defines =
         in (name hd, hd)
 
 
--- Trundle through the document, one word at a time, using the WordStyle
--- classification introduced by 'tokenise' to decide whether to expand a
--- word or macro.  Encountering a #define or #undef causes that symbol to
--- be overwritten in the symbol table.  Any other remaining cpp directives
--- are discarded and replaced with blanks, except for #line markers.
--- All valid identifiers are checked for the presence of a definition
--- of that name in the symbol table, and if so, expanded appropriately.
+-- | Trundle through the document, one word at a time, using the WordStyle
+--   classification introduced by 'tokenise' to decide whether to expand a
+--   word or macro.  Encountering a \#define or \#undef causes that symbol to
+--   be overwritten in the symbol table.  Any other remaining cpp directives
+--   are discarded and replaced with blanks, except for \#line markers.
+--   All valid identifiers are checked for the presence of a definition
+--   of that name in the symbol table, and if so, expanded appropriately.
 macroProcess :: Bool -> Bool -> SymTab HashDefine -> [WordStyle] -> [String]
 macroProcess _ _ _         []                    = []
 macroProcess y l st (Other x: ws)                = x:    macroProcess y l st ws
