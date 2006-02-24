@@ -20,7 +20,7 @@ SRCS    = Language/Preprocessor/Cpphs.hs \
 
 DIRS =	Language/Preprocessor \
 	Language/Preprocessor/Cpphs \
-	Text/ParseCombinators \
+	Text/ParserCombinators \
 	.
 
 FLATSRCS = $(shell for file in $(SRCS); do basename $$file ; done)
@@ -77,7 +77,16 @@ package:
 	zip -r cpphs-$(VERSION).zip cpphs-$(VERSION)
 	rm -r tmp.tar cpphs-$(VERSION)
 haddock: $(SRCS)
-	haddock -h $(SRCS)
+	mkdir -p docs/cpphs
+	for dir in $(DIRS); do mkdir -p docs/cpphs/$$dir; done
+	for file in $(SRCS); \
+	    do HsColour -anchorHTML $$file \
+	         >docs/cpphs/`dirname $$file`/`basename $$file .hs`.html;\
+	    done
+	haddock --html --title=cpphs --odir=docs/cpphs --package=cpphs \
+	    --source-module="%{MODULE/.//}.html" \
+	    --source-entity="%{MODULE/.//}.html#%{NAME}" \
+	    $(SRCS)
 
 flat:
 	@echo $(FLATSRCS)
