@@ -41,4 +41,5 @@ runtest "$CPPHS --text nastyhack" expect26
 runtest "$CPPHS nastyhack" expect27
 runtest "$CPPHS -DXXX symbolvalue" expect28
 runtest "$CPPHS Test.hsc" expect29
+runtest "$CPPHS --unlit Arr.lhs" expect30
 exit $FAIL

@@ -15,6 +15,7 @@ SRCS    = Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/RunCpphs.hs \
           Language/Preprocessor/Cpphs/SymTab.hs \
           Language/Preprocessor/Cpphs/Tokenise.hs \
+          Language/Preprocessor/Unlit.hs \
           Text/ParserCombinators/HuttonMeijer.hs \
           cpphs.hs
 
@@ -129,7 +130,8 @@ ${OBJDIR}/Language/Preprocessor/Cpphs/Options.o:
 ${OBJDIR}/Language/Preprocessor/Cpphs/RunCpphs.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/CppIfdef.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/MacroPass.o \
-	${OBJDIR}/Language/Preprocessor/Cpphs/Options.o
+	${OBJDIR}/Language/Preprocessor/Cpphs/Options.o \
+	${OBJDIR}/Language/Preprocessor/Unlit.o
 ${OBJDIR}/Language/Preprocessor/Cpphs/MacroPass.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/HashDefine.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Tokenise.o \
@@ -160,6 +162,7 @@ ${OBJDIR}/Language/Preprocessor/Cpphs.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/MacroPass.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/RunCpphs.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Options.o 
+${OBJDIR}/Language/Preprocessor/Unlit.o:
 ${OBJDIR}/cpphs.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs.o
 
@@ -180,7 +183,8 @@ Language/Preprocessor/Cpphs/Options.hc:
 Language/Preprocessor/Cpphs/RunCpphs.hc: \
 	Language/Preprocessor/Cpphs/CppIfdef.hc \
 	Language/Preprocessor/Cpphs/MacroPass.hc \
-	Language/Preprocessor/Cpphs/Options.hc 
+	Language/Preprocessor/Cpphs/Options.hc \
+	Language/Preprocessor/Unlit.hc 
 Language/Preprocessor/Cpphs/MacroPass.hc: \
 	Language/Preprocessor/Cpphs/HashDefine.hc \
 	Language/Preprocessor/Cpphs/Tokenise.hc \
@@ -207,4 +211,5 @@ Language/Preprocessor/Cpphs.hc: \
 	Language/Preprocessor/Cpphs/MacroPass.hc \
 	Language/Preprocessor/Cpphs/RunCpphs.hc \
 	Language/Preprocessor/Cpphs/Options.hc 
+Language/Preprocessor/Unlit.hc:
 cpphs.hc: Language/Preprocessor/Cpphs.hc

@@ -36,7 +36,8 @@ main = do
       do putStrLn ("Usage: "++prog
                 ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
                 ++"\t\t[--nomacro] [--noline] [--text]"
-                ++" [--strip] [--hashes] [--layout]")
+                ++" [--strip] [--hashes] [--layout]"
+                ++" [--unlit]")
          exitWith (ExitFailure 1)
    else if isLeft parsedArgs then
       putStrLn $ "Unknown option, for valid options try " ++ prog ++ " --help\n" ++

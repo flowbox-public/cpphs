@@ -32,5 +32,6 @@ Other-Modules:
 	Language.Preprocessor.Cpphs.RunCpphs,
 	Language.Preprocessor.Cpphs.SymTab,
 	Language.Preprocessor.Cpphs.Tokenise,
+	Language.Preprocessor.Unlit
 	Text.ParserCombinators.HuttonMeijer
 

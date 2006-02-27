@@ -22,17 +22,19 @@ data CpphsOption
     | CpphsStrip
     | CpphsAnsi
     | CpphsLayout
+    | CpphsUnlit
     | CpphsMacro (String,String)
     | CpphsPath String
       deriving (Eq, Show)
     
     
-flags = [("--nomacro", CpphsNoMacro),
-         ("--noline", CpphsNoLine),
-         ("--text", CpphsText),
-         ("--strip", CpphsStrip),
-         ("--hashes", CpphsAnsi),
-         ("--layout", CpphsLayout)
+flags = [ ("--nomacro", CpphsNoMacro)
+        , ("--noline",  CpphsNoLine)
+        , ("--text",    CpphsText)
+        , ("--strip",   CpphsStrip)
+        , ("--hashes",  CpphsAnsi)
+        , ("--layout",  CpphsLayout)
+        , ("--unlit",   CpphsUnlit)
         ]
 
 

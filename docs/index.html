@@ -113,7 +113,7 @@ both cases, processing continues on the rest of the input.
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
-              [--nomacro|--noline|--strip|--text|--hashes|--layout]*
+              [--nomacro|--noline|--strip|--text|--hashes|--layout|--unlit]*
        cpphs --version                                             
 </pre></center>
 <p>
@@ -149,6 +149,8 @@ Options:
     <td>treat input as plain text, not Haskell code</td></tr>
 <tr><td>--layout</td>
     <td>preserve newlines within macro expansions</td></tr>
+<tr><td>--unlit</td>
+    <td>unlit literate source code</td></tr>
 <tr><td>--version</td>
     <td>report version number of cpphs and stop</td></tr>
 </table>
@@ -179,6 +181,7 @@ By HTTP:
 <li> Re-arranged the source files into hierarchical libraries.
 <li> Exposed the library interface as an installable Cabal package, with
      Haddock documentation.
+<li> Added the --unlit option, for removing literate-style comments.
 </ul>
 
 <p>
