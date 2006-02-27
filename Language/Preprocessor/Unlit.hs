@@ -32,13 +32,13 @@ unclassify Comment     = ""
 
 -- | 'unlit' takes a filename (for error reports), and transforms the
 --   given string, to eliminate the literate comments from the program text.
-unlit :: String -> String -> String
+unlit :: FilePath -> String -> String
 unlit file lhs = (unlines
                  . map unclassify
                  . adjacent file (0::Int) Blank
                  . classify) (inlines lhs)
 
-adjacent :: String -> Int -> Classified -> [Classified] -> [Classified]
+adjacent :: FilePath -> Int -> Classified -> [Classified] -> [Classified]
 adjacent file 0 _             (x              :xs) = x : adjacent file 1 x xs -- force evaluation of line number
 adjacent file n y@(Program _) (x@Comment      :xs) = error (message file n "program" "comment")
 adjacent file n y@(Program _) (x@(Include i f):xs) = x: adjacent f    i     y xs
