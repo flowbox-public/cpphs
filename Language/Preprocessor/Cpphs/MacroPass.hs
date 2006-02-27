@@ -28,6 +28,7 @@ import Locale     (defaultTimeLocale)
 noPos :: Posn
 noPos = newfile "preDefined"
 
+-- | Walk through the document, replacing calls of macros with their expanded RHS.
 macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> Bool		-- ^ Strip C-comments?
           -> Bool		-- ^ Accept \# and \## operators?

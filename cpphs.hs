@@ -60,33 +60,31 @@ fromLeft (Left x) = x
 --   or Left invalid flag
 parseOptions :: [String] -> Either String ([CpphsOption], [FilePath], [FilePath])
 parseOptions xs = f ([], [], []) xs
-    where
-        f (opts, ins, outs) (('-':'O':x):xs) = f (opts, ins, x:outs) xs
-        f (opts, ins, outs) (x@('-':_):xs) = case parseOption x of
-                                                Nothing -> Left x
-                                                Just a -> f (a:opts, ins, outs) xs
-        f (opts, ins, outs) (x:xs) = f (opts, x:ins, outs) xs
-        f (opts, ins, outs) [] = Right (reverse opts, reverse ins, reverse outs)
+  where
+    f (opts, ins, outs) (('-':'O':x):xs) = f (opts, ins, x:outs) xs
+    f (opts, ins, outs) (x@('-':_):xs) = case parseOption x of
+                                           Nothing -> Left x
+                                           Just a  -> f (a:opts, ins, outs) xs
+    f (opts, ins, outs) (x:xs) = f (opts, x:ins, outs) xs
+    f (opts, ins, outs) []     = Right (reverse opts, reverse ins, reverse outs)
 
 
 -- | Execute the preprocessor,
 --   using the given options; an output path; and an input path.
 --   If the filepath is Nothing then default to stdout/stdin as appropriate.
 execute :: [CpphsOption] -> Maybe FilePath -> Maybe FilePath -> IO ()
-execute opts output input = do
+execute opts output input =
   let (filename, action) =
         case input of
           Just x -> (x, readFile x)
           Nothing -> ("stdin", getContents)
-
-  contents <- action
-  result <- runCpphs opts filename contents
-  
-  case output of
-      Nothing -> do putStr result
-                    hFlush stdout
-                    
-      Just x -> do h <- openFile x WriteMode
-                   hPutStr h result
-                   hFlush h
-                   hClose h
+  in
+  do contents <- action
+     result <- runCpphs opts filename contents
+     case output of
+       Nothing -> do putStr result
+                     hFlush stdout
+       Just x  -> do h <- openFile x WriteMode
+                     hPutStr h result
+                     hFlush h
+                     hClose h
