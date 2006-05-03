@@ -5,11 +5,11 @@
 
 Summary: Liberalized C pre-processor re-implementation in Haskell
 Name: cpphs
-Version: 1.1
+Version: 1.2
 Release: 1%{?_distver:.%{_distver}}
 License: LGPL 2.1
 Group: Development/Tools
-Source: http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.1.tar.gz
+Source: http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.2.tar.gz
 URL: http://www.cs.york.ac.uk/fp/cpphs/
 Packager: Paul Heinlein <heinlein@galois.com>
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -22,7 +22,7 @@ in Haskell. Why re-implement cpp?
   * For some Haskell systems, notably Hugs on Windows, a true cpp is not
     available by default.
   * Even for the other Haskell systems, the common cpp provided by the gcc
-    3.x series is changing subtly in ways that are incompatible with
+    3.x and 4.x series is changing subtly in ways that are incompatible with
     Haskell's syntax. There have always been problems with, for instance,
     string gaps, and prime characters in identifiers. These problems are
     only going to get worse.

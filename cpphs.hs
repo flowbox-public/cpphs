@@ -15,6 +15,7 @@ import System ( getArgs, getProgName, exitWith, ExitCode(..) )
 import Maybe
 import Language.Preprocessor.Cpphs ( runCpphs, CpphsOption, parseOption )
 import IO     ( stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose )
+import Monad  ( when )
 
 
 version :: String
@@ -29,25 +30,25 @@ main = do
       Right (opts, ins, outs) = parsedArgs
       out = listToMaybe outs
   
-  if "--version" `elem` args then
-      do putStrLn (prog++" "++version)
-         exitWith ExitSuccess
-   else if "--help" `elem` args then
-      do putStrLn ("Usage: "++prog
+  when ("--version" `elem` args)
+       (do putStrLn (prog++" "++version)
+           exitWith ExitSuccess)
+  when ("--help" `elem` args)
+       (do putStrLn ("Usage: "++prog
                 ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
                 ++"\t\t[--nomacro] [--noline] [--text]"
                 ++" [--strip] [--hashes] [--layout]"
                 ++" [--unlit]")
-         exitWith (ExitFailure 1)
-   else if isLeft parsedArgs then
-      putStrLn $ "Unknown option, for valid options try " ++ prog ++ " --help\n" ++
-                 fromLeft parsedArgs
-   else if length outs > 1 then
-      putStrLn $ "At most one output file (-O) can be specified"
-   else if null ins then
-      execute opts out Nothing
-   else
-      mapM_ (execute opts out) (map Just ins)
+           exitWith ExitSuccess)
+  when (isLeft parsedArgs)
+       (do putStrLn $ "Unknown option, for valid options try "
+                      ++prog++" --help\n"++fromLeft parsedArgs
+           exitWith (ExitFailure 1))
+  when (length outs > 1)
+       (do putStrLn $ "At most one output file (-O) can be specified"
+           exitWith (ExitFailure 2))
+  if null ins then execute opts out Nothing
+              else mapM_ (execute opts out) (map Just ins)
 
 
 isLeft (Left _) = True
