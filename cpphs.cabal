@@ -18,7 +18,6 @@ Description:
 	pre-processors.  Additional features include: a plain-text mode;
 	an option to unlit literate code files; and an option to turn
 	off macro-expansion.
-
 Category: Development
 
 Executable: cpphs
