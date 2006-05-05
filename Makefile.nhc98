@@ -57,7 +57,7 @@ install: $(TARGET)
 cfiles: cleanC $(CFILES)
 fromC: $(OBJDIR)
 	$(LOCAL)/nhc98 -c -d $(OBJDIR) $(CFILES)
-	cd $(OBJDIR); $(LOCAL)nhc98 -H8M -o $(TARGET) *.$O
+	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS)
 	$(STRIP) $(TARGET)
 
 clean: cleanHi cleanO
