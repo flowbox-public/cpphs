@@ -19,6 +19,9 @@ Description:
 	an option to unlit literate code files; and an option to turn
 	off macro-expansion.
 Category: Development
+Exposed-Modules:
+	Language.Preprocessor.Cpphs
+	Language.Preprocessor.Unlit
 
 Executable: cpphs
 Main-Is: cpphs.hs
