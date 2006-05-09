@@ -28,7 +28,17 @@ package:
 	zip -r $(LIBRARY)-$(VERSION).zip $(LIBRARY)-$(VERSION)
 	rm -r tmp.tar $(LIBRARY)-$(VERSION)
 haddock: $(SRCS)
-	haddock -h $(SRCS)
+	mkdir -p docs/cpphs
+	for dir in $(DIRS); do mkdir -p docs/cpphs/$$dir; done
+	for file in $(SRCS); \
+	    do HsColour -anchorHTML $$file \
+	          >docs/cpphs/`dirname $$file`/`basename $$file .hs`.html;\
+	    done
+	haddock --html --title=cpphs --odir=docs/cpphs --package=cpphs \
+	    --source-module="%{MODULE/.//}.html" \
+	    --source-entity="%{MODULE/.//}.html#%{NAME}" \
+	    $(SRCS)
+
 
 
 $(LIBRARY): $(SRCS)

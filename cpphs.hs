@@ -72,7 +72,7 @@ parseOptions xs = f ([], [], []) xs
 
 -- | Execute the preprocessor,
 --   using the given options; an output path; and an input path.
---   If the filepath is Nothing then default to stdout/stdin as appropriate.
+--   If the filepath is Nothing then default to stdout\/stdin as appropriate.
 execute :: [CpphsOption] -> Maybe FilePath -> Maybe FilePath -> IO ()
 execute opts output input =
   let (filename, action) =
