@@ -22,11 +22,7 @@ Category: Development
 Exposed-Modules:
 	Language.Preprocessor.Cpphs
 	Language.Preprocessor.Unlit
-
-Executable: cpphs
-Main-Is: cpphs.hs
 Other-Modules:
-	Language.Preprocessor.Cpphs,
 	Language.Preprocessor.Cpphs.CppIfdef,
 	Language.Preprocessor.Cpphs.HashDefine,
 	Language.Preprocessor.Cpphs.MacroPass,
@@ -36,6 +32,7 @@ Other-Modules:
 	Language.Preprocessor.Cpphs.RunCpphs,
 	Language.Preprocessor.Cpphs.SymTab,
 	Language.Preprocessor.Cpphs.Tokenise,
-	Language.Preprocessor.Unlit
 	Text.ParserCombinators.HuttonMeijer
 
+Executable: cpphs
+Main-Is: cpphs.hs
