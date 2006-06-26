@@ -16,6 +16,7 @@ import Maybe
 import Language.Preprocessor.Cpphs ( runCpphs, CpphsOption, parseOption )
 import IO     ( stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose )
 import Monad  ( when )
+import List   ( isPrefixOf )
 
 
 version :: String
@@ -25,11 +26,9 @@ version = "1.2"
 main :: IO ()
 main = do
   args <- getArgs
-  prog <- getProgName
-  let parsedArgs = parseOptions args
-      Right (opts, ins, outs) = parsedArgs
-      out = listToMaybe outs
+  args <- return $ if "--cpp" `elem` args then convertArgs args else args
   
+  prog <- getProgName
   when ("--version" `elem` args)
        (do putStrLn (prog++" "++version)
            exitWith ExitSuccess)
@@ -38,8 +37,13 @@ main = do
                 ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
                 ++"\t\t[--nomacro] [--noline] [--text]"
                 ++" [--strip] [--hashes] [--layout]"
-                ++" [--unlit]")
+                ++" [--unlit] [--cpp]")
            exitWith ExitSuccess)
+
+  let parsedArgs = parseOptions args
+      Right (opts, ins, outs) = parsedArgs
+      out = listToMaybe outs
+  
   when (isLeft parsedArgs)
        (do putStrLn $ "Unknown option, for valid options try "
                       ++prog++" --help\n"++fromLeft parsedArgs
@@ -68,6 +72,40 @@ parseOptions xs = f ([], [], []) xs
                                            Just a  -> f (a:opts, ins, outs) xs
     f (opts, ins, outs) (x:xs) = f (opts, x:ins, outs) xs
     f (opts, ins, outs) []     = Right (reverse opts, reverse ins, reverse outs)
+
+
+-- | Parse a list of options, remaining compatible with cpp if possible
+--   Based on a shell script cpphs.compat
+data ConvertArgs = ConvertArgs {traditional :: Bool, strip :: Bool, infile :: String, outfile :: String}
+
+convertArgs :: [String] -> [String]
+convertArgs xs = f (ConvertArgs False True "-" "-") xs
+    where
+        flg = "DUI"
+    
+        f e (['-',r]:x:xs) | r `elem` flg = ('-':r:x) : f e xs
+        f e (x@('-':r:_):xs) | r `elem` flg = x : f e xs
+        f e ("-o":x:xs) = ('-':'O':x) : f e xs
+        f e (('-':'o':x):xs) = ('-':'O':drop 2 x) : f e xs
+        f e (('-':x):xs) | "ansi" `isPrefixOf` x = f e{traditional=False} xs
+                         | "tranditional" `isPrefixOf` x = f e{traditional=True} xs
+                         | "std" `isPrefixOf` x = f e xs -- ignore language spec
+        f e ("-x":x:xs) = f e xs -- ignore langauge spec
+        f e ("-include":x:xs) = x : f e xs
+        f e ("-P":xs) = "--noline" : f e xs
+        f e (x:xs) | x == "-C" || x == "-CC" = f e{strip=False} xs
+        f e ("-A":x:xs) = f e xs -- strip assertions
+        f e ("--help":xs) = "--help" : f e xs
+        f e ("--version":xs) = "--version" : f e xs
+        f e ("-version":xs) = "--version" : f e xs
+        f e (('-':x):xs) = f e xs -- strip all other flags
+        f e (x:xs) = f (if infile e == "-" then e{infile=x} else e{outfile=x}) xs
+        
+        f e [] = ["--hashes" | not (traditional e)] ++
+                 ["--strip" | strip e] ++
+                 [infile e] ++
+                 ["-O" ++ outfile e | outfile e /= "-"]
+
 
 
 -- | Execute the preprocessor,
