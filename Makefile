@@ -1,6 +1,9 @@
 LIBRARY	= cpphs
 VERSION	= 1.2
 
+DIRS	= Language/Preprocessor/Cpphs \
+	  Text/ParserCombinators
+
 SRCS	= Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/CppIfdef.hs \
           Language/Preprocessor/Cpphs/HashDefine.hs \
@@ -15,9 +18,10 @@ SRCS	= Language/Preprocessor/Cpphs.hs \
           Text/ParserCombinators/HuttonMeijer.hs \
           cpphs.hs
 
-AUX	= README LICENCE* CHANGELOG cpphs.hugs cpphs.compat cpphs.cabal \
-		tests/[A-BD-Z]* tests/[a-np-z]* \
-		docs/[a-z]* Setup.hs
+AUX	= README LICENCE* CHANGELOG $(LIBRARY).cabal Setup.hs Makefile \
+	  cpphs.hugs cpphs.compat \
+	  tests/[A-BD-Z]* tests/[a-np-z]* \
+	  docs/[a-z]*
 
 all: $(LIBRARY)
 package:
@@ -28,13 +32,14 @@ package:
 	zip -r $(LIBRARY)-$(VERSION).zip $(LIBRARY)-$(VERSION)
 	rm -r tmp.tar $(LIBRARY)-$(VERSION)
 haddock: $(SRCS)
-	mkdir -p docs/cpphs
-	for dir in $(DIRS); do mkdir -p docs/cpphs/$$dir; done
+	mkdir -p docs/$(LIBRARY)
+	for dir in $(DIRS); do mkdir -p docs/$(LIBRARY)/$$dir; done
 	for file in $(SRCS); \
 	    do HsColour -anchorHTML $$file \
-	          >docs/cpphs/`dirname $$file`/`basename $$file .hs`.html;\
+	          >docs/$(LIBRARY)/`dirname $$file`/`basename $$file .hs`.html;\
 	    done
-	haddock --html --title=cpphs --odir=docs/cpphs --package=cpphs \
+	haddock --html --title=$(LIBRARY) \
+	    --odir=docs/$(LIBRARY) --package=$(LIBRARY) \
 	    --source-module="%{MODULE/.//}.html" \
 	    --source-entity="%{MODULE/.//}.html#%{NAME}" \
 	    $(SRCS)
