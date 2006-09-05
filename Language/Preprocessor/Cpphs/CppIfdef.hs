@@ -118,7 +118,7 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
                  | otherwise = Drop n b
         dend     | n==1      = Keep
                  | otherwise = Drop (n-1) b
-        keep str | n==1      = if gatherDefined p syms str then Keep
+        keep str | n==1      = if not b && gatherDefined p syms str then Keep
                                else (Drop 1) b
                  | otherwise = Drop n b
         skipn cpp' p' syms' path' ud xs' =
