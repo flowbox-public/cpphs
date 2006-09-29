@@ -65,6 +65,7 @@ data SubMode = Any | Pred (Char->Bool) (Posn->String->WordStyle)
 --   * Other is anything else.
 data WordStyle = Ident Posn String | Other String | Cmd (Maybe HashDefine)
   deriving (Eq,Show)
+other :: Posn -> String -> WordStyle
 other _ s = Other s
 
 deWordStyle :: WordStyle -> String

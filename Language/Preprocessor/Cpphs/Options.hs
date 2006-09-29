@@ -28,6 +28,7 @@ data CpphsOption
       deriving (Eq, Show)
     
     
+flags :: [(String, CpphsOption)]
 flags = [ ("--nomacro", CpphsNoMacro)
         , ("--noline",  CpphsNoLine)
         , ("--text",    CpphsText)
