@@ -15,15 +15,14 @@ USAGE
 -----
 	cpphs  [filename | -Dsym | -Dsym=val | -Ipath]+  [-Ofile]
                [--nomacro|--noline|--strip|--text|--hashes|--layout|--unlit]*
+               [ --cpp compatopts ]
 
 For fuller details, see docs/index.html
 
 If you want to use cpphs as a completely drop-in replacement for the
 real cpp, that is, to accept the same arguments, and have broadly
-the same behaviour in response to them, then edit the "cpphs.compat"
-script to point to the installed location of cpphs, then use this
-script instead of cpp, e.g.
-    ghc -cpp -pgmP cpphs.compat
+the same behaviour in response to them, then use the --cpp compatibility
+option.
 
 
 COPYRIGHT

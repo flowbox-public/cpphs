@@ -114,13 +114,14 @@ both cases, processing continues on the rest of the input.
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
               [--nomacro|--noline|--strip|--text|--hashes|--layout|--unlit]*
+              [ --cpp compatopts ]
        cpphs --version                                             
 </pre></center>
 <p>
-You can give any number of filenames on the command-line.  If no
-filename is given, cpphs reads from standard input.  The results are
-catenated on standard output.  (Macro definitions in one file do not
-carry over into the next.)
+You can give any number of filenames on the command-line.  The results
+are catenated on standard output.  (Macro definitions in one file do not
+carry over into the next.)  If no filename is given, cpphs reads from
+standard input.
 
 <p>
 Options:
@@ -151,6 +152,9 @@ Options:
     <td>preserve newlines within macro expansions</td></tr>
 <tr><td>--unlit</td>
     <td>unlit literate source code</td></tr>
+<tr><td>--cpp compatopts</td>
+    <td>accept standard cpp options: -o, -x, -ansi, -traditional,
+                                     -P, -C, -A, etc</td></tr>
 <tr><td>--version</td>
     <td>report version number of cpphs and stop</td></tr>
 </table>
@@ -383,12 +387,8 @@ You will notice that the command-line arguments for <em>cpphs</em>
 are not the same as for the original <em>cpp</em>.  If you want
 to use <em>cpphs</em> as a completely drop-in replacement for
 the real <em>cpp</em>, that is, to accept the same arguments, and
-have broadly the same behaviour in response to them, then edit the
-<tt>cpphs.compat</tt> script to point to the installed location of
-<em>cpphs</em>, then use this script instead of <em>cpp</em>, e.g.
-<pre>
-    ghc -cpp -pgmPcpphs.compat
-</pre>
+have broadly the same behaviour in response to them, then use the
+<tt>--cpp</tt> compatibility option as the first commandline flag.
 
 
 <hr>
