@@ -5,7 +5,7 @@
 
 Summary: Liberalized C pre-processor re-implementation in Haskell
 Name: cpphs
-Version: 1.2
+Version: 1.3
 Release: 1%{?_distver:.%{_distver}}
 License: LGPL 2.1
 Group: Development/Tools

@@ -1,3 +1,13 @@
+Version 1.3
+-----------
+  * Added a "--cpp" option for drop-in compatibility with standard cpp.
+    It causes cpphs to accept standard cpp flags and translate
+    them to cpphs equivalents.  Compatibility options include: -o, -ansi,
+    -traditional, -stdc, -x, -include, -P, -C, -CC, -A.  The file
+    behaviour is different too - if two filenames are given on the
+    commandline, then the second is treated as the output location.
+  * Fixed a corner-case bug in evaluating chained and overlapping #ifdefs.
+
 Version 1.2
 -----------
   * Re-arranged the source files into hierarchical libraries.

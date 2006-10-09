@@ -20,7 +20,7 @@ import List   ( isPrefixOf )
 
 
 version :: String
-version = "1.2"
+version = "1.3"
 
 
 main :: IO ()
