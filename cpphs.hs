@@ -88,7 +88,7 @@ convertArgs xs = f (ConvertArgs False True "-" "-") xs
         f e ("-o":x:xs) = ('-':'O':x) : f e xs
         f e (('-':'o':x):xs) = ('-':'O':drop 2 x) : f e xs
         f e (('-':x):xs) | "ansi" `isPrefixOf` x = f e{traditional=False} xs
-                         | "tranditional" `isPrefixOf` x = f e{traditional=True} xs
+                         | "traditional" `isPrefixOf` x = f e{traditional=True} xs
                          | "std" `isPrefixOf` x = f e xs -- ignore language spec
         f e ("-x":x:xs) = f e xs -- ignore langauge spec
         f e ("-include":x:xs) = x : f e xs
