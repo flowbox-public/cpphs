@@ -35,9 +35,9 @@ main = do
   when ("--help" `elem` args)
        (do putStrLn ("Usage: "++prog
                 ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-                ++"\t\t[--nomacro] [--noline] [--text]"
-                ++" [--strip] [--hashes] [--layout]"
-                ++" [--unlit] [--cpp]")
+                ++"\t\t[--nomacro] [--noline] [--pragma] [--text]\n"
+                ++"\t\t[--strip] [--hashes] [--layout] [--unlit]\n"
+                ++"\t\t[ --cpp std-cpp-options ]")
            exitWith ExitSuccess)
 
   let parsedArgs = parseOptions args
