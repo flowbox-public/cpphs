@@ -28,8 +28,8 @@ runtest "$CPPHS --strip ross" expect13
 runtest "$CPPHS precedence" expect14
 runtest "$CPPHS indirect" expect15
 runtest "$CPPHS numbers" expect16
-runtest "$CPPHS pragma" expect17
-runtest "$CPPHS --noline pragma" expect18
+runtest "$CPPHS pragma" expect17		# see also test 32
+runtest "$CPPHS --noline pragma" expect18	# see also test 33
 runtest "$CPPHS -D__NHC__=117 parens" expect19
 runtest "$CPPHS -Dc -Dd -De -Df -Dg -Dh chains" expect20
 runtest "$CPPHS --hashes specials" expect21
@@ -43,4 +43,6 @@ runtest "$CPPHS -DXXX symbolvalue" expect28
 runtest "$CPPHS Test.hsc" expect29
 runtest "$CPPHS --unlit Arr.lhs" expect30
 runtest "$CPPHS -D__NHC__=118 elif" expect31
+runtest "$CPPHS --pragma pragma" expect32
+runtest "$CPPHS --pragma --noline pragma" expect33
 exit $FAIL
