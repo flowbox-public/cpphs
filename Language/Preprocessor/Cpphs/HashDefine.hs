@@ -24,6 +24,8 @@ import List (intersperse)
 data HashDefine
 	= LineDrop
 		{ name :: String }
+	| Pragma
+		{ name :: String }
 	| SymbolReplacement
 		{ name		:: String
 		, replacement	:: String
@@ -68,6 +70,7 @@ parseHashDefine ansi def = (command . skip) def
                     | otherwise     = xss
     skip    []      = []
     command ("line":xs)   = Just (LineDrop ("#line"++concat xs))
+    command ("pragma":xs) = Just (Pragma ("#pragma"++concat xs))
     command ("define":xs) = Just (((define . skip) xs) { linebreaks=count def })
     command ("undef":xs)  = Just (((undef  . skip) xs) { linebreaks=count def })
     command _             = Nothing

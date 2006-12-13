@@ -20,14 +20,15 @@ runCpphs opts filename input = do
       macro = not (CpphsNoMacro `elem` opts)
       locat = not (CpphsNoLine  `elem` opts)
       lang  = not (CpphsText    `elem` opts)
+      pragma=      CpphsPragma  `elem` opts
       strip =      CpphsStrip   `elem` opts
       ansi  =      CpphsAnsi    `elem` opts
       layout=      CpphsLayout  `elem` opts
       unlit =      CpphsUnlit   `elem` opts
 
   let pass1 = cppIfdef filename ds is macro locat input
-      pass2 = macroPass ds strip ansi layout lang pass1
-      result = if not macro then unlines (map snd pass1) else pass2
+      pass2 = macroPass ds strip ansi pragma layout lang pass1
+      result= if not macro then unlines (map snd pass1) else pass2
       pass3 = if unlit then Unlit.unlit filename result else result
 
   return pass3

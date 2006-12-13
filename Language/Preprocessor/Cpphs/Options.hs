@@ -18,6 +18,7 @@ import Maybe
 data CpphsOption
     = CpphsNoMacro
     | CpphsNoLine
+    | CpphsPragma
     | CpphsText
     | CpphsStrip
     | CpphsAnsi
@@ -31,6 +32,7 @@ data CpphsOption
 flags :: [(String, CpphsOption)]
 flags = [ ("--nomacro", CpphsNoMacro)
         , ("--noline",  CpphsNoLine)
+        , ("--pragma",  CpphsPragma)
         , ("--text",    CpphsText)
         , ("--strip",   CpphsStrip)
         , ("--hashes",  CpphsAnsi)

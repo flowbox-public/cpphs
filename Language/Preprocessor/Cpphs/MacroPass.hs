@@ -32,14 +32,15 @@ noPos = newfile "preDefined"
 macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> Bool		-- ^ Strip C-comments?
           -> Bool		-- ^ Accept \# and \## operators?
+          -> Bool		-- ^ Retain pragmas in output?
           -> Bool		-- ^ Retain layout in macros?
           -> Bool		-- ^ Input language (Haskell\/not)
           -> [(Posn,String)]	-- ^ The input file content
           -> String		-- ^ The file after processing
-macroPass syms strip hashes layout language =
+macroPass syms strip hashes pragma layout language =
     safetail		-- to remove extra "\n" inserted below
     . concat
-    . macroProcess layout language (preDefine hashes language syms)
+    . macroProcess pragma layout language (preDefine hashes language syms)
     . tokenise strip hashes language
     . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
   where
@@ -65,27 +66,33 @@ preDefine hashes lang defines =
 --   are discarded and replaced with blanks, except for \#line markers.
 --   All valid identifiers are checked for the presence of a definition
 --   of that name in the symbol table, and if so, expanded appropriately.
-macroProcess :: Bool -> Bool -> SymTab HashDefine -> [WordStyle] -> [String]
-macroProcess _ _ _         []                    = []
-macroProcess y l st (Other x: ws)                = x:    macroProcess y l st ws
-macroProcess y l st (Cmd Nothing: ws)            = "\n": macroProcess y l st ws
-macroProcess y l st (Cmd (Just (LineDrop x)): ws)= "\n":x:macroProcess y l st ws
-macroProcess layout lang st (Cmd (Just hd): ws)  =
+--   (Bool arguments are: keep pragmas?  retain layout?  haskell language?)
+macroProcess :: Bool -> Bool -> Bool -> SymTab HashDefine -> [WordStyle]
+             -> [String]
+macroProcess _ _ _ _         []               = []
+macroProcess p y l st (Other x: ws)           = x:    macroProcess p y l st ws
+macroProcess p y l st (Cmd Nothing: ws)       = "\n": macroProcess p y l st ws
+macroProcess p y l st (Cmd (Just (LineDrop x)): ws)
+                                              = "\n":x:macroProcess p y l st ws
+macroProcess pragma y l st (Cmd (Just (Pragma x)): ws)
+                             | pragma    = "\n":x:macroProcess pragma y l st ws
+                             | otherwise = "\n":  macroProcess pragma y l st ws
+macroProcess p layout lang st (Cmd (Just hd): ws) =
     let n = 1 + linebreaks hd in
-    replicate n "\n" ++ macroProcess layout lang (insertST (name hd, hd) st) ws
-macroProcess layout lang st (Ident p x: ws) =
+    replicate n "\n" ++macroProcess p layout lang (insertST (name hd, hd) st) ws
+macroProcess pr layout lang st (Ident p x: ws) =
     case x of
-      "__FILE__" -> show (filename p): macroProcess layout lang st ws
-      "__LINE__" -> show (lineno p):   macroProcess layout lang st ws
+      "__FILE__" -> show (filename p): macroProcess pr layout lang st ws
+      "__LINE__" -> show (lineno p):   macroProcess pr layout lang st ws
       "__DATE__" -> formatCalendarTime defaultTimeLocale "\"%d %b %Y\""
                         (unsafePerformIO (getClockTime>>=toCalendarTime)):
-                                       macroProcess layout lang st ws
+                                       macroProcess pr layout lang st ws
       "__TIME__" -> formatCalendarTime defaultTimeLocale "\"%H:%M:%S\""
                         (unsafePerformIO (getClockTime>>=toCalendarTime)):
-                                       macroProcess layout lang st ws
+                                       macroProcess pr layout lang st ws
       _ ->
         case lookupST x st of
-            Nothing -> x: macroProcess layout lang st ws
+            Nothing -> x: macroProcess pr layout lang st ws
             Just hd ->
                 case hd of
                     SymbolReplacement _ r _ ->
@@ -93,20 +100,20 @@ macroProcess layout lang st (Ident p x: ws) =
                         -- r: macroProcess layout st ws
                         -- multi-level expansion:
                         let r' = if layout then r else filter (/='\n') r in
-                        macroProcess layout lang st
+                        macroProcess pr layout lang st
                                      (tokenise True False lang [(p,r')]
                                       ++ ws)
                     MacroExpansion _ _ _ _  ->
                         case parseMacroCall ws of
-                            Nothing -> x: macroProcess layout lang st ws
+                            Nothing -> x: macroProcess pr layout lang st ws
                             Just (args,ws') ->
                                 if length args /= length (arguments hd) then
-                                     x: macroProcess layout lang st ws
+                                     x: macroProcess pr layout lang st ws
                                 else -- one-level expansion only:
                                      -- expandMacro hd args layout:
                                      --         macroProcess layout st ws'
                                      -- multi-level expansion:
-                                     macroProcess layout lang st
+                                     macroProcess pr layout lang st
                                               (tokenise True False lang
                                                 [(p,expandMacro hd args layout)]
                                                ++ ws')
