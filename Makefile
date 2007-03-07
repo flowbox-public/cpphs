@@ -1,5 +1,5 @@
 LIBRARY	= cpphs
-VERSION	= 1.3
+VERSION	= 1.4
 
 DIRS	= Language/Preprocessor/Cpphs \
 	  Text/ParserCombinators

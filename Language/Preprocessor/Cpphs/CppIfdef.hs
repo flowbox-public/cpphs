@@ -185,19 +185,19 @@ parseExp0 st =
   do  sym1 <- skip (many1 alphanum)
       op <- parseOp st
       sym2 <- skip (many1 alphanum)
-      let val1 = convert sym1
-      let val2 = convert sym2
+      let val1 = safeRead (convert sym1)
+      let val2 = safeRead (convert sym2)
       return (op val1 val2)
   +++
   do  sym <- skip (many1 alphanum)
-      case convert sym of
+      case safeRead (convert sym) of
         0 -> return False
         _ -> return True
   where
     convert sym =
       case lookupST sym st of
-        Nothing  -> safeRead sym
-        (Just a) -> safeRead a
+        Nothing  -> sym
+        (Just a) -> convert a
     safeRead s =
       case s of
         '0':'x':s' -> number readHex s'

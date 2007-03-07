@@ -45,4 +45,5 @@ runtest "$CPPHS --unlit Arr.lhs" expect30
 runtest "$CPPHS -D__NHC__=118 elif" expect31
 runtest "$CPPHS --pragma pragma" expect32
 runtest "$CPPHS --pragma --noline pragma" expect33
+runtest "$CPPHS igloo" expect34
 exit $FAIL
