@@ -185,17 +185,17 @@ parseExp0 st =
   do  sym1 <- skip (many1 alphanum)
       op <- parseOp st
       sym2 <- skip (many1 alphanum)
-      let val1 = convert sym1 st
-      let val2 = convert sym2 st
+      let val1 = convert sym1
+      let val2 = convert sym2
       return (op val1 val2)
   +++
   do  sym <- skip (many1 alphanum)
-      case convert sym st of
+      case convert sym of
         0 -> return False
         _ -> return True
   where
-    convert sym st' =
-      case lookupST sym st' of
+    convert sym =
+      case lookupST sym st of
         Nothing  -> safeRead sym
         (Just a) -> safeRead a
     safeRead s =
