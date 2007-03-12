@@ -46,4 +46,10 @@ runtest "$CPPHS -D__NHC__=118 elif" expect31
 runtest "$CPPHS --pragma pragma" expect32
 runtest "$CPPHS --pragma --noline pragma" expect33
 runtest "$CPPHS igloo" expect34
+runtest "$CPPHS igloo2" expect35
+runtest "$CPPHS --hashes igloo3" expect36
+runtest "$CPPHS --hashes igloo4" expect37
+runtest "$CPPHS mauke" expect38
+runtest "$CPPHS mauke2" expect39
+runtest "$CPPHS --hashes fasta" expect40
 exit $FAIL
