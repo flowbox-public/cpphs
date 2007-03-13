@@ -1,0 +1,2 @@
+#define whereami __LINE__
+whereami
