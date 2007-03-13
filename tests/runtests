@@ -56,4 +56,5 @@ runtest "$CPPHS mauke2" expect39
 runtest "$CPPHS --hashes fasta" expect40
 runtest "$CPPHS --hashes hashjoin" expect41
 runtest "$CPPHS wrongline" expect42
+runtest "$CPPHS --hashes param" expect43
 exit $FAIL
