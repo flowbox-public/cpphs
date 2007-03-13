@@ -106,17 +106,21 @@ macroProcess pr layout lang st (Ident p x: ws) =
                                      (tokenise True False lang [(p,r')]
                                       ++ ws)
                     MacroExpansion {} ->
-                        case parseMacroCall ws of
+                        case parseMacroCall p ws of
                             Nothing -> x: macroProcess pr layout lang st ws
                             Just (args,ws') ->
                                 if length args /= length (arguments hd) then
                                      x: macroProcess pr layout lang st ws
-                                else -- one-level expansion only:
-                                     -- expandMacro hd args layout:
+                                else let args' = map (concat
+                                                     . macroProcess pr layout
+                                                                    lang st)
+                                                     args in
+                                     -- one-level expansion only:
+                                     -- expandMacro hd args' layout:
                                      --         macroProcess layout st ws'
                                      -- multi-level expansion:
                                      macroProcess pr layout lang st
-                                              (tokenise True False lang
-                                                [(p,expandMacro hd args layout)]
-                                               ++ ws')
+                                         (tokenise True False lang
+                                              [(p,expandMacro hd args' layout)]
+                                         ++ ws')
 

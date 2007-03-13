@@ -239,19 +239,19 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
 
 
 -- | Parse a possible macro call, returning argument list and remaining input
-parseMacroCall :: [WordStyle] -> Maybe ([String],[WordStyle])
-parseMacroCall = call . skip
+parseMacroCall :: Posn -> [WordStyle] -> Maybe ([[WordStyle]],[WordStyle])
+parseMacroCall p = call . skip
   where
     skip (Other x:xs) | all isSpace x = skip xs
     skip xss                          = xss
     call (Other "(":xs)   = (args (0::Int) [] [] . skip) xs
     call _                = Nothing
-    args 0 w acc (Other ",":xs)   = args 0 [] (addone w acc) (skip xs)
-    args n w acc (Other "(":xs)   = args (n+1) ("(":w) acc xs
-    args 0 w acc (Other ")":xs)   = Just (reverse (addone w acc), xs)
-    args n w acc (Other ")":xs)   = args (n-1) (")":w) acc xs
-    args n w acc (Ident _ var:xs) = args n (var:w) acc xs
-    args n w acc (Other var:xs)   = args n (var:w) acc xs
-    args _ _ _   _                = Nothing
-    addone w acc = concat (reverse (dropWhile (all isSpace) w)): acc
+    args 0 w acc (   Other ")" :xs)  = Just (reverse (addone w acc), xs)
+    args 0 w acc (   Other "," :xs)  = args 0     []   (addone w acc) (skip xs)
+    args n w acc (x@(Other "("):xs)  = args (n+1) (x:w)         acc    xs
+    args n w acc (x@(Other ")"):xs)  = args (n-1) (x:w)         acc    xs
+    args n w acc (   Ident _ v :xs)  = args n     (Ident p v:w) acc    xs
+    args n w acc (x@(Other _)  :xs)  = args n     (x:w)         acc    xs
+    args _ _ _   _                   = Nothing
+    addone w acc = reverse (skip w): acc
 
