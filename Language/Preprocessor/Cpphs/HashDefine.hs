@@ -77,9 +77,10 @@ parseHashDefine ansi def = (command . skip) def
     undef  (sym:_)   = symbolReplacement { name=sym, replacement=sym }
     define (sym:xs)  = case {-skip-} xs of
                            ("(":ys) -> (macroHead sym [] . skip) ys
-                           ys       -> symbolReplacement
-                                           { name=sym
-                                           , replacement=chop (skip ys) }
+                           ys   -> symbolReplacement
+                                     { name=sym
+                                     , replacement = concatMap snd
+                                             (classifyRhs [] (chop (skip ys))) }
     macroHead sym args (",":xs) = (macroHead sym args . skip) xs
     macroHead sym args (")":xs) = MacroExpansion
                                     { name =sym , arguments = reverse args
@@ -99,5 +100,5 @@ parseHashDefine ansi def = (command . skip) def
                           | otherwise        = (Text,word): classifyRhs args xs
     classifyRhs _    []                      = []
     count = length . filter (=='\n') . concat
-    chop  = concat . reverse . dropWhile (all isSpace) . reverse
+    chop  = reverse . dropWhile (all isSpace) . reverse
 

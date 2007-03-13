@@ -18,8 +18,10 @@ module Language.Preprocessor.Cpphs.MacroPass
   ) where
 
 import Language.Preprocessor.Cpphs.HashDefine (HashDefine(..), expandMacro)
-import Language.Preprocessor.Cpphs.Tokenise   (tokenise, WordStyle(..), parseMacroCall)
-import Language.Preprocessor.Cpphs.SymTab     (SymTab, lookupST, insertST, emptyST)
+import Language.Preprocessor.Cpphs.Tokenise   (tokenise, WordStyle(..)
+                                              , parseMacroCall)
+import Language.Preprocessor.Cpphs.SymTab     (SymTab, lookupST, insertST
+                                              , emptyST)
 import Language.Preprocessor.Cpphs.Position   (Posn, newfile, filename, lineno)
 import System.IO.Unsafe (unsafePerformIO)
 import Time       (getClockTime, toCalendarTime, formatCalendarTime)
@@ -95,15 +97,15 @@ macroProcess pr layout lang st (Ident p x: ws) =
             Nothing -> x: macroProcess pr layout lang st ws
             Just hd ->
                 case hd of
-                    SymbolReplacement _ r _ ->
-                        -- one-level expansion only:
-                        -- r: macroProcess layout st ws
-                        -- multi-level expansion:
+                    SymbolReplacement {replacement=r} ->
                         let r' = if layout then r else filter (/='\n') r in
+                        -- one-level expansion only:
+                        -- r' : macroProcess layout st ws
+                        -- multi-level expansion:
                         macroProcess pr layout lang st
                                      (tokenise True False lang [(p,r')]
                                       ++ ws)
-                    MacroExpansion _ _ _ _  ->
+                    MacroExpansion {} ->
                         case parseMacroCall ws of
                             Nothing -> x: macroProcess pr layout lang st ws
                             Just (args,ws') ->
