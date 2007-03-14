@@ -21,7 +21,8 @@ module Language.Preprocessor.Cpphs.CppIfdef
 import Language.Preprocessor.Cpphs.SymTab
 import Text.ParserCombinators.HuttonMeijer
 -- import HashDefine
-import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines,cppline,newpos)
+import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines
+                                             ,cppline,newpos)
 import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
 import Language.Preprocessor.Cpphs.Tokenise  (linesCpp,reslash)
 import Char      (isDigit)
@@ -69,21 +70,21 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
         down = if definedST sym syms then (Drop 1 False) else Keep
         up   = if definedST sym syms then Keep else (Drop 1 False)
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
-        skipn cpp' p' syms' path' ud xs' =
+        skipn syms' ud xs' =
             let n = 1 + length (filter (=='\n') l) in
             (if leave then ((p,reslash l):) else (replicate n (p,"") ++)) $
-            cpp' (newlines n p') syms' path' leave ln ud xs'
+            cpp (newlines n p) syms' path leave ln ud xs'
     in case cmd of
-	"define" -> skipn cpp p (insertST (sym,val) syms) path Keep xs
-	"undef"  -> skipn cpp p (deleteST sym syms) path Keep xs
-	"ifndef" -> skipn cpp p syms path  down xs
-	"ifdef"  -> skipn cpp p syms path  up   xs
-	"if"     -> skipn cpp p syms path (keep (unwords (tail ws))) xs
-	"else"   -> skipn cpp p syms path (Drop 1 False) xs
-	"elif"   -> skipn cpp p syms path (Drop 1 True) xs
-	"endif"  -> skipn cpp p syms path  Keep xs
-	"pragma" -> skipn cpp p syms path  Keep xs
-        ('!':_)  -> skipn cpp p syms path Keep xs	-- \#!runhs scripts
+	"define" -> skipn (insertST (sym,val) syms) Keep xs
+	"undef"  -> skipn (deleteST sym syms) Keep xs
+	"ifndef" -> skipn syms  down xs
+	"ifdef"  -> skipn syms  up   xs
+	"if"     -> skipn syms (keep (unwords (tail ws))) xs
+	"else"   -> skipn syms (Drop 1 False) xs
+	"elif"   -> skipn syms (Drop 1 True) xs
+	"endif"  -> skipn syms  Keep xs
+	"pragma" -> skipn syms  Keep xs
+        ('!':_)  -> skipn syms  Keep xs	-- \#!runhs scripts
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (unwords (tail ws))
                                                      p path syms)
@@ -93,7 +94,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
                                                   ++ cppline (newline p): xs)
 	"warning"-> unsafePerformIO $ do
                        hPutStrLn stderr (l++"\nin "++show p)
-                       return $ skipn cpp p syms path Keep xs
+                       return $ skipn syms Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
 	         -> (if ln then ((p,l):) else id) $
@@ -121,19 +122,18 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
         keep str | n==1      = if not b && gatherDefined p syms str then Keep
                                else (Drop 1) b
                  | otherwise = Drop n b
-        skipn cpp' p' syms' path' ud xs' =
+        skipn ud xs' =
                  let n' = 1 + length (filter (=='\n') x) in
                  replicate n' (p,"")
-                 ++ cpp' (newlines n' p') syms' path' leave ln ud xs'
+                 ++ cpp (newlines n' p) syms path leave ln ud xs'
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
-            cmd == "ifdef"  then  skipn cpp p syms path (Drop (n+1) b) xs
-    else if cmd == "elif"   then  skipn cpp p syms path
-                                                  (keep (unwords (tail ws))) xs
-    else if cmd == "else"   then  skipn cpp p syms path delse xs
-    else if cmd == "endif"  then  skipn cpp p syms path dend xs
-    else skipn cpp p syms path (Drop n b) xs
+            cmd == "ifdef"  then  skipn (Drop (n+1) b) xs
+    else if cmd == "elif"   then  skipn (keep (unwords (tail ws))) xs
+    else if cmd == "else"   then  skipn delse xs
+    else if cmd == "endif"  then  skipn dend  xs
+    else skipn (Drop n b) xs
 	-- define, undef, include, error, warning, pragma, line
 
 cpp p syms path leave ln Keep (x:xs) =
