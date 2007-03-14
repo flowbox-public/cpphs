@@ -38,11 +38,9 @@ module Foreign.Storable
 import Control.Monad		( liftM )
 
 #line 1 "./MachDeps.h"
-#line 39 "Storable.hs"
-
-#line 1 "./config.h"
 #line 40 "Storable.hs"
-
+#line 1 "./config.h"
+#line 41 "Storable.hs"
 
 
 import GHC.Storable

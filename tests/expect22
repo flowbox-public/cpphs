@@ -8,7 +8,6 @@ line 3
 line 4  Error "horrible" at line 4 of file "./specials"
 line 5
 
-#line 3 "specialinclude"
-
+#line 4 "specialinclude"
 4
 5
