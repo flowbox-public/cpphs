@@ -120,9 +120,8 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
 
   haskell pre@(Pred pred ws) acc p ls (x:xs)
                         | pred x    = haskell pre (x:acc) p ls xs
-                        | otherwise = ws p (reverse acc):
-                                      haskell Any [] p ls (x:xs)
-  haskell (Pred _ ws) acc p [] []   = ws p (reverse acc): []
+  haskell (Pred _ ws) acc p ls xs   = ws p (reverse acc):
+                                      haskell Any [] p ls xs
   haskell (String c) acc p ls ('\\':x:xs)
                         | x=='\\'   = haskell (String c) ('\\':'\\':acc) p ls xs
                         | x==c      = haskell (String c) (c:'\\':acc) p ls xs
@@ -176,8 +175,7 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
                     | otherwise = lexcpp Any (x:w) l ls xs
     lexcpp pre@(Pred pred _) w l ls (x:xs)
                     | pred x    = lexcpp pre (x:w) l ls xs
-                    | otherwise = lexcpp Any [] (w*/*l) ls (x:xs)
-    lexcpp      (Pred _ _) w l [] []      = lexcpp Any [] (w*/*l) [] "\n"
+    lexcpp (Pred _ _) w l ls xs = lexcpp Any [] (w*/*l) ls xs
     lexcpp (String c) w l ls ('\\':x:xs)
                     | x=='\\'   = lexcpp (String c) ('\\':'\\':w) l ls xs
                     | x==c      = lexcpp (String c) (c:'\\':w) l ls xs
@@ -194,7 +192,7 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
                                           = lexcpp Any [] (w*/*l) ls xs
     lexcpp (NestComment n) w l ls (_:xs)  = lexcpp (NestComment n) (' ':w) l
                                                                         ls xs
-    lexcpp mode w l ((p,l'):ls) []        = cpp mode next w l pos ls ('\n':l')
+    lexcpp mode w l ((p,l'):ls) []        = cpp mode next w l p ls ('\n':l')
     lexcpp _    _ _ []          []        = []
 
     -- rules to lex non-Haskell, non-cpp text
@@ -215,9 +213,8 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
   plaintext Any acc p ls (x:xs)             = plaintext Any (x:acc) p ls xs
   plaintext pre@(Pred pred ws) acc p ls (x:xs)
                                 | pred x    = plaintext pre (x:acc) p ls xs
-                                | otherwise = ws p (reverse acc):
-                                              plaintext Any [] p ls (x:xs)
-  plaintext (Pred _ ws) acc p [] []         = ws p (reverse acc): []
+  plaintext (Pred _ ws) acc p ls xs         = ws p (reverse acc):
+                                              plaintext Any [] p ls xs
   plaintext CComment acc p ls ('*':'/':xs)  = emit ("  "++acc) $
                                               plaintext Any [] p ls xs
   plaintext CComment acc p ls (_:xs)    = plaintext CComment (' ':acc) p ls xs
