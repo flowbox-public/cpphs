@@ -90,7 +90,7 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
 	            in
 		    cpp p syms path leave ln Keep (("#line 1 "++show inc)
                                                   : linesCpp content
-                                                  ++ cppline p :"": xs)
+                                                  ++ cppline (newline p): xs)
 	"warning"-> unsafePerformIO $ do
                        hPutStrLn stderr (l++"\nin "++show p)
                        return $ skipn cpp p syms path Keep xs
