@@ -233,6 +233,8 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
   -- add a reversed word to the accumulator
   "" */* l = l
   w */* l  = reverse w : l
+  -- help out broken Haskell compilers which need balanced numbers of C
+  -- comments in order to do import chasing :-)  ----->   */*
 
 
 -- | Parse a possible macro call, returning argument list and remaining input
