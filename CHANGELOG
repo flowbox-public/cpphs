@@ -3,6 +3,7 @@ Version 1.4
   * Added a "--pragma" option to retain #pragma in the output.
   * Fixed a number of obscure corner cases involving the interaction of
     multiple features e.g. foo##__LINE__.
+  * Added the "--nowarn" option.
 
 Version 1.3
 -----------

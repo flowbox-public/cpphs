@@ -18,6 +18,7 @@ module Language.Preprocessor.Cpphs.ReadFirst
 import IO        (hPutStrLn, stderr)
 import Directory (doesFileExist)
 import List      (intersperse)
+import Monad     (when)
 import Language.Preprocessor.Cpphs.Position  (Posn,directory)
 import Language.Preprocessor.Cpphs.SymTab    (SymTab,lookupST)
 
@@ -29,21 +30,23 @@ readFirst :: String		-- ^ filename
 	-> Posn			-- ^ inclusion point
 	-> [String]		-- ^ search path
 	-> SymTab String	-- ^ \#defined symbols
+	-> Bool			-- ^ report warnings?
 	-> IO ( FilePath
               , String
               )			-- ^ discovered filepath, and file contents
 
-readFirst name demand path syms =
+readFirst name demand path syms warn =
     try (cons dd (".":path))
   where
     dd = directory demand
     cons x xs = if null x then xs else x:xs
     realname = real name syms
     try [] = do
-        hPutStrLn stderr ("Warning: Can't find file \""++realname
-                         ++"\" in directories\n\t"
-                         ++concat (intersperse "\n\t" (cons dd (".":path)))
-                         ++"\n  Asked for by: "++show demand)
+        when warn $
+          hPutStrLn stderr ("Warning: Can't find file \""++realname
+                           ++"\" in directories\n\t"
+                           ++concat (intersperse "\n\t" (cons dd (".":path)))
+                           ++"\n  Asked for by: "++show demand)
         return ("missing file: "++realname,"")
     try (p:ps) = do
         let file = p++'/':realname

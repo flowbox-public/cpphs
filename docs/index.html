@@ -114,7 +114,7 @@ both cases, processing continues on the rest of the input.
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
-              [--nomacro] [--noline] [--pragma] [--strip]
+              [--nomacro] [--noline] [--nowarn] [--pragma] [--strip]
               [--text] [--hashes] [--layout] [--unlit]
               [ --cpp compatopts ]
        cpphs --version                                             
@@ -142,6 +142,8 @@ Options:
     <td>only process #ifdef's and #include's, do not expand macros</td></tr>
 <tr><td>--noline</td>
     <td>remove #line droppings from the output</td></tr>
+<tr><td>--nowarn</td>
+    <td>suppress messages from missing #include files, or #warning</td></tr>
 <tr><td>--pragma</td>
     <td>retain #pragma in the output (normally removed)</td></tr>
 <tr><td>--strip</td>
@@ -196,13 +198,10 @@ By HTTP:
 <a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
 <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
 <ul>
-<li> Added a "--cpp" option for drop-in compatibility with standard cpp.
-     It causes cpphs to accept standard cpp flags and translate
-     them to cpphs equivalents.  Compatibility options include: -o, -ansi,
-     -traditional, -stdc, -x, -include, -P, -C, -CC, -A.  The file
-     behaviour is different too - if two filenames are given on the
-     commandline, then the second is treated as the output location.
-<li> Fixed a corner-case bug in evaluating chained and overlapping #ifdefs.
+<li> Added a "--pragma" option to retain #pragma in the output.
+<li> Fixed a number of obscure corner cases involving the interaction of
+     multiple features e.g. foo##__LINE__.
+<li> Added the "--nowarn" option.
 </ul>
 
 <p>
@@ -220,6 +219,22 @@ be browsed on-line through
 
 <p>
 <b>Older versions:</b>
+<p>
+cpphs-1.3, release date 2006.10.09<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.3.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.3.zip">.zip</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs-1.3-win32.zip">Windows binary</a>.
+<ul>
+<li> Added a "--cpp" option for drop-in compatibility with standard cpp.
+     It causes cpphs to accept standard cpp flags and translate
+     them to cpphs equivalents.  Compatibility options include: -o, -ansi,
+     -traditional, -stdc, -x, -include, -P, -C, -CC, -A.  The file
+     behaviour is different too - if two filenames are given on the
+     commandline, then the second is treated as the output location.
+<li> Fixed a corner-case bug in evaluating chained and overlapping #ifdefs.
+</ul>
+
 <p>
 cpphs-1.2, release date 2006.05.04<br>
 By HTTP:
@@ -478,7 +493,7 @@ cpp's behaviour.  Please mail
         Malcolm.Wallace@cs.york.ac.uk</a> 
 </ul>
 
-<p><b>Copyright:</b> &copy; 2004-2006 Malcolm Wallace,
+<p><b>Copyright:</b> &copy; 2004-2007 Malcolm Wallace,
 except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
 
 <p><b>License:</b> The library modules in cpphs are distributed under

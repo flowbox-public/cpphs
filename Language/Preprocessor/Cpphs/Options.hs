@@ -24,6 +24,7 @@ data CpphsOption
     | CpphsAnsi
     | CpphsLayout
     | CpphsUnlit
+    | CpphsSuppressWarnings
     | CpphsMacro (String,String)
     | CpphsPath String
       deriving (Eq, Show)
@@ -38,6 +39,7 @@ flags = [ ("--nomacro", CpphsNoMacro)
         , ("--hashes",  CpphsAnsi)
         , ("--layout",  CpphsLayout)
         , ("--unlit",   CpphsUnlit)
+        , ("--nowarn",  CpphsSuppressWarnings)
         ]
 
 

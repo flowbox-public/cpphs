@@ -14,7 +14,8 @@ or
 USAGE
 -----
 	cpphs  [filename | -Dsym | -Dsym=val | -Ipath]+  [-Ofile]
-               [--nomacro|--noline|--strip|--text|--hashes|--layout|--unlit]*
+               [ --nomacro | --noline | --nowarn | --strip |
+                 --text | --hashes | --layout | --unlit ]*
                [ --cpp compatopts ]
 
 For fuller details, see docs/index.html
@@ -27,7 +28,7 @@ option.
 
 COPYRIGHT
 ---------
-Copyright (c) 2004-2006 Malcolm Wallace (Malcolm.Wallace@cs.york.ac.uk)
+Copyright (c) 2004-2007 Malcolm Wallace (Malcolm.Wallace@cs.york.ac.uk)
 except for Text.ParserCombinators.HuttonMeijer (Copyright (c) 1995
 Graham Hutton and Erik Meijer).
 

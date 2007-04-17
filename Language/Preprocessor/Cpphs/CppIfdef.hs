@@ -13,8 +13,9 @@
 -----------------------------------------------------------------------------
 
 module Language.Preprocessor.Cpphs.CppIfdef
-  ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Bool -> Bool
+  ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Options
 		--      -> String -> [(Posn,String)]
+  , IfdefOptions(..)
   ) where
 
 
@@ -30,17 +31,23 @@ import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafePerformIO)
 import IO        (hPutStrLn,stderr)
 
+data IfdefOptions = IfdefOptions
+	{ leave		:: Bool  -- ^ Leave \#define and \#undef in output?
+	, locations	:: Bool	 -- ^ Place \#line droppings in output?
+	, warnings	:: Bool  -- ^ Issue warnings?
+	}
+
+
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
 --   whilst taking account of \#define's and \#undef's as we encounter them.
 cppIfdef :: FilePath		-- ^ File for error reports
 	-> [(String,String)]	-- ^ Pre-defined symbols and their values
 	-> [String]		-- ^ Search path for \#includes
-	-> Bool			-- ^ Leave \#define and \#undef in output?
-	-> Bool			-- ^ Place \#line droppings in output?
+	-> IfdefOptions		-- ^ Control output style
 	-> String		-- ^ The input file content
 	-> [(Posn,String)]	-- ^ The file after processing (in lines)
-cppIfdef fp syms search leave locat =
-    cpp posn defs search leave locat Keep . (cppline posn:) . linesCpp
+cppIfdef fp syms search options =
+    cpp posn defs search options Keep . (cppline posn:) . linesCpp
   where
     posn = newfile fp
     defs = foldr insertST emptyST syms
@@ -56,11 +63,11 @@ cppIfdef fp syms search leave locat =
 data KeepState = Keep | Drop Int Bool
 
 -- | Return just the list of lines that the real cpp would decide to keep.
-cpp :: Posn -> SymTab String -> [String] -> Bool -> Bool -> KeepState
+cpp :: Posn -> SymTab String -> [String] -> IfdefOptions -> KeepState
        -> [String] -> [(Posn,String)]
-cpp _ _ _ _ _ _ [] = []
+cpp _ _ _ _ _ [] = []
 
-cpp p syms path leave ln Keep (l@('#':x):xs) =
+cpp p syms path options Keep (l@('#':x):xs) =
     let ws = words x
         cmd = head ws
         sym = head (tail ws)
@@ -72,8 +79,9 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
         skipn syms' ud xs' =
             let n = 1 + length (filter (=='\n') l) in
-            (if leave then ((p,reslash l):) else (replicate n (p,"") ++)) $
-            cpp (newlines n p) syms' path leave ln ud xs'
+            (if leave options then ((p,reslash l):)
+                              else (replicate n (p,"") ++)) $
+            cpp (newlines n p) syms' path options ud xs'
     in case cmd of
 	"define" -> skipn (insertST (sym,val) syms) Keep xs
 	"undef"  -> skipn (deleteST sym syms) Keep xs
@@ -87,31 +95,35 @@ cpp p syms path leave ln Keep (l@('#':x):xs) =
         ('!':_)  -> skipn syms  Keep xs	-- \#!runhs scripts
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (unwords (tail ws))
-                                                     p path syms)
+                                                     p path syms
+                                                     (warnings options))
 	            in
-		    cpp p syms path leave ln Keep (("#line 1 "++show inc)
+		    cpp p syms path options Keep (("#line 1 "++show inc)
                                                   : linesCpp content
                                                   ++ cppline (newline p): xs)
-	"warning"-> unsafePerformIO $ do
+	"warning"-> if warnings options then unsafePerformIO $ do
                        hPutStrLn stderr (l++"\nin "++show p)
                        return $ skipn syms Keep xs
+                    else skipn syms Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
-	         -> (if ln then ((p,l):) else id) $
+	         -> (if locations options then ((p,l):) else id) $
                     cpp (newpos (read sym) (un rest) p)
-                        syms path leave ln Keep xs
+                        syms path options Keep xs
 	n | all isDigit n
-	         -> (if ln then ((p,l):) else id) $
+	         -> (if locations options then ((p,l):) else id) $
 	            cpp (newpos (read n) (un (tail ws)) p)
-                        syms path leave ln Keep xs
+                        syms path options Keep xs
           | otherwise
-	         -> unsafePerformIO $ do
+	         -> if warnings options then unsafePerformIO $ do
                        hPutStrLn stderr ("Warning: unknown directive #"++n
                                         ++"\nin "++show p)
                        return $
-                         ((p,l): cpp (newline p) syms path leave ln Keep xs)
+                         ((p,l): cpp (newline p) syms path options Keep xs)
+                    else
+                         ((p,l): cpp (newline p) syms path options Keep xs)
 
-cpp p syms path leave ln (Drop n b) (('#':x):xs) =
+cpp p syms path options (Drop n b) (('#':x):xs) =
     let ws = words x
         cmd = head ws
         delse    | n==1 && b = Drop 1 b
@@ -125,7 +137,7 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
         skipn ud xs' =
                  let n' = 1 + length (filter (=='\n') x) in
                  replicate n' (p,"")
-                 ++ cpp (newlines n' p) syms path leave ln ud xs'
+                 ++ cpp (newlines n' p) syms path options ud xs'
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
@@ -136,12 +148,12 @@ cpp p syms path leave ln (Drop n b) (('#':x):xs) =
     else skipn (Drop n b) xs
 	-- define, undef, include, error, warning, pragma, line
 
-cpp p syms path leave ln Keep (x:xs) =
+cpp p syms path options Keep (x:xs) =
     let p' = newline p in seq p' $
-    (p,x):  cpp p' syms path leave ln Keep xs
-cpp p syms path leave ln d@(Drop _ _) (_:xs) =
+    (p,x):  cpp p' syms path options Keep xs
+cpp p syms path options d@(Drop _ _) (_:xs) =
     let p' = newline p in seq p' $
-    (p,""): cpp p' syms path leave ln d xs
+    (p,""): cpp p' syms path options d xs
 
 
 ----
