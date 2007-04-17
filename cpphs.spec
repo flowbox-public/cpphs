@@ -5,11 +5,11 @@
 
 Summary: Liberalized C pre-processor re-implementation in Haskell
 Name: cpphs
-Version: 1.3
+Version: 1.4
 Release: 1%{?_distver:.%{_distver}}
 License: LGPL 2.1
 Group: Development/Tools
-Source: http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.2.tar.gz
+Source: http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.4.tar.gz
 URL: http://www.cs.york.ac.uk/fp/cpphs/
 Packager: Paul Heinlein <heinlein@galois.com>
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
