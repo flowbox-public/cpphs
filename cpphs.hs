@@ -70,8 +70,11 @@ parseOptions xs = f ([], [], []) xs
     f (opts, ins, outs) (x@('-':_):xs) = case parseOption x of
                                            Nothing -> Left x
                                            Just a  -> f (a:opts, ins, outs) xs
-    f (opts, ins, outs) (x:xs) = f (opts, x:ins, outs) xs
+    f (opts, ins, outs) (x:xs) = f (opts, normalise x:ins, outs) xs
     f (opts, ins, outs) []     = Right (reverse opts, reverse ins, reverse outs)
+    normalise ('/':'/':filepath) = normalise ('/':filepath)
+    normalise (x:filepath)       = x:normalise filepath
+    normalise []                 = []
 
 
 -- | Parse a list of options, remaining compatible with cpp if possible
