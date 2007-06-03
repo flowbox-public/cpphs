@@ -95,6 +95,9 @@ parseHashDefine ansi def = (command . skip) def
                             x `elem` args    = (Str,x): classifyRhs args xs
     classifyRhs args ("##":xs)
                           | ansi             = classifyRhs args xs
+    classifyRhs args (s:"##":s':xs)
+                          | ansi && all isSpace s && all isSpace s'
+                                             = classifyRhs args xs
     classifyRhs args (word:xs)
                           | word `elem` args = (Arg,word): classifyRhs args xs
                           | otherwise        = (Text,word): classifyRhs args xs
