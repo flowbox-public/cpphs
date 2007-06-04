@@ -64,13 +64,12 @@ cpp _ _ _ _ _ [] = []
 cpp p syms path options Keep (l@('#':x):xs) =
     let ws = words x
         cmd = head ws
-        sym = head (tail ws)
+        line = tail ws
+        sym  = head (tail ws)
         rest = tail (tail ws)
         val  = maybe "1" id (un rest)
         un v = if null v then Nothing else Just (unwords v)
-        down = if definedST sym syms then (Drop 1 False) else Keep
-        up   = if definedST sym syms then Keep else (Drop 1 False)
-        keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
+        keepIf p = if p then Keep else (Drop 1 False)
         skipn syms' ud xs' =
             let n = 1 + length (filter (=='\n') l) in
             (if macros options then ((p,reslash l):)
@@ -79,9 +78,9 @@ cpp p syms path options Keep (l@('#':x):xs) =
     in case cmd of
 	"define" -> skipn (insertST (sym,val) syms) Keep xs
 	"undef"  -> skipn (deleteST sym syms) Keep xs
-	"ifndef" -> skipn syms  down xs
-	"ifdef"  -> skipn syms  up   xs
-	"if"     -> skipn syms (keep (unwords (tail ws))) xs
+	"ifndef" -> skipn syms (keepIf (not (definedST sym syms))) xs
+	"ifdef"  -> skipn syms (keepIf      (definedST sym syms)) xs
+	"if"     -> skipn syms (keepIf (gatherDefined p syms (unwords line))) xs
 	"else"   -> skipn syms (Drop 1 False) xs
 	"elif"   -> skipn syms (Drop 1 True) xs
 	"endif"  -> skipn syms  Keep xs
@@ -125,8 +124,8 @@ cpp p syms path options (Drop n b) (('#':x):xs) =
                  | otherwise = Drop n b
         dend     | n==1      = Keep
                  | otherwise = Drop (n-1) b
-        keep str | n==1      = if not b && gatherDefined p syms str then Keep
-                               else (Drop 1) b
+        delif s  | n==1 && not b && gatherDefined p syms s
+                             = Keep
                  | otherwise = Drop n b
         skipn ud xs' =
                  let n' = 1 + length (filter (=='\n') x) in
@@ -136,9 +135,9 @@ cpp p syms path options (Drop n b) (('#':x):xs) =
     if      cmd == "ifndef" ||
             cmd == "if"     ||
             cmd == "ifdef"  then  skipn (Drop (n+1) b) xs
-    else if cmd == "elif"   then  skipn (keep (unwords (tail ws))) xs
-    else if cmd == "else"   then  skipn delse xs
-    else if cmd == "endif"  then  skipn dend  xs
+    else if cmd == "elif"   then  skipn (delif (unwords (tail ws))) xs
+    else if cmd == "else"   then  skipn  delse xs
+    else if cmd == "endif"  then  skipn  dend  xs
     else skipn (Drop n b) xs
 	-- define, undef, include, error, warning, pragma, line
 
