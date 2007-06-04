@@ -7,30 +7,20 @@
 -}
 module Language.Preprocessor.Cpphs.RunCpphs ( runCpphs ) where
 
-import Language.Preprocessor.Cpphs.CppIfdef (cppIfdef,IfdefOptions(..))
-import Language.Preprocessor.Cpphs.MacroPass(macroPass)
-import Language.Preprocessor.Cpphs.Options(CpphsOption(..), parseOption)
+import Language.Preprocessor.Cpphs.CppIfdef  (cppIfdef)
+import Language.Preprocessor.Cpphs.MacroPass (macroPass)
+import Language.Preprocessor.Cpphs.Options as Options
+                                             (CpphsOptions(..), BoolOptions(..))
 import Language.Preprocessor.Unlit as Unlit (unlit)
 
 
-runCpphs :: [CpphsOption] -> FilePath -> String -> IO String
-runCpphs opts filename input = do
-  let ds = [x | CpphsMacro x <- opts]
-      is = [x | CpphsPath x <- opts]
-      macro   = not (CpphsNoMacro `elem` opts)
-      locat   = not (CpphsNoLine  `elem` opts)
-      lang    = not (CpphsText    `elem` opts)
-      pragma  =      CpphsPragma  `elem` opts
-      strip   =      CpphsStrip   `elem` opts
-      ansi    =      CpphsAnsi    `elem` opts
-      layout  =      CpphsLayout  `elem` opts
-      unlit   =      CpphsUnlit   `elem` opts
-      warn    = not (CpphsSuppressWarnings `elem` opts)
-      options = IfdefOptions { leave=macro, locations=locat, warnings=warn }
+runCpphs :: CpphsOptions -> FilePath -> String -> String
+runCpphs options filename input =
+  let bools = boolopts options
 
-  let pass1 = cppIfdef filename ds is options input
-      pass2 = macroPass ds strip ansi pragma layout lang pass1
-      result= if not macro then unlines (map snd pass1) else pass2
-      pass3 = if unlit then Unlit.unlit filename result else result
+      pass1 = cppIfdef filename (defines options) (includes options) bools input
+      pass2 = macroPass (defines options) bools pass1
+      result= if not (macros bools) then unlines (map snd pass1) else pass2
+      pass3 = if Options.unlit bools then Unlit.unlit filename else id
 
-  return pass3
+  in pass3 result

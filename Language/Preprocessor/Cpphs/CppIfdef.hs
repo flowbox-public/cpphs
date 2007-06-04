@@ -15,7 +15,6 @@
 module Language.Preprocessor.Cpphs.CppIfdef
   ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Options
 		--      -> String -> [(Posn,String)]
-  , IfdefOptions(..)
   ) where
 
 
@@ -26,16 +25,11 @@ import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines
                                              ,cppline,newpos)
 import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
 import Language.Preprocessor.Cpphs.Tokenise  (linesCpp,reslash)
+import Language.Preprocessor.Cpphs.Options   (BoolOptions(..))
 import Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafePerformIO)
 import IO        (hPutStrLn,stderr)
-
-data IfdefOptions = IfdefOptions
-	{ leave		:: Bool  -- ^ Leave \#define and \#undef in output?
-	, locations	:: Bool	 -- ^ Place \#line droppings in output?
-	, warnings	:: Bool  -- ^ Issue warnings?
-	}
 
 
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
@@ -43,7 +37,7 @@ data IfdefOptions = IfdefOptions
 cppIfdef :: FilePath		-- ^ File for error reports
 	-> [(String,String)]	-- ^ Pre-defined symbols and their values
 	-> [String]		-- ^ Search path for \#includes
-	-> IfdefOptions		-- ^ Control output style
+	-> BoolOptions		-- ^ Options controlling output style
 	-> String		-- ^ The input file content
 	-> [(Posn,String)]	-- ^ The file after processing (in lines)
 cppIfdef fp syms search options =
@@ -63,7 +57,7 @@ cppIfdef fp syms search options =
 data KeepState = Keep | Drop Int Bool
 
 -- | Return just the list of lines that the real cpp would decide to keep.
-cpp :: Posn -> SymTab String -> [String] -> IfdefOptions -> KeepState
+cpp :: Posn -> SymTab String -> [String] -> BoolOptions -> KeepState
        -> [String] -> [(Posn,String)]
 cpp _ _ _ _ _ [] = []
 
@@ -79,8 +73,8 @@ cpp p syms path options Keep (l@('#':x):xs) =
         keep str = if gatherDefined p syms str then Keep else (Drop 1 False)
         skipn syms' ud xs' =
             let n = 1 + length (filter (=='\n') l) in
-            (if leave options then ((p,reslash l):)
-                              else (replicate n (p,"") ++)) $
+            (if macros options then ((p,reslash l):)
+                               else (replicate n (p,"") ++)) $
             cpp (newlines n p) syms' path options ud xs'
     in case cmd of
 	"define" -> skipn (insertST (sym,val) syms) Keep xs

@@ -23,6 +23,7 @@ import Language.Preprocessor.Cpphs.Tokenise   (tokenise, WordStyle(..)
 import Language.Preprocessor.Cpphs.SymTab     (SymTab, lookupST, insertST
                                               , emptyST)
 import Language.Preprocessor.Cpphs.Position   (Posn, newfile, filename, lineno)
+import Language.Preprocessor.Cpphs.Options    (BoolOptions(..))
 import System.IO.Unsafe (unsafePerformIO)
 import Time       (getClockTime, toCalendarTime, formatCalendarTime)
 import Locale     (defaultTimeLocale)
@@ -32,18 +33,15 @@ noPos = newfile "preDefined"
 
 -- | Walk through the document, replacing calls of macros with their expanded RHS.
 macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
-          -> Bool		-- ^ Strip C-comments?
-          -> Bool		-- ^ Accept \# and \## operators?
-          -> Bool		-- ^ Retain pragmas in output?
-          -> Bool		-- ^ Retain layout in macros?
-          -> Bool		-- ^ Input language (Haskell\/not)
+          -> BoolOptions	-- ^ Options that alter processing style
           -> [(Posn,String)]	-- ^ The input file content
           -> String		-- ^ The file after processing
-macroPass syms strip hashes pragma layout language =
+macroPass syms options =
     safetail		-- to remove extra "\n" inserted below
     . concat
-    . macroProcess pragma layout language (preDefine hashes language syms)
-    . tokenise strip hashes language
+    . macroProcess (pragma options) (layout options) (lang options)
+                   (preDefine (ansi options) (lang options) syms)
+    . tokenise (strip options) (ansi options) (lang options)
     . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
   where
     safetail [] = []

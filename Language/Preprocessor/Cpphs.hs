@@ -11,9 +11,11 @@
 -- Include the interface that is exported
 -----------------------------------------------------------------------------
 
-module Language.Preprocessor.Cpphs (runCpphs, cppIfdef, macroPass, CpphsOption(..), parseOption)  where
+module Language.Preprocessor.Cpphs
+  ( runCpphs, cppIfdef, macroPass, CpphsOptions(..), parseOptions
+  ) where
 
 import Language.Preprocessor.Cpphs.CppIfdef(cppIfdef)
 import Language.Preprocessor.Cpphs.MacroPass(macroPass)
 import Language.Preprocessor.Cpphs.RunCpphs(runCpphs)
-import Language.Preprocessor.Cpphs.Options(CpphsOption(..), parseOption)
+import Language.Preprocessor.Cpphs.Options(CpphsOptions(..), parseOptions)
