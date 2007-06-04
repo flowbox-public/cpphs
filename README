@@ -1,5 +1,5 @@
-This directory contains 'cpphs', a simplified re-implementation of cpp,
-the C pre-processor, in Haskell.
+This directory contains 'cpphs', a simplified but robust
+re-implementation of cpp, the C pre-processor, in Haskell.
 
 TO BUILD
 --------
@@ -14,7 +14,7 @@ or
 USAGE
 -----
 	cpphs  [filename | -Dsym | -Dsym=val | -Ipath]+  [-Ofile]
-               [ --nomacro | --noline | --nowarn | --strip |
+               [ --nomacro | --noline | --nowarn | --strip | --pragma |
                  --text | --hashes | --layout | --unlit ]*
                [ --cpp compatopts ]
 

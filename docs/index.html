@@ -58,13 +58,12 @@ It has two main modes:
   <li> conditional compilation only (--nomacro),
   <li> and full macro-expansion (default).
 </ul>
-In <tt>--nomacro</tt> mode, cpphs performs only conditional
-compilation actions, namely <tt>#include</tt>'s, <tt>#if</tt>'s,
-and <tt>#ifdef</tt>'s are processed according to text-replacement
-definitions (both command-line and internal), but no parameterised
-macro expansion is performed.  In full compatibility mode (the
-default), textual replacements and macro expansions are also processed
-in the remaining body of non-cpp text.
+In <tt>--nomacro</tt> mode, cpphs performs only conditional compilation
+actions, namely <tt>#include</tt>'s, <tt>#if</tt>'s, and
+<tt>#ifdef</tt>'s are processed according to text-replacement
+definitions and macro expansions (both command-line and internal).
+In full compatibility mode (the default), textual replacements and macro
+expansions are also processed in the remaining body of non-cpp text.
 
 <p>
 Source language features:
@@ -179,21 +178,21 @@ is no default search path (unless you define one via a wrapper script).
 
 <p>
 <b>Current stable version:</b>
+
 <p>
-cpphs-1.4, release date 2007.04.17<br>
+cpphs-1.5, release date 2007.06.xx<br>
 By HTTP:
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.4.tar.gz">.tar.gz</a>,
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.4.zip">.zip</a>.
-<a href="http://www.cs.york.ac.uk/fp/cpphs-1.3-win32.zip">Windows binary</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.5.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.5.zip">.zip</a>.
+<a href="http://www.cs.york.ac.uk/fp/cpphs-1.5-win32.zip">Windows binary</a>,
 <a href="http://www.haskell.org/fedora/">Fedora package</a>,
 <a href="http://packages.gentoo.org/packages/?category=dev-haskell;name=cpphs">Gentoo package</a>,
 <a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
 <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
 <ul>
-<li> Added a "--pragma" option to retain #pragma in the output.
-<li> Fixed a number of obscure corner cases involving the interaction of
-     multiple features e.g. foo##__LINE__.
-<li> Added the "--nowarn" option.
+<li> Fixed some more obscure corner cases, involving parameterised macro
+     expansion within conditionals e.g. #if FOO(BAR,QUUX)
+<li> Internal refactoring, affecting parts of the library API.
 </ul>
 
 <p>
@@ -211,6 +210,18 @@ be browsed on-line through
 
 <p>
 <b>Older versions:</b>
+<p>
+cpphs-1.4, release date 2007.04.17<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.4.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.4.zip">.zip</a>.
+<ul>
+<li> Added a "--pragma" option to retain #pragma in the output.
+<li> Fixed a number of obscure corner cases involving the interaction of
+     multiple features e.g. foo##__LINE__.
+<li> Added the "--nowarn" option.
+</ul>
+
 <p>
 cpphs-1.3, release date 2006.10.09<br>
 By HTTP:
