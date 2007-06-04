@@ -7,10 +7,9 @@
 -}
 module Language.Preprocessor.Cpphs.RunCpphs ( runCpphs ) where
 
-import Language.Preprocessor.Cpphs.CppIfdef  (cppIfdef)
-import Language.Preprocessor.Cpphs.MacroPass (macroPass)
-import Language.Preprocessor.Cpphs.Options as Options
-                                             (CpphsOptions(..), BoolOptions(..))
+import Language.Preprocessor.Cpphs.CppIfdef (cppIfdef)
+import Language.Preprocessor.Cpphs.MacroPass(macroPass)
+import Language.Preprocessor.Cpphs.Options  (CpphsOptions(..), BoolOptions(..))
 import Language.Preprocessor.Unlit as Unlit (unlit)
 
 
@@ -21,6 +20,6 @@ runCpphs options filename input =
       pass1 = cppIfdef filename (defines options) (includes options) bools input
       pass2 = macroPass (defines options) bools pass1
       result= if not (macros bools) then unlines (map snd pass1) else pass2
-      pass3 = if Options.unlit bools then Unlit.unlit filename else id
+      pass3 = if literate bools then Unlit.unlit filename else id
 
   in pass3 result

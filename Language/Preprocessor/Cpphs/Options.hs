@@ -43,14 +43,14 @@ data BoolOptions = BoolOptions
     , lang	:: Bool  -- ^ Lex input as Haskell code?
     , ansi	:: Bool  -- ^ Permit stringise # and catenate ## operators?
     , layout	:: Bool  -- ^ Retain newlines in macro expansions?
-    , unlit	:: Bool  -- ^ Remove literate markup?
+    , literate	:: Bool  -- ^ Remove literate markup?
     , warnings	:: Bool  -- ^ Issue warnings?
     }
 
 defaultBoolOptions = BoolOptions { macros   = True,   locations = True
                                  , pragma   = False,  strip     = False
                                  , lang     = True,   ansi      = False
-                                 , layout   = False,  unlit     = False
+                                 , layout   = False,  literate  = False
                                  , warnings = True }
 
 -- | Raw command-line options.  This is an internal intermediate data
@@ -105,7 +105,7 @@ boolOpts opts =
     , lang      = not (Text    `elem` opts)
     , ansi	=      Ansi    `elem` opts
     , layout	=      Layout  `elem` opts
-    , unlit	=      Unlit   `elem` opts
+    , literate	=      Unlit   `elem` opts
     , warnings	= not (SuppressWarnings `elem` opts)
     }
 
