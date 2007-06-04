@@ -49,6 +49,7 @@ runtest "$CPPHS igloo" expect34
 runtest "$CPPHS igloo2" expect35
 runtest "$CPPHS --hashes igloo3" expect36
 runtest "$CPPHS --hashes igloo3a" expect36a
+runtest "$CPPHS --hashes igloo3b" expect36b
 runtest "$CPPHS --hashes igloo4" expect37
 runtest "$CPPHS --hashes igloo4a" expect37a
 runtest "$CPPHS mauke" expect38
