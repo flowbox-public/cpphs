@@ -26,6 +26,9 @@ import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines
 import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
 import Language.Preprocessor.Cpphs.Tokenise  (linesCpp,reslash)
 import Language.Preprocessor.Cpphs.Options   (BoolOptions(..))
+import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),parseHashDefine
+                                             ,expandMacro)
+import Language.Preprocessor.Cpphs.MacroPass (preDefine,defineMacro)
 import Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafePerformIO)
@@ -44,10 +47,10 @@ cppIfdef fp syms search options =
     cpp posn defs search options Keep . (cppline posn:) . linesCpp
   where
     posn = newfile fp
-    defs = foldr insertST emptyST syms
--- Notice that the symbol table is a very simple one mapping strings
--- to strings.  This pass does not need anything more elaborate, in
--- particular it is not required to deal with any parameterised macros.
+    defs = preDefine options syms
+-- Previous versions had a very simple symbol table  mapping strings
+-- to strings.  Now the #ifdef pass uses a more elaborate table, in
+-- particular to deal with parameterised macros in conditionals.
 
 
 -- | Internal state for whether lines are being kept or dropped.
@@ -57,7 +60,7 @@ cppIfdef fp syms search options =
 data KeepState = Keep | Drop Int Bool
 
 -- | Return just the list of lines that the real cpp would decide to keep.
-cpp :: Posn -> SymTab String -> [String] -> BoolOptions -> KeepState
+cpp :: Posn -> SymTab HashDefine -> [String] -> BoolOptions -> KeepState
        -> [String] -> [(Posn,String)]
 cpp _ _ _ _ _ [] = []
 
@@ -67,7 +70,7 @@ cpp p syms path options Keep (l@('#':x):xs) =
         line = tail ws
         sym  = head (tail ws)
         rest = tail (tail ws)
-        val  = maybe "1" id (un rest)
+        def = defineMacro options (sym++" "++ maybe "1" id (un rest))
         un v = if null v then Nothing else Just (unwords v)
         keepIf p = if p then Keep else (Drop 1 False)
         skipn syms' ud xs' =
@@ -76,7 +79,7 @@ cpp p syms path options Keep (l@('#':x):xs) =
                                else (replicate n (p,"") ++)) $
             cpp (newlines n p) syms' path options ud xs'
     in case cmd of
-	"define" -> skipn (insertST (sym,val) syms) Keep xs
+	"define" -> skipn (insertST def syms) Keep xs
 	"undef"  -> skipn (deleteST sym syms) Keep xs
 	"ifndef" -> skipn syms (keepIf (not (definedST sym syms))) xs
 	"ifdef"  -> skipn syms (keepIf      (definedST sym syms)) xs
@@ -150,14 +153,14 @@ cpp p syms path options d@(Drop _ _) (_:xs) =
 
 
 ----
-gatherDefined :: Posn -> SymTab String -> String -> Bool
+gatherDefined :: Posn -> SymTab HashDefine -> String -> Bool
 gatherDefined p st inp =
   case papply (parseBoolExp st) inp of
     []      -> error ("Cannot parse #if directive in file "++show p)
     [(b,_)] -> b
     _       -> error ("Ambiguous parse for #if directive in file "++show p)
 
-parseBoolExp :: SymTab String -> Parser Bool
+parseBoolExp :: SymTab HashDefine -> Parser Bool
 parseBoolExp st =
   do  a <- parseExp1 st
       skip (string "||")
@@ -166,7 +169,7 @@ parseBoolExp st =
   +++
       parseExp1 st
 
-parseExp1 :: SymTab String -> Parser Bool
+parseExp1 :: SymTab HashDefine -> Parser Bool
 parseExp1 st =
   do  a <- parseExp0 st
       skip (string "&&")
@@ -175,34 +178,28 @@ parseExp1 st =
   +++
       parseExp0 st
 
-parseExp0 :: SymTab String -> Parser Bool
+parseExp0 :: SymTab HashDefine -> Parser Bool
 parseExp0 st =
   do  skip (string "defined")
-      sym <- bracket (skip (char '(')) (skip (many1 alphanum)) (skip (char ')'))
+      sym <- parens parseSym
       return (definedST sym st)
   +++
-  do  bracket (skip (char '(')) (parseBoolExp st) (skip (char ')'))
+  do  parens (parseBoolExp st)
   +++
   do  skip (char '!')
       a <- parseExp0 st
       return (not a)
   +++
-  do  sym1 <- skip (many1 alphanum)
+  do  sym1 <- parseSymOrCall st
       op <- parseOp st
-      sym2 <- skip (many1 alphanum)
-      let val1 = safeRead (convert sym1)
-      let val2 = safeRead (convert sym2)
-      return (op val1 val2)
+      sym2 <- parseSymOrCall st
+      return (op (safeRead sym1) (safeRead sym2))
   +++
-  do  sym <- skip (many1 alphanum)
-      case safeRead (convert sym) of
+  do  sym <- parseSymOrCall st
+      case safeRead sym of
         0 -> return False
         _ -> return True
   where
-    convert sym =
-      case lookupST sym st of
-        Nothing  -> sym
-        (Just a) -> convert a
     safeRead s =
       case s of
         '0':'x':s' -> number readHex s'
@@ -213,7 +210,7 @@ parseExp0 st =
         []        -> 0 :: Integer
         ((n,_):_) -> n :: Integer
 
-parseOp :: SymTab String -> Parser (Integer -> Integer -> Bool)
+parseOp :: SymTab HashDefine -> Parser (Integer -> Integer -> Bool)
 parseOp _ =
   do  skip (string ">=")
       return (>=)
@@ -232,3 +229,25 @@ parseOp _ =
   +++
   do  skip (string "!=")
       return (/=)
+
+parseSymOrCall :: SymTab HashDefine -> Parser String
+parseSymOrCall st =
+  do  sym <- skip parseSym
+      args <- parens (many (do a <- parseSymOrCall st
+                               skip (char ',')
+                               return a))
+      return (convert sym args)
+  +++
+  do  sym <- skip parseSym
+      return (convert sym [])
+  where
+    convert sym args =
+      case lookupST sym st of
+        Nothing  -> sym
+        Just (a@SymbolReplacement{}) -> convert (replacement a) []
+        Just (a@MacroExpansion{})    -> convert (expandMacro a args False) []
+
+parseSym :: Parser String
+parseSym = many1 (alphanum+++char '\''+++char '`')
+
+parens p = bracket (skip (char '(')) (skip p) (skip (char ')'))

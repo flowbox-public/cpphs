@@ -15,6 +15,7 @@
 module Language.Preprocessor.Cpphs.MacroPass
   ( macroPass
   , preDefine
+  , defineMacro
   ) where
 
 import Language.Preprocessor.Cpphs.HashDefine (HashDefine(..), expandMacro)
@@ -31,7 +32,7 @@ import Locale     (defaultTimeLocale)
 noPos :: Posn
 noPos = newfile "preDefined"
 
--- | Walk through the document, replacing calls of macros with their expanded RHS.
+-- | Walk through the document, replacing calls of macros with the expanded RHS.
 macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> BoolOptions	-- ^ Options that alter processing style
           -> [(Posn,String)]	-- ^ The input file content
@@ -40,7 +41,7 @@ macroPass syms options =
     safetail		-- to remove extra "\n" inserted below
     . concat
     . macroProcess (pragma options) (layout options) (lang options)
-                   (preDefine (ansi options) (lang options) syms)
+                   (preDefine options syms)
     . tokenise (strip options) (ansi options) (lang options)
     . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
   where
@@ -49,14 +50,17 @@ macroPass syms options =
 
 
 -- | Turn command-line definitions (from @-D@) into 'HashDefine's.
-preDefine :: Bool -> Bool -> [(String,String)] -> SymTab HashDefine
-preDefine hashes lang defines =
-    foldr (insertST.defval) emptyST defines
-  where
-    defval (s,d) =
-        let (Cmd (Just hd):_) = tokenise True hashes lang
-                                   [(noPos,"\n#define "++s++" "++d++"\n")]
-        in (name hd, hd)
+preDefine :: BoolOptions -> [(String,String)] -> SymTab HashDefine
+preDefine options defines =
+    foldr (insertST . defineMacro options . (\ (s,d)-> s++" "++d))
+          emptyST defines
+
+-- | Turn a string representing a macro definition into a 'HashDefine'.
+defineMacro :: BoolOptions -> String -> (String,HashDefine)
+defineMacro opts s =
+    let (Cmd (Just hd):_) = tokenise True (ansi opts) (lang opts)
+                                     [(noPos,"\n#define "++s++"\n")]
+    in (name hd, hd)
 
 
 -- | Trundle through the document, one word at a time, using the WordStyle

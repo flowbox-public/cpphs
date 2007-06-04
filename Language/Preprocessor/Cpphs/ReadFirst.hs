@@ -21,6 +21,7 @@ import List      (intersperse)
 import Monad     (when)
 import Language.Preprocessor.Cpphs.Position  (Posn,directory)
 import Language.Preprocessor.Cpphs.SymTab    (SymTab,lookupST)
+import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),expandMacro)
 
 -- | Attempt to read the given file from any location within the search path.
 --   The first location found is returned, together with the file content.
@@ -29,7 +30,7 @@ import Language.Preprocessor.Cpphs.SymTab    (SymTab,lookupST)
 readFirst :: String		-- ^ filename
 	-> Posn			-- ^ inclusion point
 	-> [String]		-- ^ search path
-	-> SymTab String	-- ^ \#defined symbols
+	-> SymTab HashDefine	-- ^ \#defined symbols
 	-> Bool			-- ^ report warnings?
 	-> IO ( FilePath
               , String
@@ -55,11 +56,13 @@ readFirst name demand path syms warn =
           else do content <- readFile file
                   return (file,content)
 
-real :: String -> SymTab String -> String
-real name syms = case name of
-                   ('"':ns) -> init ns
-                   ('<':ns) -> init ns
-                   _        -> case lookupST name syms of
-                                 Nothing -> name
-                                 Just f  -> real f syms
-
+real :: String -> SymTab HashDefine -> String
+real name syms =
+    case name of
+      ('"':ns) -> init ns
+      ('<':ns) -> init ns
+      _ -> case lookupST name syms of
+             Nothing -> name
+             Just (f@SymbolReplacement{}) -> real (replacement f) syms
+             Just (f@MacroExpansion{})    -> real (expandMacro f [] False) syms
+		-- really need to parse some arguments to the macro!!!
