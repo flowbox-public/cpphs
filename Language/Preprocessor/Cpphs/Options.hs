@@ -15,6 +15,8 @@ module Language.Preprocessor.Cpphs.Options
   ( CpphsOptions(..)
   , BoolOptions(..)
   , parseOptions
+  , defaultCpphsOptions
+  , defaultBoolOptions
   ) where
 
 import Maybe
@@ -28,6 +30,10 @@ data CpphsOptions = CpphsOptions
     , boolopts	:: BoolOptions
     }
 
+defaultCpphsOptions = CpphsOptions { infiles = [], outfiles = []
+                                   , defines = [], includes = []
+                                   , boolopts = defaultBoolOptions }
+
 -- | Options representable as Booleans.
 data BoolOptions = BoolOptions
     { macros	:: Bool  -- ^ Leave \#define and \#undef in output of ifdef?
@@ -40,6 +46,12 @@ data BoolOptions = BoolOptions
     , unlit	:: Bool  -- ^ Remove literate markup?
     , warnings	:: Bool  -- ^ Issue warnings?
     }
+
+defaultBoolOptions = BoolOptions { macros   = True,   locations = True
+                                 , pragma   = False,  strip     = False
+                                 , lang     = True,   ansi      = False
+                                 , layout   = False,  unlit     = False
+                                 , warnings = True }
 
 -- | Raw command-line options.  This is an internal intermediate data
 --   structure, used during option parsing only.
