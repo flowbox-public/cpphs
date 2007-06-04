@@ -12,10 +12,13 @@
 -----------------------------------------------------------------------------
 
 module Language.Preprocessor.Cpphs
-  ( runCpphs, cppIfdef, macroPass, CpphsOptions(..), parseOptions
+  ( runCpphs, cppIfdef, macroPass, CpphsOptions(..), BoolOptions(..)
+  , parseOptions, defaultCpphsOptions, defaultBoolOptions
   ) where
 
 import Language.Preprocessor.Cpphs.CppIfdef(cppIfdef)
 import Language.Preprocessor.Cpphs.MacroPass(macroPass)
 import Language.Preprocessor.Cpphs.RunCpphs(runCpphs)
-import Language.Preprocessor.Cpphs.Options(CpphsOptions(..), parseOptions)
+import Language.Preprocessor.Cpphs.Options
+       (CpphsOptions(..), BoolOptions(..), parseOptions
+       ,defaultCpphsOptions,defaultBoolOptions)
