@@ -242,8 +242,14 @@ parseSymOrCall st =
     convert sym args =
       case lookupST sym st of
         Nothing  -> sym
-        Just (a@SymbolReplacement{}) -> convert (replacement a) []
-        Just (a@MacroExpansion{})    -> convert (expandMacro a args False) []
+        Just (a@SymbolReplacement{}) -> recursivelyExpand st (replacement a)
+        Just (a@MacroExpansion{})    -> expandMacro a args False
+
+recursivelyExpand :: SymTab HashDefine -> String -> String
+recursivelyExpand st inp =
+  case papply (parseSymOrCall st) inp of
+    [(b,_)] -> b
+    _       -> inp
 
 parseSym :: Parser String
 parseSym = many1 (alphanum+++char '\''+++char '`')
