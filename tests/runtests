@@ -27,6 +27,7 @@ runtest "$CPPHS recursive" expect12
 runtest "$CPPHS --strip ross" expect13
 runtest "$CPPHS precedence" expect14
 runtest "$CPPHS indirect" expect15
+runtest "$CPPHS --hashes indirect-a" expect15a
 runtest "$CPPHS numbers" expect16
 runtest "$CPPHS pragma" expect17		# see also test 32
 runtest "$CPPHS --noline pragma" expect18	# see also test 33
