@@ -164,14 +164,14 @@ Language/Preprocessor/Cpphs/MacroPass.hc: \
 	Language/Preprocessor/Cpphs/HashDefine.hc \
 	Language/Preprocessor/Cpphs/Tokenise.hc \
 	Language/Preprocessor/Cpphs/SymTab.hc \
-	Language/Preprocessor/Cpphs/Position.hc 
+	Language/Preprocessor/Cpphs/Position.hc \
+	Language/Preprocessor/Cpphs/Options.hc 
 Language/Preprocessor/Cpphs/HashDefine.hc:
 Language/Preprocessor/Cpphs/Tokenise.hc: \
 	Language/Preprocessor/Cpphs/HashDefine.hc \
 	Language/Preprocessor/Cpphs/Position.hc 
 Language/Preprocessor/Cpphs/ReadFirst.hc: \
-	Language/Preprocessor/Cpphs/Position.hc \
-	Language/Preprocessor/Cpphs/SymTab.hc
+	Language/Preprocessor/Cpphs/Position.hc
 Language/Preprocessor/Cpphs/Position.hc:
 Text/ParserCombinators/HuttonMeijer.hc:
 Language/Preprocessor/Cpphs/SymTab.hc:
@@ -180,7 +180,10 @@ Language/Preprocessor/Cpphs/CppIfdef.hc: \
 	Text/ParserCombinators/HuttonMeijer.hc \
 	Language/Preprocessor/Cpphs/Position.hc \
 	Language/Preprocessor/Cpphs/ReadFirst.hc \
-	Language/Preprocessor/Cpphs/Tokenise.hc 
+	Language/Preprocessor/Cpphs/Tokenise.hc \
+	Language/Preprocessor/Cpphs/Options.hc \
+	Language/Preprocessor/Cpphs/HashDefine.hc \
+	Language/Preprocessor/Cpphs/MacroPass.hc
 Language/Preprocessor/Cpphs.hc: \
 	Language/Preprocessor/Cpphs/CppIfdef.hc \
 	Language/Preprocessor/Cpphs/MacroPass.hc \
