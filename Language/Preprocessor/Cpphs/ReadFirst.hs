@@ -20,8 +20,6 @@ import Directory (doesFileExist)
 import List      (intersperse)
 import Monad     (when)
 import Language.Preprocessor.Cpphs.Position  (Posn,directory)
-import Language.Preprocessor.Cpphs.SymTab    (SymTab,lookupST)
-import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),expandMacro)
 
 -- | Attempt to read the given file from any location within the search path.
 --   The first location found is returned, together with the file content.
@@ -30,39 +28,26 @@ import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),expandMacro)
 readFirst :: String		-- ^ filename
 	-> Posn			-- ^ inclusion point
 	-> [String]		-- ^ search path
-	-> SymTab HashDefine	-- ^ \#defined symbols
 	-> Bool			-- ^ report warnings?
 	-> IO ( FilePath
               , String
               )			-- ^ discovered filepath, and file contents
 
-readFirst name demand path syms warn =
+readFirst name demand path warn =
     try (cons dd (".":path))
   where
     dd = directory demand
     cons x xs = if null x then xs else x:xs
-    realname = real name syms
     try [] = do
         when warn $
-          hPutStrLn stderr ("Warning: Can't find file \""++realname
+          hPutStrLn stderr ("Warning: Can't find file \""++name
                            ++"\" in directories\n\t"
                            ++concat (intersperse "\n\t" (cons dd (".":path)))
                            ++"\n  Asked for by: "++show demand)
-        return ("missing file: "++realname,"")
+        return ("missing file: "++name,"")
     try (p:ps) = do
-        let file = p++'/':realname
+        let file = p++'/':name
         ok <- doesFileExist file
         if not ok then try ps
           else do content <- readFile file
                   return (file,content)
-
-real :: String -> SymTab HashDefine -> String
-real name syms =
-    case name of
-      ('"':ns) -> init ns
-      ('<':ns) -> init ns
-      _ -> case lookupST name syms of
-             Nothing -> name
-             Just (f@SymbolReplacement{}) -> real (replacement f) syms
-             Just (f@MacroExpansion{})    -> real (expandMacro f [] False) syms
-		-- really need to parse some arguments to the macro!!!

@@ -90,8 +90,8 @@ cpp p syms path options Keep (l@('#':x):xs) =
 	"pragma" -> skipn syms  Keep xs
         ('!':_)  -> skipn syms  Keep xs	-- \#!runhs scripts
 	"include"-> let (inc,content) =
-	                  unsafePerformIO (readFirst (unwords (tail ws))
-                                                     p path syms
+	                  unsafePerformIO (readFirst (file syms (unwords line))
+                                                     p path
                                                      (warnings options))
 	            in
 		    cpp p syms path options Keep (("#line 1 "++show inc)
@@ -255,3 +255,12 @@ parseSym :: Parser String
 parseSym = many1 (alphanum+++char '\''+++char '`')
 
 parens p = bracket (skip (char '(')) (skip p) (skip (char ')'))
+
+-- | Determine filename in \#include
+file :: SymTab HashDefine -> String -> String
+file st name =
+    case name of
+      ('"':ns) -> init ns
+      ('<':ns) -> init ns
+      _ -> let ex = recursivelyExpand st name in
+           if ex == name then name else file st ex
