@@ -233,9 +233,7 @@ parseOp _ =
 parseSymOrCall :: SymTab HashDefine -> Parser String
 parseSymOrCall st =
   do  sym <- skip parseSym
-      args <- parens (many (do a <- parseSymOrCall st
-                               skip (char ',')
-                               return a))
+      args <- parens (parseSymOrCall st `sepby` skip (char ','))
       return (convert sym args)
   +++
   do  sym <- skip parseSym
