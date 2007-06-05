@@ -119,14 +119,14 @@ ${OBJDIR}/Language/Preprocessor/Cpphs/MacroPass.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/HashDefine.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Tokenise.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/SymTab.o \
-	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o 
+	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o \
+	${OBJDIR}/Language/Preprocessor/Cpphs/Options.o 
 ${OBJDIR}/Language/Preprocessor/Cpphs/HashDefine.o:
 ${OBJDIR}/Language/Preprocessor/Cpphs/Tokenise.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/HashDefine.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o 
 ${OBJDIR}/Language/Preprocessor/Cpphs/ReadFirst.o: \
-	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o \
-	${OBJDIR}/Language/Preprocessor/Cpphs/SymTab.o 
+	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o
 ${OBJDIR}/Language/Preprocessor/Cpphs/Position.o:
 ${OBJDIR}/Language/Preprocessor/Cpphs/ReadFirst.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o \
@@ -139,7 +139,10 @@ ${OBJDIR}/Language/Preprocessor/Cpphs/CppIfdef.o: \
 	${OBJDIR}/Text/ParserCombinators/HuttonMeijer.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/ReadFirst.o \
-	${OBJDIR}/Language/Preprocessor/Cpphs/Tokenise.o 
+	${OBJDIR}/Language/Preprocessor/Cpphs/Tokenise.o \
+	${OBJDIR}/Language/Preprocessor/Cpphs/Options.o \
+	${OBJDIR}/Language/Preprocessor/Cpphs/HashDefine.o \
+	${OBJDIR}/Language/Preprocessor/Cpphs/MacroPass.o
 ${OBJDIR}/Language/Preprocessor/Cpphs.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/CppIfdef.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/MacroPass.o \
