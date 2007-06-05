@@ -30,6 +30,8 @@ data CpphsOptions = CpphsOptions
     , boolopts	:: BoolOptions
     }
 
+-- | Default options.
+defaultCpphsOptions :: CpphsOptions
 defaultCpphsOptions = CpphsOptions { infiles = [], outfiles = []
                                    , defines = [], includes = []
                                    , boolopts = defaultBoolOptions }
@@ -47,6 +49,8 @@ data BoolOptions = BoolOptions
     , warnings	:: Bool  -- ^ Issue warnings?
     }
 
+-- | Default settings of boolean options.
+defaultBoolOptions :: BoolOptions
 defaultBoolOptions = BoolOptions { macros   = True,   locations = True
                                  , pragma   = False,  strip     = False
                                  , lang     = True,   ansi      = False
