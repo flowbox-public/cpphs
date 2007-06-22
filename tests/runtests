@@ -60,4 +60,5 @@ runtest "$CPPHS --hashes fasta2" expect40a
 runtest "$CPPHS --hashes hashjoin" expect41
 runtest "$CPPHS wrongline" expect42
 runtest "$CPPHS --hashes param" expect43
+runtest "$CPPHS --strip comments" expect44
 exit $FAIL
