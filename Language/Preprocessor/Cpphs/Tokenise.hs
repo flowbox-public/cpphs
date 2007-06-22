@@ -57,7 +57,7 @@ reslash   []      = []
 --   structures.
 data SubMode = Any | Pred (Char->Bool) (Posn->String->WordStyle)
              | String Char | LineComment | NestComment Int
-             | CComment
+             | CComment | CLineComment
 
 -- | Each token is classified as one of Ident, Other, or Cmd:
 --   * Ident is a word that could potentially match a macro name.
@@ -100,6 +100,8 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
                                             haskell (NestComment 0) "-{" p ls xs
   haskell Any acc p ls ('/':'*':xs)|strip = emit acc $
                                             haskell CComment "  " p ls xs
+  haskell Any acc p ls ('/':'/':xs)|strip = emit acc $
+                                            haskell CLineComment "  " p ls xs
   haskell Any acc p ls ('"':xs)           = emit acc $
                                             haskell (String '"') ['"'] p ls xs
   haskell Any acc p ls ('\'':xs)          = emit acc $
@@ -143,6 +145,9 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
   haskell CComment acc p ls ('*':'/':xs)  = emit ("  "++acc) $
                                             haskell Any [] p ls xs
   haskell CComment acc p ls (_:xs)        = haskell CComment (' ':acc) p ls xs
+  haskell CLineComment acc p ls xs@('\n':_)= emit acc $ haskell Any [] p ls xs
+  haskell CLineComment acc p ls (_:xs)    = haskell CLineComment (' ':acc)
+                                                                       p ls xs
   haskell mode acc _ ((p,l):ls) []        = haskell mode acc p ls ('\n':l)
   haskell _    acc _ [] []                = emit acc $ []
 
@@ -202,6 +207,8 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
                                           cpp Any plaintext [] [] p ls xs
   plaintext Any acc p ls ('/':'*':xs)|strip = emit acc $
                                               plaintext CComment "  " p ls xs
+  plaintext Any acc p ls ('/':'/':xs)|strip = emit acc $
+                                              plaintext CLineComment "  " p ls xs
   plaintext Any acc p ls (x:xs) | single x  = emit acc $ emit [x] $
                                               plaintext Any [] p ls xs
   plaintext Any acc p ls (x:xs) | space x   = emit acc $
@@ -218,6 +225,10 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
   plaintext CComment acc p ls ('*':'/':xs)  = emit ("  "++acc) $
                                               plaintext Any [] p ls xs
   plaintext CComment acc p ls (_:xs)    = plaintext CComment (' ':acc) p ls xs
+  plaintext CLineComment acc p ls xs@('\n':_)
+                                        = emit acc $ plaintext Any [] p ls xs
+  plaintext CLineComment acc p ls (_:xs)= plaintext CLineComment (' ':acc)
+                                                                       p ls xs
   plaintext mode acc _ ((p,l):ls) []    = plaintext mode acc p ls ('\n':l)
   plaintext _    acc _ [] []            = emit acc $ []
 
