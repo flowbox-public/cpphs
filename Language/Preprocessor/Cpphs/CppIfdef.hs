@@ -73,22 +73,23 @@ cpp p syms path options Keep (l@('#':x):xs) =
         def = defineMacro options (sym++" "++ maybe "1" id (un rest))
         un v = if null v then Nothing else Just (unwords v)
         keepIf p = if p then Keep else (Drop 1 False)
-        skipn syms' ud xs' =
+        skipn syms' retain ud xs' =
             let n = 1 + length (filter (=='\n') l) in
-            (if macros options then ((p,reslash l):)
-                               else (replicate n (p,"") ++)) $
+            (if macros options && retain then ((p,reslash l):)
+                                         else (replicate n (p,"") ++)) $
             cpp (newlines n p) syms' path options ud xs'
     in case cmd of
-	"define" -> skipn (insertST def syms) Keep xs
-	"undef"  -> skipn (deleteST sym syms) Keep xs
-	"ifndef" -> skipn syms (keepIf (not (definedST sym syms))) xs
-	"ifdef"  -> skipn syms (keepIf      (definedST sym syms)) xs
-	"if"     -> skipn syms (keepIf (gatherDefined p syms (unwords line))) xs
-	"else"   -> skipn syms (Drop 1 False) xs
-	"elif"   -> skipn syms (Drop 1 True) xs
-	"endif"  -> skipn syms  Keep xs
-	"pragma" -> skipn syms  Keep xs
-        ('!':_)  -> skipn syms  Keep xs	-- \#!runhs scripts
+	"define" -> skipn (insertST def syms) True Keep xs
+	"undef"  -> skipn (deleteST sym syms) True Keep xs
+	"ifndef" -> skipn syms False (keepIf (not (definedST sym syms))) xs
+	"ifdef"  -> skipn syms False (keepIf      (definedST sym syms)) xs
+	"if"     -> skipn syms False
+                               (keepIf (gatherDefined p syms (unwords line))) xs
+	"else"   -> skipn syms False (Drop 1 False) xs
+	"elif"   -> skipn syms False (Drop 1 True) xs
+	"endif"  -> skipn syms False  Keep xs
+	"pragma" -> skipn syms True   Keep xs
+        ('!':_)  -> skipn syms False  Keep xs	-- \#!runhs scripts
 	"include"-> let (inc,content) =
 	                  unsafePerformIO (readFirst (file syms (unwords line))
                                                      p path
@@ -99,8 +100,8 @@ cpp p syms path options Keep (l@('#':x):xs) =
                                                   ++ cppline (newline p): xs)
 	"warning"-> if warnings options then unsafePerformIO $ do
                        hPutStrLn stderr (l++"\nin "++show p)
-                       return $ skipn syms Keep xs
-                    else skipn syms Keep xs
+                       return $ skipn syms False Keep xs
+                    else skipn syms False Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
 	         -> (if locations options then ((p,l):) else id) $
