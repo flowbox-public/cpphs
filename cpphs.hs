@@ -32,10 +32,10 @@ main = do
            exitWith ExitSuccess)
   when ("--help" `elem` args)
        (do putStrLn ("Usage: "++prog
-                ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-                ++"\t\t[--nomacro] [--noline] [--pragma] [--text]\n"
-                ++"\t\t[--strip] [--hashes] [--layout] [--unlit]\n"
-                ++"\t\t[ --cpp std-cpp-options ]")
+              ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
+              ++"\t\t[--nomacro] [--noline] [--pragma] [--text]\n"
+              ++"\t\t[--strip] [--strip-c89] [--hashes] [--layout] [--unlit]\n"
+              ++"\t\t[ --cpp std-cpp-options ]")
            exitWith ExitSuccess)
 
   let parsedArgs = parseOptions args
@@ -101,7 +101,8 @@ convertArgs xs = f (ConvertArgs False True "-" "-") xs
         f e (x:xs) = f (if infile e == "-" then e{infile=x} else e{outfile=x}) xs
         
         f e [] = ["--hashes" | not (traditional e)] ++
-                 ["--strip" | strip e] ++
+                 ["--strip-c89" | traditional e && strip e] ++
+                 ["--strip" | not (traditional e) && strip e] ++
                  [infile e] ++
                  ["-O" ++ outfile e | outfile e /= "-"]
 

@@ -41,7 +41,8 @@ data BoolOptions = BoolOptions
     { macros	:: Bool  -- ^ Leave \#define and \#undef in output of ifdef?
     , locations	:: Bool	 -- ^ Place \#line droppings in output?
     , pragma	:: Bool  -- ^ Keep \#pragma in final output?
-    , strip	:: Bool  -- ^ Remove C comments everywhere?
+    , stripEol	:: Bool  -- ^ Remove C eol (//) comments everywhere?
+    , stripC89	:: Bool  -- ^ Remove C inline (/**/) comments everywhere?
     , lang	:: Bool  -- ^ Lex input as Haskell code?
     , ansi	:: Bool  -- ^ Permit stringise # and catenate ## operators?
     , layout	:: Bool  -- ^ Retain newlines in macro expansions?
@@ -52,7 +53,8 @@ data BoolOptions = BoolOptions
 -- | Default settings of boolean options.
 defaultBoolOptions :: BoolOptions
 defaultBoolOptions = BoolOptions { macros   = True,   locations = True
-                                 , pragma   = False,  strip     = False
+                                 , pragma   = False
+                                 , stripEol = False,  stripC89  = False
                                  , lang     = True,   ansi      = False
                                  , layout   = False,  literate  = False
                                  , warnings = True }
@@ -65,6 +67,7 @@ data RawOption
     | Pragma
     | Text
     | Strip
+    | StripC89
     | Ansi
     | Layout
     | Unlit
@@ -79,6 +82,7 @@ flags = [ ("--nomacro", NoMacro)
         , ("--pragma",  Pragma)
         , ("--text",    Text)
         , ("--strip",   Strip)
+        , ("--strip-c89",  StripC89)
         , ("--hashes",  Ansi)
         , ("--layout",  Layout)
         , ("--unlit",   Unlit)
@@ -105,7 +109,8 @@ boolOpts opts =
     { macros	= not (NoMacro `elem` opts)
     , locations	= not (NoLine  `elem` opts)
     , pragma	=      Pragma  `elem` opts
-    , strip	=      Strip   `elem` opts
+    , stripEol	=      Strip   `elem` opts
+    , stripC89	=      Strip   `elem` opts || StripC89 `elem` opts
     , lang      = not (Text    `elem` opts)
     , ansi	=      Ansi    `elem` opts
     , layout	=      Layout  `elem` opts

@@ -83,9 +83,9 @@ deWordStyle (Cmd _)     = "\n"
 --    * Any cpp line continuations are respected.
 --   No errors can be raised.
 --   The inverse of tokenise is (concatMap deWordStyle).
-tokenise :: Bool -> Bool -> Bool -> [(Posn,String)] -> [WordStyle]
-tokenise _     _    _     [] = []
-tokenise strip ansi lang ((pos,str):pos_strs) =
+tokenise :: Bool -> Bool -> Bool -> Bool -> [(Posn,String)] -> [WordStyle]
+tokenise _        _             _    _     [] = []
+tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
     (if lang then haskell else plaintext) Any [] pos pos_strs str
  where
     -- rules to lex Haskell
@@ -98,9 +98,11 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
                                             haskell LineComment "--" p ls xs
   haskell Any acc p ls ('{':'-':xs)       = emit acc $
                                             haskell (NestComment 0) "-{" p ls xs
-  haskell Any acc p ls ('/':'*':xs)|strip = emit acc $
+  haskell Any acc p ls ('/':'*':xs)
+                          | stripComments = emit acc $
                                             haskell CComment "  " p ls xs
-  haskell Any acc p ls ('/':'/':xs)|strip = emit acc $
+  haskell Any acc p ls ('/':'/':xs)
+                          | stripEol      = emit acc $
                                             haskell CLineComment "  " p ls xs
   haskell Any acc p ls ('"':xs)           = emit acc $
                                             haskell (String '"') ['"'] p ls xs
@@ -205,25 +207,27 @@ tokenise strip ansi lang ((pos,str):pos_strs) =
             -> String -> [WordStyle]
   plaintext Any acc p ls ('\n':'#':xs)  = emit acc $  -- emit "\n" $
                                           cpp Any plaintext [] [] p ls xs
-  plaintext Any acc p ls ('/':'*':xs)|strip = emit acc $
-                                              plaintext CComment "  " p ls xs
-  plaintext Any acc p ls ('/':'/':xs)|strip = emit acc $
-                                              plaintext CLineComment "  " p ls xs
-  plaintext Any acc p ls (x:xs) | single x  = emit acc $ emit [x] $
-                                              plaintext Any [] p ls xs
-  plaintext Any acc p ls (x:xs) | space x   = emit acc $
-                                              plaintext (Pred space other) [x]
+  plaintext Any acc p ls ('/':'*':xs)
+                           | stripComments = emit acc $
+                                             plaintext CComment "  " p ls xs
+  plaintext Any acc p ls ('/':'/':xs)
+                                | stripEol = emit acc $
+                                             plaintext CLineComment "  " p ls xs
+  plaintext Any acc p ls (x:xs) | single x = emit acc $ emit [x] $
+                                             plaintext Any [] p ls xs
+  plaintext Any acc p ls (x:xs) | space x  = emit acc $
+                                             plaintext (Pred space other) [x]
                                                                         p ls xs
-  plaintext Any acc p ls (x:xs) | ident0 x  = emit acc $
-                                              plaintext (Pred ident1 Ident) [x]
+  plaintext Any acc p ls (x:xs) | ident0 x = emit acc $
+                                             plaintext (Pred ident1 Ident) [x]
                                                                         p ls xs
-  plaintext Any acc p ls (x:xs)             = plaintext Any (x:acc) p ls xs
+  plaintext Any acc p ls (x:xs)            = plaintext Any (x:acc) p ls xs
   plaintext pre@(Pred pred ws) acc p ls (x:xs)
-                                | pred x    = plaintext pre (x:acc) p ls xs
-  plaintext (Pred _ ws) acc p ls xs         = ws p (reverse acc):
-                                              plaintext Any [] p ls xs
-  plaintext CComment acc p ls ('*':'/':xs)  = emit ("  "++acc) $
-                                              plaintext Any [] p ls xs
+                                | pred x   = plaintext pre (x:acc) p ls xs
+  plaintext (Pred _ ws) acc p ls xs        = ws p (reverse acc):
+                                             plaintext Any [] p ls xs
+  plaintext CComment acc p ls ('*':'/':xs) = emit ("  "++acc) $
+                                             plaintext Any [] p ls xs
   plaintext CComment acc p ls (_:xs)    = plaintext CComment (' ':acc) p ls xs
   plaintext CLineComment acc p ls xs@('\n':_)
                                         = emit acc $ plaintext Any [] p ls xs

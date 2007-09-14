@@ -42,7 +42,8 @@ macroPass syms options =
     . concat
     . macroProcess (pragma options) (layout options) (lang options)
                    (preDefine options syms)
-    . tokenise (strip options) (ansi options) (lang options)
+    . tokenise (stripEol options) (stripC89 options)
+               (ansi options) (lang options)
     . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
   where
     safetail [] = []
@@ -58,7 +59,7 @@ preDefine options defines =
 -- | Turn a string representing a macro definition into a 'HashDefine'.
 defineMacro :: BoolOptions -> String -> (String,HashDefine)
 defineMacro opts s =
-    let (Cmd (Just hd):_) = tokenise True (ansi opts) (lang opts)
+    let (Cmd (Just hd):_) = tokenise True True (ansi opts) (lang opts)
                                      [(noPos,"\n#define "++s++"\n")]
     in (name hd, hd)
 
@@ -105,7 +106,7 @@ macroProcess pr layout lang st (Ident p x: ws) =
                         -- r' : macroProcess layout st ws
                         -- multi-level expansion:
                         macroProcess pr layout lang st
-                                     (tokenise True False lang [(p,r')]
+                                     (tokenise True True False lang [(p,r')]
                                       ++ ws)
                     MacroExpansion {} ->
                         case parseMacroCall p ws of
@@ -122,7 +123,7 @@ macroProcess pr layout lang st (Ident p x: ws) =
                                      --         macroProcess layout st ws'
                                      -- multi-level expansion:
                                      macroProcess pr layout lang st
-                                         (tokenise True False lang
+                                         (tokenise True True False lang
                                               [(p,expandMacro hd args' layout)]
                                          ++ ws')
 
