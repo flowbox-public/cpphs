@@ -61,5 +61,6 @@ runtest "$CPPHS --hashes hashjoin" expect41
 runtest "$CPPHS wrongline" expect42
 runtest "$CPPHS --hashes param" expect43
 runtest "$CPPHS --strip comments" expect44
+runtest "$CPPHS --strip-c89 comments" expect44a
 runtest "$CPPHS nestcomment" expect45
 exit $FAIL
