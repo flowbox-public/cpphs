@@ -113,7 +113,8 @@ both cases, processing continues on the rest of the input.
 <p>
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
-              [--nomacro] [--noline] [--nowarn] [--pragma] [--strip]
+              [--nomacro] [--noline] [--nowarn] [--pragma]
+              [--strip] [--strip-c89]
               [--text] [--hashes] [--layout] [--unlit]
               [ --cpp compatopts ]
        cpphs --version                                             
@@ -146,8 +147,11 @@ Options:
 <tr><td>--pragma</td>
     <td>retain #pragma in the output (normally removed)</td></tr>
 <tr><td>--strip</td>
-    <td>convert C-style comments to whitespace, even outside
-                      cpp directives</td></tr>
+    <td>convert modern C-style comments (including /**/ and //) to whitespace,
+                      even outside cpp directives</td></tr>
+<tr><td>--strip-c89</td>
+    <td>convert traditional C-style comments (not eol //) to whitespace,
+                      even outside cpp directives</td></tr>
 <tr><td>--hashes</td>
     <td>recognise the ANSI # stringise operator, and ## for
                       token catenation, within macros</td></tr>
@@ -207,6 +211,12 @@ cpphs is available at
 <tt>--partial</tt> flag.)  The source tree and version history can
 be browsed on-line through
 <a href="http://www.cs.york.ac.uk/fp/darcs/">darcsweb</a>.
+What's new, over and above the latest stable release?
+<ul>
+<li> Existing option --strip now strips C eol // comments in addition to /**/.
+<li> New option --strip-c89 only strips /**/ but not C eol comments.
+<li> Bugfix for cpp directives within {- -} Haskell comments.
+</ul>
 
 <p>
 <b>Older versions:</b>
