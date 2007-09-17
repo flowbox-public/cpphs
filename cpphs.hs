@@ -34,7 +34,7 @@ main = do
        (do putStrLn ("Usage: "++prog
               ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
               ++"\t\t[--nomacro] [--noline] [--pragma] [--text]\n"
-              ++"\t\t[--strip] [--strip-c89] [--hashes] [--layout] [--unlit]\n"
+              ++"\t\t[--strip] [--strip-eol] [--hashes] [--layout] [--unlit]\n"
               ++"\t\t[ --cpp std-cpp-options ]")
            exitWith ExitSuccess)
 
@@ -89,7 +89,7 @@ convertArgs xs = f (ConvertArgs False True "-" "-") xs
         f e (('-':x):xs) | "ansi" `isPrefixOf` x = f e{traditional=False} xs
                          | "traditional" `isPrefixOf` x = f e{traditional=True} xs
                          | "std" `isPrefixOf` x = f e xs -- ignore language spec
-        f e ("-x":x:xs) = f e xs -- ignore langauge spec
+        f e ("-x":x:xs) = f e xs -- ignore language spec
         f e ("-include":x:xs) = x : f e xs
         f e ("-P":xs) = "--noline" : f e xs
         f e (x:xs) | x == "-C" || x == "-CC" = f e{strip=False} xs
@@ -101,8 +101,8 @@ convertArgs xs = f (ConvertArgs False True "-" "-") xs
         f e (x:xs) = f (if infile e == "-" then e{infile=x} else e{outfile=x}) xs
         
         f e [] = ["--hashes" | not (traditional e)] ++
-                 ["--strip-c89" | traditional e && strip e] ++
-                 ["--strip" | not (traditional e) && strip e] ++
+                 ["--strip" | traditional e && strip e] ++
+                 ["--strip-eol" | not (traditional e) && strip e] ++
                  [infile e] ++
                  ["-O" ++ outfile e | outfile e /= "-"]
 

@@ -14,7 +14,7 @@ or
 USAGE
 -----
 	cpphs  [filename | -Dsym | -Dsym=val | -Ipath]+  [-Ofile]
-               [ --nomacro | --noline | --nowarn | --strip | --strip-c89 |
+               [ --nomacro | --noline | --nowarn | --strip | --strip-eol |
                  --pragma | --text | --hashes | --layout | --unlit ]*
                [ --cpp compatopts ]
 

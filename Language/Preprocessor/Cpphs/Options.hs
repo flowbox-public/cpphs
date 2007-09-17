@@ -67,7 +67,7 @@ data RawOption
     | Pragma
     | Text
     | Strip
-    | StripC89
+    | StripEol
     | Ansi
     | Layout
     | Unlit
@@ -82,7 +82,7 @@ flags = [ ("--nomacro", NoMacro)
         , ("--pragma",  Pragma)
         , ("--text",    Text)
         , ("--strip",   Strip)
-        , ("--strip-c89",  StripC89)
+        , ("--strip-eol",  StripEol)
         , ("--hashes",  Ansi)
         , ("--layout",  Layout)
         , ("--unlit",   Unlit)
@@ -109,8 +109,8 @@ boolOpts opts =
     { macros	= not (NoMacro `elem` opts)
     , locations	= not (NoLine  `elem` opts)
     , pragma	=      Pragma  `elem` opts
-    , stripEol	=      Strip   `elem` opts
-    , stripC89	=      Strip   `elem` opts || StripC89 `elem` opts
+    , stripEol	=      StripEol`elem` opts
+    , stripC89	=      StripEol`elem` opts || Strip `elem` opts
     , lang      = not (Text    `elem` opts)
     , ansi	=      Ansi    `elem` opts
     , layout	=      Layout  `elem` opts
