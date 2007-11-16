@@ -125,6 +125,13 @@ are catenated on standard output.  (Macro definitions in one file do not
 carry over into the next.)  If no filename is given, cpphs reads from
 standard input.
 
+<p> <em>Note:</em> if you wish to use cpphs as a replacement for gcc's
+cpp in conjunction with the ghc compiler then the extra options you need
+to give to ghc are these:
+<pre>
+  -cpp  -pgmPcpphs  -optP--cpp
+</pre>
+
 <p>
 Options:
 <table border=0 align=center>
