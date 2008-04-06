@@ -58,7 +58,7 @@ cfiles: cleanC $(CFILES)
 fromC: $(OBJDIR)
 	$(LOCAL)/nhc98 -c -d $(OBJDIR) $(CFILES)
 	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS)
-	$(STRIP) $(TARGET)
+	$(HOSTSTRIP) $(TARGET)
 
 clean: cleanHi cleanO
 cleanO:
@@ -94,7 +94,7 @@ flat:
 
 $(CPPHS): $(OBJDIR) $(OBJS)
 	$(HC) $(HFLAGS) $(HEAP) -o $@  $(OBJS)
-	$(STRIP) $@
+	$(HOSTSTRIP) $@
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR) || $(TRUE)

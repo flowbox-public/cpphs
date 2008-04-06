@@ -48,4 +48,4 @@ haddock: $(SRCS)
 
 $(LIBRARY): $(SRCS)
 	$(HC) $(HFLAGS) $(HEAP) -o $@  $(SRCS)
-	$(STRIP) $@
+	$(HOSTSTRIP) $@
