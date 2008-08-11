@@ -63,4 +63,5 @@ runtest "$CPPHS --hashes param" expect43
 runtest "$CPPHS --strip comments" expect44
 runtest "$CPPHS --strip-eol comments" expect44a
 runtest "$CPPHS nestcomment" expect45
+runtest "$CPPHS --include=inclusion preinclude" expect46
 exit $FAIL

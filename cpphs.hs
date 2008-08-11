@@ -35,7 +35,7 @@ main = do
               ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
               ++"\t\t[--nomacro] [--noline] [--pragma] [--text]\n"
               ++"\t\t[--strip] [--strip-eol] [--hashes] [--layout] [--unlit]\n"
-              ++"\t\t[ --cpp std-cpp-options ]")
+              ++"\t\t[ --cpp std-cpp-options ] [--include=filename]")
            exitWith ExitSuccess)
 
   let parsedArgs = parseOptions args
@@ -90,7 +90,7 @@ convertArgs xs = f (ConvertArgs False True "-" "-") xs
                          | "traditional" `isPrefixOf` x = f e{traditional=True} xs
                          | "std" `isPrefixOf` x = f e xs -- ignore language spec
         f e ("-x":x:xs) = f e xs -- ignore language spec
-        f e ("-include":x:xs) = x : f e xs
+        f e ("-include":x:xs) = ("--include="++x) : f e xs
         f e ("-P":xs) = "--noline" : f e xs
         f e (x:xs) | x == "-C" || x == "-CC" = f e{strip=False} xs
         f e ("-A":x:xs) = f e xs -- strip assertions

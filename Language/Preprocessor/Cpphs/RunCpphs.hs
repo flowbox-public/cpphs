@@ -16,8 +16,11 @@ import Language.Preprocessor.Unlit as Unlit (unlit)
 runCpphs :: CpphsOptions -> FilePath -> String -> String
 runCpphs options filename input =
   let bools = boolopts options
+      preInc = concatMap (\f->"#include \""++f++"\"\n") (preInclude options)
+--             ++ "#line 1\n"
 
-      pass1 = cppIfdef filename (defines options) (includes options) bools input
+      pass1 = cppIfdef filename (defines options) (includes options) bools
+                       (preInc++input)
       pass2 = macroPass (defines options) bools pass1
       result= if not (macros bools) then unlines (map snd pass1) else pass2
       pass3 = if literate bools then Unlit.unlit filename else id

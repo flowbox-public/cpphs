@@ -20,6 +20,7 @@ module Language.Preprocessor.Cpphs.Options
   ) where
 
 import Maybe
+import List (isPrefixOf)
 
 -- | Cpphs options structure.
 data CpphsOptions = CpphsOptions 
@@ -27,6 +28,7 @@ data CpphsOptions = CpphsOptions
     , outfiles	:: [FilePath]
     , defines	:: [(String,String)]
     , includes	:: [String]
+    , preInclude:: [FilePath]	-- ^ Files to #include before anything else
     , boolopts	:: BoolOptions
     }
 
@@ -34,6 +36,7 @@ data CpphsOptions = CpphsOptions
 defaultCpphsOptions :: CpphsOptions
 defaultCpphsOptions = CpphsOptions { infiles = [], outfiles = []
                                    , defines = [], includes = []
+                                   , preInclude = []
                                    , boolopts = defaultBoolOptions }
 
 -- | Options representable as Booleans.
@@ -74,6 +77,7 @@ data RawOption
     | SuppressWarnings
     | Macro (String,String)
     | Path String
+    | PreInclude FilePath
       deriving (Eq, Show)
 
 flags :: [(String, RawOption)]
@@ -97,6 +101,8 @@ rawOption x | isJust a = a
 rawOption ('-':'D':xs) = Just $ Macro (s, if null d then "1" else tail d)
     where (s,d) = break (=='=') xs
 rawOption ('-':'I':xs) = Just $ Path $ trailing "/\\" xs
+rawOption xs | "--include="`isPrefixOf`xs
+            = Just $ PreInclude (drop 10 xs)
 rawOption _ = Nothing
 
 trailing :: (Eq a) => [a] -> [a] -> [a]
@@ -132,6 +138,7 @@ parseOptions xs = f ([], [], []) xs
                            , outfiles = reverse outs
                            , defines  = [ x | Macro x <- reverse opts ]
                            , includes = [ x | Path x  <- reverse opts ]
+                           , preInclude=[ x | PreInclude x <- reverse opts ]
                            , boolopts = boolOpts opts
                            }
     normalise ('/':'/':filepath) = normalise ('/':filepath)
