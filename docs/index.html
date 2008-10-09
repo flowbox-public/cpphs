@@ -191,19 +191,21 @@ is no default search path (unless you define one via a wrapper script).
 <b>Current stable version:</b>
 
 <p>
-cpphs-1.5, release date 2007.06.05<br>
+cpphs-1.6, release date 2008.10.09<br>
 By HTTP:
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.5.tar.gz">.tar.gz</a>,
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.5.zip">.zip</a>.
-<a href="http://www.cs.york.ac.uk/fp/cpphs-1.5-win32.zip">Windows binary</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.6.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.6.zip">.zip</a>.
 <a href="http://www.haskell.org/fedora/">Fedora package</a>,
 <a href="http://packages.gentoo.org/packages/?category=dev-haskell;name=cpphs">Gentoo package</a>,
 <a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
 <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
 <ul>
-<li> Fixed some more obscure corner cases, involving parameterised macro
-     expansion within conditionals e.g. #if FOO(BAR,QUUX)
-<li> Internal refactoring, affecting parts of the library API.
+<li> New option <tt>--include=filename</tt>, compatible with cpp's
+     <tt>-include filename</tt>.
+<li> New option <tt>--strip-eol</tt> now strips C eol <tt>//</tt> comments
+     in addition to <tt>/**/</tt>.
+<li> Line pragmas can now have filenames containing spaces.
+<li> Bugfix for cpp directives within <tt>{- -}</tt> Haskell comments.
 </ul>
 
 <p>
@@ -220,12 +222,23 @@ be browsed on-line through
 <a href="http://www.cs.york.ac.uk/fp/darcs/">darcsweb</a>.
 What's new, over and above the latest stable release?
 <ul>
-<li> New option --strip-eol now strips C eol // comments in addition to /**/.
-<li> Bugfix for cpp directives within {- -} Haskell comments.
+<li> Nothing since last release.
 </ul>
 
 <p>
 <b>Older versions:</b>
+<p>
+cpphs-1.5, release date 2007.06.05<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.5.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.5.zip">.zip</a>.
+<a href="http://www.cs.york.ac.uk/fp/cpphs-1.5-win32.zip">Windows binary</a>,
+<ul>
+<li> Fixed some more obscure corner cases, involving parameterised macro
+     expansion within conditionals e.g. #if FOO(BAR,QUUX)
+<li> Internal refactoring, affecting parts of the library API.
+</ul>
+
 <p>
 cpphs-1.4, release date 2007.04.17<br>
 By HTTP:
@@ -512,7 +525,7 @@ cpp's behaviour.  Please mail
         Malcolm.Wallace@cs.york.ac.uk</a> 
 </ul>
 
-<p><b>Copyright:</b> &copy; 2004-2007 Malcolm Wallace,
+<p><b>Copyright:</b> &copy; 2004-2008 Malcolm Wallace,
 except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
 
 <p><b>License:</b> The library modules in cpphs are distributed under
