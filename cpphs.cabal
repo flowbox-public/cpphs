@@ -19,6 +19,7 @@ Description:
 	an option to unlit literate code files; and an option to turn
 	off macro-expansion.
 Category: Development
+Build-type: Simple
 Exposed-Modules:
 	Language.Preprocessor.Cpphs
 	Language.Preprocessor.Unlit
