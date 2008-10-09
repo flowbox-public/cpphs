@@ -35,7 +35,7 @@ haddock: $(SRCS)
 	mkdir -p docs/$(LIBRARY)
 	for dir in $(DIRS); do mkdir -p docs/$(LIBRARY)/$$dir; done
 	for file in $(SRCS); \
-	    do HsColour -anchorHTML $$file \
+	    do HsColour -anchor -html $$file \
 	          >docs/$(LIBRARY)/`dirname $$file`/`basename $$file .hs`.html;\
 	    done
 	haddock --html --title=$(LIBRARY) \
