@@ -1,3 +1,16 @@
+Version 1.6
+-----------
+  * New command-line option: "--include=filename".
+  * New command-line option: "--strip-eol" for comment-stripping.
+  * Line pragmas can have filenames containing spaces.
+
+Version 1.5
+-----------
+  * Parametrised macro-calls now permitted in #ifdef's.
+  * Recursive textual expansion now permitted in #ifdef's.
+  * Better options-handling when used as a library.
+  * Various small bugfixes
+
 Version 1.4
 -----------
   * Added a "--pragma" option to retain #pragma in the output.
