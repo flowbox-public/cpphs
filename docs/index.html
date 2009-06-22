@@ -191,21 +191,16 @@ is no default search path (unless you define one via a wrapper script).
 <b>Current stable version:</b>
 
 <p>
-cpphs-1.6, release date 2008.10.09<br>
+cpphs-1.7, release date 2009.06.22<br>
 By HTTP:
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.6.tar.gz">.tar.gz</a>,
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.6.zip">.zip</a>.
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.7.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.7.zip">.zip</a>.
 <a href="http://www.haskell.org/fedora/">Fedora package</a>,
 <a href="http://packages.gentoo.org/packages/?category=dev-haskell;name=cpphs">Gentoo package</a>,
 <a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
 <a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
 <ul>
-<li> New option <tt>--include=filename</tt>, compatible with cpp's
-     <tt>-include filename</tt>.
-<li> New option <tt>--strip-eol</tt> now strips C eol <tt>//</tt> comments
-     in addition to <tt>/**/</tt>.
-<li> Line pragmas can now have filenames containing spaces.
-<li> Bugfix for cpp directives within <tt>{- -}</tt> Haskell comments.
+<li> Bugfix for --unlit interaction with \end{code}.
 </ul>
 
 <p>
@@ -227,6 +222,20 @@ What's new, over and above the latest stable release?
 
 <p>
 <b>Older versions:</b>
+
+<p>
+cpphs-1.6, release date 2008.10.09<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.6.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.6.zip">.zip</a>.
+<ul>
+<li> New option <tt>--include=filename</tt>, compatible with cpp's
+     <tt>-include filename</tt>.
+<li> New option <tt>--strip-eol</tt> now strips C eol <tt>//</tt> comments
+     in addition to <tt>/**/</tt>.
+<li> Line pragmas can now have filenames containing spaces.
+<li> Bugfix for cpp directives within <tt>{- -}</tt> Haskell comments.
+</ul>
 <p>
 cpphs-1.5, release date 2007.06.05<br>
 By HTTP:

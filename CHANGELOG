@@ -1,3 +1,7 @@
+Version 1.7
+-----------
+  * Bugfix in interaction of --unlit with \end{code}
+
 Version 1.6
 -----------
   * New command-line option: "--include=filename".

@@ -1,5 +1,5 @@
 Name: cpphs
-Version: 1.6
+Version: 1.7
 Copyright: 2004-8, Malcolm Wallace
 Build-Depends: base, haskell98
 License: LGPL

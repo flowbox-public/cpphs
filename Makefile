@@ -1,5 +1,5 @@
 LIBRARY	= cpphs
-VERSION	= 1.6
+VERSION	= 1.7
 
 DIRS	= Language/Preprocessor/Cpphs \
 	  Text/ParserCombinators
@@ -22,6 +22,11 @@ AUX	= README LICENCE* CHANGELOG $(LIBRARY).cabal Setup.hs Makefile \
 	  cpphs.hugs cpphs.compat \
 	  tests/[A-BD-Z]* tests/[a-np-z]* \
 	  docs/[a-z]*
+
+HC	= ghc
+HFLAGS	=
+HEAP	=
+HOSTSTRIP = strip
 
 all: $(LIBRARY)
 package:
