@@ -3,6 +3,7 @@
 module Language.Preprocessor.Unlit (unlit) where
 
 import Char
+import List (isPrefixOf)
 
 data Classified = Program String | Blank | Comment
                 | Include Int String | Pre String
@@ -12,7 +13,7 @@ classify []                = []
 classify (('\\':x):xs) | x == "begin{code}" = Blank : allProg xs
    where allProg [] = []  -- Should give an error message,
                           -- but I have no good position information.
-         allProg (('\\':x):xs) |  x == "end{code}" = Blank : classify xs
+         allProg (('\\':x):xs) |  "end{code}"`isPrefixOf`x = Blank : classify xs
 	 allProg (x:xs) = Program x:allProg xs
 classify (('>':x):xs)      = Program (' ':x) : classify xs
 classify (('#':x):xs)      = (case words x of
