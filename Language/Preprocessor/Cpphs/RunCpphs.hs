@@ -16,8 +16,10 @@ import Language.Preprocessor.Unlit as Unlit (unlit)
 runCpphs :: CpphsOptions -> FilePath -> String -> String
 runCpphs options filename input =
   let bools = boolopts options
-      preInc = concatMap (\f->"#include \""++f++"\"\n") (preInclude options)
---             ++ "#line 1\n"
+      preInc = case preInclude options of
+                 [] -> ""
+                 is -> concatMap (\f->"#include \""++f++"\"\n") is 
+                       ++ "#line 1 \""++filename++"\"\n"
 
       pass1 = cppIfdef filename (defines options) (includes options) bools
                        (preInc++input)
