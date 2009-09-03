@@ -20,7 +20,6 @@ module Language.Preprocessor.Cpphs.CppIfdef
 
 import Language.Preprocessor.Cpphs.SymTab
 import Text.ParserCombinators.HuttonMeijer
--- import HashDefine
 import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines
                                              ,cppline,newpos)
 import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
@@ -245,6 +244,7 @@ parseSymOrCall st =
         Nothing  -> sym
         Just (a@SymbolReplacement{}) -> recursivelyExpand st (replacement a)
         Just (a@MacroExpansion{})    -> expandMacro a args False
+        Just (a@AntiDefined{})       -> name a
 
 recursivelyExpand :: SymTab HashDefine -> String -> String
 recursivelyExpand st inp =

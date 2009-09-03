@@ -100,6 +100,7 @@ macroProcess pr layout lang st (Ident p x: ws) =
             Nothing -> x: macroProcess pr layout lang st ws
             Just hd ->
                 case hd of
+                    AntiDefined {name=n} -> n: macroProcess pr layout lang st ws
                     SymbolReplacement {replacement=r} ->
                         let r' = if layout then r else filter (/='\n') r in
                         -- one-level expansion only:

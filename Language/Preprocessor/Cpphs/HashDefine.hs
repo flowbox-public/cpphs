@@ -26,6 +26,10 @@ data HashDefine
 		{ name :: String }
 	| Pragma
 		{ name :: String }
+        | AntiDefined
+		{ name          :: String
+		, linebreaks    :: Int
+		}
 	| SymbolReplacement
 		{ name		:: String
 		, replacement	:: String
@@ -72,9 +76,9 @@ parseHashDefine ansi def = (command . skip) def
     command ("line":xs)   = Just (LineDrop ("#line"++concat xs))
     command ("pragma":xs) = Just (Pragma ("#pragma"++concat xs))
     command ("define":xs) = Just (((define . skip) xs) { linebreaks=count def })
-    command ("undef":xs)  = Just (((undef  . skip) xs) { linebreaks=count def })
+    command ("undef":xs)  = Just (((undef  . skip) xs))
     command _             = Nothing
-    undef  (sym:_)   = symbolReplacement { name=sym, replacement=sym }
+    undef  (sym:_)   = AntiDefined { name=sym, linebreaks=0 }
     define (sym:xs)  = case {-skip-} xs of
                            ("(":ys) -> (macroHead sym [] . skip) ys
                            ys   -> symbolReplacement
