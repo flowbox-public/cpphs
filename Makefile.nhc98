@@ -3,7 +3,7 @@ include Makefile.inc
 OBJDIR	= $(BUILDDIR)/$(OBJ)/cpphs
 CPPHS	= $(DST)/cpphs$(EXE)
 TARGET	= $(CPPHS)
-VERSION = 1.8
+VERSION = 1.9
 
 SRCS    = Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/CppIfdef.hs \

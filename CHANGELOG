@@ -1,3 +1,7 @@
+Version 1.9
+-----------
+  * Bugfix for #undef.
+
 Version 1.8
 -----------
   * Bugfix for off-by-one error in line numbers with --include=file.
