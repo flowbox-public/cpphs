@@ -101,7 +101,9 @@ processor can give meaningful error messages.  When a file is
 <tt>#include</tt>'d, cpphs inserts <tt>#line</tt> directives for the
 same reason.  Numbering should be correct even in the presence of
 line continuations.  If you don't want <tt>#line</tt> directives in
-the final output, use the <tt>--noline</tt> option.
+the final output, use the <tt>--noline</tt> option, or if you would
+prefer them in <tt>{-# LINE #-}</tt> Haskell pragma format, use the
+<tt>--linepragma</tt> option.
 
 <p>
 Any syntax error in a cpp directive gives a warning message to stderr.
@@ -114,7 +116,7 @@ both cases, processing continues on the rest of the input.
 <center><pre>
 Usage: cpphs  [ filename | -Dsym | -Dsym=val | -Ipath ]+  [-Ofile]
               [--include=file]*
-              [--nomacro] [--noline] [--nowarn] [--pragma]
+              [--nomacro] [--noline] [--linepragma] [--nowarn] [--pragma]
               [--strip] [--strip-eol]
               [--text] [--hashes] [--layout] [--unlit]
               [ --cpp compatopts ]
@@ -152,6 +154,8 @@ Options:
     <td>only process #ifdef's and #include's, do not expand macros</td></tr>
 <tr><td>--noline</td>
     <td>remove #line droppings from the output</td></tr>
+<tr><td>--linepragma</td>
+    <td>convert #line droppings into {-# LINE #-} format</td></tr>
 <tr><td>--nowarn</td>
     <td>suppress messages from missing #include files, or #warning</td></tr>
 <tr><td>--pragma</td>
@@ -194,16 +198,13 @@ is no default search path (unless you define one via a wrapper script).
 <b>Current stable version:</b>
 
 <p>
-cpphs-1.9, release date 2009.09.07<br>
+cpphs-1.10, release date 2010.01.30<br>
 By HTTP:
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.9.tar.gz">.tar.gz</a>,
-<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.9.zip">.zip</a>.
-<a href="http://www.haskell.org/fedora/">Fedora package</a>,
-<a href="http://packages.gentoo.org/packages/?category=dev-haskell;name=cpphs">Gentoo package</a>,
-<a href="http://www.freshports.org/devel/hs-cpphs/">FreeBSD port</a>,
-<a href="http://www.openbsd.org/cgi-bin/cvsweb/ports/devel/cpphs/">OpenBSD port</a>.
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.10.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.10.zip">.zip</a>,
+<a href="http://hackage.haskell.org/package/cpphs">Hackage</a>.
 <ul>
-<li> Bugfix for #undef.
+<li> New command-line flag: --linepragma
 </ul>
 
 <p>
@@ -225,6 +226,15 @@ What's new, over and above the latest stable release?
 
 <p>
 <b>Older versions:</b>
+
+<p>
+cpphs-1.9, release date 2009.09.07<br>
+By HTTP:
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.9.tar.gz">.tar.gz</a>,
+<a href="http://www.cs.york.ac.uk/fp/cpphs/cpphs-1.9.zip">.zip</a>.
+<ul>
+<li> Bugfix for #undef.
+</ul>
 
 <p>
 cpphs-1.8, release date 2009.08.06<br>
@@ -555,7 +565,7 @@ cpp's behaviour.  Please mail
         Malcolm.Wallace@cs.york.ac.uk</a> 
 </ul>
 
-<p><b>Copyright:</b> &copy; 2004-2009 Malcolm Wallace,
+<p><b>Copyright:</b> &copy; 2004-2010 Malcolm Wallace,
 except for ParseLib (Copyright &copy; 1995 Graham Hutton and Erik Meijer)
 
 <p><b>License:</b> The library modules in cpphs are distributed under

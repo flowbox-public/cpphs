@@ -1,6 +1,6 @@
 Name: cpphs
-Version: 1.9
-Copyright: 2004-2009, Malcolm Wallace
+Version: 1.10
+Copyright: 2004-2010, Malcolm Wallace
 Build-Depends: base < 6, haskell98
 License: LGPL
 License-File: LICENCE-LGPL
