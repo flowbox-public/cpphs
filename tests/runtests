@@ -67,5 +67,5 @@ runtest "$CPPHS --include=inclusion preinclude" expect46
 runtest "$CPPHS --unlit endcode-a" expect47
 runtest "$CPPHS --unlit endcode-b" expect48
 runtest "$CPPHS undef.hs" expect49
-runtest "$CPPHS --haskline linepragma" expect50
+runtest "$CPPHS --linepragma linepragma" expect50
 exit $FAIL

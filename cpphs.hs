@@ -32,10 +32,10 @@ main = do
            exitWith ExitSuccess)
   when ("--help" `elem` args)
        (do putStrLn ("Usage: "++prog
-              ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
-              ++"\t\t[--nomacro] [--noline] [--pragma] [--text]\n"
-              ++"\t\t[--strip] [--strip-eol] [--hashes] [--layout] [--unlit]\n"
-              ++"\t\t[ --cpp std-cpp-options ] [--include=filename]")
+             ++" [file ...] [ -Dsym | -Dsym=val | -Ipath ]*  [-Ofile]\n"
+             ++"\t\t[--nomacro] [--noline] [--linepragma] [--pragma] [--text]\n"
+             ++"\t\t[--strip] [--strip-eol] [--hashes] [--layout] [--unlit]\n"
+             ++"\t\t[ --cpp std-cpp-options ] [--include=filename]")
            exitWith ExitSuccess)
 
   let parsedArgs = parseOptions args

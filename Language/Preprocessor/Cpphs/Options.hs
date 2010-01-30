@@ -68,7 +68,7 @@ defaultBoolOptions = BoolOptions { macros   = True,   locations = True
 data RawOption
     = NoMacro
     | NoLine
-    | HaskLine
+    | LinePragma
     | Pragma
     | Text
     | Strip
@@ -85,7 +85,7 @@ data RawOption
 flags :: [(String, RawOption)]
 flags = [ ("--nomacro", NoMacro)
         , ("--noline",  NoLine)
-        , ("--haskline",HaskLine)
+        , ("--linepragma", LinePragma)
         , ("--pragma",  Pragma)
         , ("--text",    Text)
         , ("--strip",   Strip)
@@ -117,7 +117,7 @@ boolOpts opts =
   BoolOptions
     { macros	= not (NoMacro `elem` opts)
     , locations	= not (NoLine  `elem` opts)
-    , hashline	= not (HaskLine`elem` opts)
+    , hashline	= not (LinePragma `elem` opts)
     , pragma	=      Pragma  `elem` opts
     , stripEol	=      StripEol`elem` opts
     , stripC89	=      StripEol`elem` opts || Strip `elem` opts
