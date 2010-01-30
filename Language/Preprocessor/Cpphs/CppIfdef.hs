@@ -21,7 +21,7 @@ module Language.Preprocessor.Cpphs.CppIfdef
 import Language.Preprocessor.Cpphs.SymTab
 import Text.ParserCombinators.HuttonMeijer
 import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines
-                                             ,cppline,newpos)
+                                             ,cppline,cpp2hask,newpos)
 import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
 import Language.Preprocessor.Cpphs.Tokenise  (linesCpp,reslash)
 import Language.Preprocessor.Cpphs.Options   (BoolOptions(..))
@@ -103,11 +103,15 @@ cpp p syms path options Keep (l@('#':x):xs) =
                     else skipn syms False Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
-	         -> (if locations options then ((p,l):) else id) $
+	         -> (if locations options && hashline options then ((p,l):)
+                     else if locations options then ((p,cpp2hask l):)
+                     else id) $
                     cpp (newpos (read sym) (un rest) p)
                         syms path options Keep xs
 	n | all isDigit n
-	         -> (if locations options then ((p,l):) else id) $
+	         -> (if locations options && hashline options then ((p,l):)
+                     else if locations options then ((p,cpp2hask l):)
+                     else id) $
 	            cpp (newpos (read n) (un (tail ws)) p)
                         syms path options Keep xs
           | otherwise

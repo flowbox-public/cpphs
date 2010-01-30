@@ -15,9 +15,11 @@ module Language.Preprocessor.Cpphs.Position
   ( Posn(..)
   , newfile
   , addcol, newline, tab, newlines, newpos
-  , cppline
+  , cppline, haskline, cpp2hask
   , filename, lineno, directory
   ) where
+
+import List (isPrefixOf)
 
 -- | Source positions contain a filename, line, column, and an
 --   inclusion point, which is itself another source position,
@@ -70,6 +72,15 @@ directory (Pn f _ _ _) = dirname f
 cppline :: Posn -> String
 cppline (Pn f r _ _) = "#line "++show r++" "++show f
 
+-- | haskell-style printing of file position
+haskline :: Posn -> String
+haskline (Pn f r _ _) = "{-# LINE "++show r++" "++show f++" #-}"
+
+-- | Conversion from a cpp-style "#line" to haskell-style pragma.
+cpp2hask :: String -> String
+cpp2hask line | "#line" `isPrefixOf` line = "{-# LINE "
+                                            ++unwords (tail (words line))
+                                            ++" #-}"
                                                                                 
 -- | Strip non-directory suffix from file name (analogous to the shell
 --   command of the same name).

@@ -43,6 +43,7 @@ defaultCpphsOptions = CpphsOptions { infiles = [], outfiles = []
 data BoolOptions = BoolOptions
     { macros	:: Bool  -- ^ Leave \#define and \#undef in output of ifdef?
     , locations	:: Bool	 -- ^ Place #line droppings in output?
+    , hashline	:: Bool	 -- ^ Write #line or {-# LINE #-} ?
     , pragma	:: Bool  -- ^ Keep #pragma in final output?
     , stripEol	:: Bool  -- ^ Remove C eol (\/\/) comments everywhere?
     , stripC89	:: Bool  -- ^ Remove C inline (\/**\/) comments everywhere?
@@ -56,7 +57,7 @@ data BoolOptions = BoolOptions
 -- | Default settings of boolean options.
 defaultBoolOptions :: BoolOptions
 defaultBoolOptions = BoolOptions { macros   = True,   locations = True
-                                 , pragma   = False
+                                 , hashline = True,   pragma    = False
                                  , stripEol = False,  stripC89  = False
                                  , lang     = True,   ansi      = False
                                  , layout   = False,  literate  = False
@@ -67,6 +68,7 @@ defaultBoolOptions = BoolOptions { macros   = True,   locations = True
 data RawOption
     = NoMacro
     | NoLine
+    | HaskLine
     | Pragma
     | Text
     | Strip
@@ -83,6 +85,7 @@ data RawOption
 flags :: [(String, RawOption)]
 flags = [ ("--nomacro", NoMacro)
         , ("--noline",  NoLine)
+        , ("--haskline",HaskLine)
         , ("--pragma",  Pragma)
         , ("--text",    Text)
         , ("--strip",   Strip)
@@ -114,6 +117,7 @@ boolOpts opts =
   BoolOptions
     { macros	= not (NoMacro `elem` opts)
     , locations	= not (NoLine  `elem` opts)
+    , hashline	= not (HaskLine`elem` opts)
     , pragma	=      Pragma  `elem` opts
     , stripEol	=      StripEol`elem` opts
     , stripC89	=      StripEol`elem` opts || Strip `elem` opts
