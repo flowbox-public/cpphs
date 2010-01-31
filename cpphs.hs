@@ -64,7 +64,8 @@ execute opts ofile infile =
       output Nothing x  = do putStr x; hFlush stdout
       output (Just f) x = writeFile f x
   in do contents <- readIt
-        output ofile (runCpphs opts filename contents)
+        transformed <- runCpphs opts filename contents
+        output ofile transformed
 
 isLeft (Left _) = True
 isLeft _ = False

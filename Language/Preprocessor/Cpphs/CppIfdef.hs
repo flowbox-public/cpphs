@@ -14,7 +14,7 @@
 
 module Language.Preprocessor.Cpphs.CppIfdef
   ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Options
-		--      -> String -> [(Posn,String)]
+		--      -> String -> IO [(Posn,String)]
   ) where
 
 
@@ -30,7 +30,7 @@ import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),parseHashDefine
 import Language.Preprocessor.Cpphs.MacroPass (preDefine,defineMacro)
 import Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
-import System.IO.Unsafe (unsafePerformIO)
+import System.IO.Unsafe (unsafeInterleaveIO)
 import IO        (hPutStrLn,stderr)
 
 
@@ -41,7 +41,7 @@ cppIfdef :: FilePath		-- ^ File for error reports
 	-> [String]		-- ^ Search path for \#includes
 	-> BoolOptions		-- ^ Options controlling output style
 	-> String		-- ^ The input file content
-	-> [(Posn,String)]	-- ^ The file after processing (in lines)
+	-> IO [(Posn,String)]	-- ^ The file after processing (in lines)
 cppIfdef fp syms search options =
     cpp posn defs search options Keep . (cppline posn:) . linesCpp
   where
@@ -60,8 +60,8 @@ data KeepState = Keep | Drop Int Bool
 
 -- | Return just the list of lines that the real cpp would decide to keep.
 cpp :: Posn -> SymTab HashDefine -> [String] -> BoolOptions -> KeepState
-       -> [String] -> [(Posn,String)]
-cpp _ _ _ _ _ [] = []
+       -> [String] -> IO [(Posn,String)]
+cpp _ _ _ _ _ [] = return []
 
 cpp p syms path options Keep (l@('#':x):xs) =
     let ws = words x
@@ -74,8 +74,8 @@ cpp p syms path options Keep (l@('#':x):xs) =
         keepIf p = if p then Keep else (Drop 1 False)
         skipn syms' retain ud xs' =
             let n = 1 + length (filter (=='\n') l) in
-            (if macros options && retain then ((p,reslash l):)
-                                         else (replicate n (p,"") ++)) $
+            (if macros options && retain then emitOne  (p,reslash l)
+                                         else emitMany (replicate n (p,""))) $
             cpp (newlines n p) syms' path options ud xs'
     in case cmd of
 	"define" -> skipn (insertST def syms) True Keep xs
@@ -89,39 +89,37 @@ cpp p syms path options Keep (l@('#':x):xs) =
 	"endif"  -> skipn syms False  Keep xs
 	"pragma" -> skipn syms True   Keep xs
         ('!':_)  -> skipn syms False  Keep xs	-- \#!runhs scripts
-	"include"-> let (inc,content) =
-	                  unsafePerformIO (readFirst (file syms (unwords line))
-                                                     p path
-                                                     (warnings options))
-	            in
-		    cpp p syms path options Keep (("#line 1 "++show inc)
-                                                  : linesCpp content
-                                                  ++ cppline (newline p): xs)
-	"warning"-> if warnings options then unsafePerformIO $ do
-                       hPutStrLn stderr (l++"\nin "++show p)
-                       return $ skipn syms False Keep xs
+	"include"-> do (inc,content) <- readFirst (file syms (unwords line))
+                                                  p path
+                                                  (warnings options)
+                       cpp p syms path options Keep (("#line 1 "++show inc)
+                                                    : linesCpp content
+                                                    ++ cppline (newline p): xs)
+	"warning"-> if warnings options then
+                      do hPutStrLn stderr (l++"\nin "++show p)
+                         skipn syms False Keep xs
                     else skipn syms False Keep xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
-	         -> (if locations options && hashline options then ((p,l):)
-                     else if locations options then ((p,cpp2hask l):)
+	         -> (if locations options && hashline options then emitOne (p,l)
+                     else if locations options then emitOne (p,cpp2hask l)
                      else id) $
                     cpp (newpos (read sym) (un rest) p)
                         syms path options Keep xs
 	n | all isDigit n
-	         -> (if locations options && hashline options then ((p,l):)
-                     else if locations options then ((p,cpp2hask l):)
+	         -> (if locations options && hashline options then emitOne (p,l)
+                     else if locations options then emitOne (p,cpp2hask l)
                      else id) $
 	            cpp (newpos (read n) (un (tail ws)) p)
                         syms path options Keep xs
           | otherwise
-	         -> if warnings options then unsafePerformIO $ do
-                       hPutStrLn stderr ("Warning: unknown directive #"++n
-                                        ++"\nin "++show p)
-                       return $
-                         ((p,l): cpp (newline p) syms path options Keep xs)
-                    else
-                         ((p,l): cpp (newline p) syms path options Keep xs)
+	         -> if warnings options then
+                      do hPutStrLn stderr ("Warning: unknown directive #"++n
+                                           ++"\nin "++show p)
+                         emitOne (p,l) $
+                                 cpp (newline p) syms path options Keep xs
+                    else emitOne (p,l) $
+                                 cpp (newline p) syms path options Keep xs
 
 cpp p syms path options (Drop n b) (('#':x):xs) =
     let ws = words x
@@ -136,8 +134,8 @@ cpp p syms path options (Drop n b) (('#':x):xs) =
                  | otherwise = Drop n b
         skipn ud xs' =
                  let n' = 1 + length (filter (=='\n') x) in
-                 replicate n' (p,"")
-                 ++ cpp (newlines n' p) syms path options ud xs'
+                 emitMany (replicate n' (p,"")) $
+                    cpp (newlines n' p) syms path options ud xs'
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
@@ -150,10 +148,19 @@ cpp p syms path options (Drop n b) (('#':x):xs) =
 
 cpp p syms path options Keep (x:xs) =
     let p' = newline p in seq p' $
-    (p,x):  cpp p' syms path options Keep xs
+    emitOne (p,x)  $  cpp p' syms path options Keep xs
 cpp p syms path options d@(Drop _ _) (_:xs) =
     let p' = newline p in seq p' $
-    (p,""): cpp p' syms path options d xs
+    emitOne (p,"") $  cpp p' syms path options d xs
+
+
+-- | Auxiliary IO functions
+emitOne  ::  a  -> IO [a] -> IO [a]
+emitMany :: [a] -> IO [a] -> IO [a]
+emitOne  x  io = do ys <- unsafeInterleaveIO io
+                    return (x:ys)
+emitMany xs io = do ys <- unsafeInterleaveIO io
+                    return (xs++ys)
 
 
 ----
