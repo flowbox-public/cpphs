@@ -1,3 +1,7 @@
+Version 1.11
+------------
+  * API change: runCpphs, cppIfdef, and macroPass are now in the IO monad.
+
 Version 1.10
 -----------
   * New command-line option: "--linepragma"

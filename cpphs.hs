@@ -19,7 +19,7 @@ import Monad  ( when )
 import List   ( isPrefixOf )
 
 version :: String
-version = "1.10"
+version = "1.11"
 
 main :: IO ()
 main = do
