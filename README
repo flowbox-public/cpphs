@@ -42,6 +42,11 @@ The application module 'cpphs.hs' is GPL.
 
 This software comes with no warranty.  Use at your own risk.
 
+If you have a commercial use for cpphs, and feel the terms of the (L)GPL
+are too onerous, you have the option of distributing unmodified binaries
+(only, not sources) under the terms of a different licence (see
+LICENCE-commercial).
+
 
 WEBSITE
 -------
