@@ -30,7 +30,7 @@ option.
 
 COPYRIGHT
 ---------
-Copyright (c) 2004-2010 Malcolm Wallace (Malcolm.Wallace@cs.york.ac.uk)
+Copyright (c) 2004-2010 Malcolm Wallace (Malcolm.Wallace@me.com)
 except for Text.ParserCombinators.HuttonMeijer (Copyright (c) 1995
 Graham Hutton and Erik Meijer).
 
@@ -46,5 +46,4 @@ This software comes with no warranty.  Use at your own risk.
 WEBSITE
 -------
 http://haskell.org/cpphs/
-http://www.cs.york.ac.uk/fp/cpphs/
-darcs get http://www.cs.york.ac.uk/fp/darcs/cpphs
+darcs get http://code.haskell.org/~malcolm/cpphs
