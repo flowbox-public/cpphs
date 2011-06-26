@@ -19,8 +19,8 @@ module Language.Preprocessor.Cpphs.Options
   , defaultBoolOptions
   ) where
 
-import Maybe
-import List (isPrefixOf)
+import Data.Maybe
+import Data.List (isPrefixOf)
 
 -- | Cpphs options structure.
 data CpphsOptions = CpphsOptions 

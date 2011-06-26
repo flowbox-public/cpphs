@@ -18,8 +18,8 @@ module Language.Preprocessor.Cpphs.HashDefine
   , parseHashDefine
   ) where
 
-import Char (isSpace)
-import List (intersperse)
+import Data.Char (isSpace)
+import Data.List (intersperse)
 
 data HashDefine
 	= LineDrop

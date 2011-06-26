@@ -27,8 +27,8 @@ import Language.Preprocessor.Cpphs.Position   (Posn, newfile, filename, lineno)
 import Language.Preprocessor.Cpphs.Options    (BoolOptions(..))
 import System.IO.Unsafe (unsafeInterleaveIO)
 import Control.Monad    ((=<<))
-import Time       (getClockTime, toCalendarTime, formatCalendarTime)
-import Locale     (defaultTimeLocale)
+import System.Time       (getClockTime, toCalendarTime, formatCalendarTime)
+import System.Locale     (defaultTimeLocale)
 
 noPos :: Posn
 noPos = newfile "preDefined"

@@ -15,10 +15,10 @@ module Language.Preprocessor.Cpphs.ReadFirst
   ( readFirst
   ) where
 
-import IO        (hPutStrLn, stderr)
-import Directory (doesFileExist)
-import List      (intersperse)
-import Monad     (when)
+import System.IO        (hPutStrLn, stderr)
+import System.Directory (doesFileExist)
+import Data.List      (intersperse)
+import Control.Monad     (when)
 import Language.Preprocessor.Cpphs.Position  (Posn,directory)
 
 -- | Attempt to read the given file from any location within the search path.

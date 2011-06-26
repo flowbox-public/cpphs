@@ -11,12 +11,13 @@
 -}
 module Main where
 
-import System ( getArgs, getProgName, exitWith, ExitCode(..) )
-import Maybe
+import System.Environment ( getArgs, getProgName)
+import System.Exit ( exitWith, ExitCode(..) )
+import Data.Maybe
 import Language.Preprocessor.Cpphs ( runCpphs, CpphsOptions(..), parseOptions )
-import IO     ( stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose )
-import Monad  ( when )
-import List   ( isPrefixOf )
+import System.IO     ( stdout, IOMode(WriteMode), openFile, hPutStr, hFlush, hClose )
+import Control.Monad  ( when )
+import Data.List   ( isPrefixOf )
 
 version :: String
 version = "1.11"

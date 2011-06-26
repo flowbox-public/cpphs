@@ -28,10 +28,10 @@ import Language.Preprocessor.Cpphs.Options   (BoolOptions(..))
 import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),parseHashDefine
                                              ,expandMacro)
 import Language.Preprocessor.Cpphs.MacroPass (preDefine,defineMacro)
-import Char      (isDigit)
+import Data.Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafeInterleaveIO)
-import IO        (hPutStrLn,stderr)
+import System.IO        (hPutStrLn,stderr)
 
 
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,

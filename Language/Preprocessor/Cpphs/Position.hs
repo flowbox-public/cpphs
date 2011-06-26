@@ -19,7 +19,7 @@ module Language.Preprocessor.Cpphs.Position
   , filename, lineno, directory
   ) where
 
-import List (isPrefixOf)
+import Data.List (isPrefixOf)
 
 -- | Source positions contain a filename, line, column, and an
 --   inclusion point, which is itself another source position,

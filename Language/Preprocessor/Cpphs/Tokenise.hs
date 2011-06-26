@@ -22,7 +22,7 @@ module Language.Preprocessor.Cpphs.Tokenise
   , parseMacroCall
   ) where
 
-import Char
+import Data.Char
 import Language.Preprocessor.Cpphs.HashDefine
 import Language.Preprocessor.Cpphs.Position
 

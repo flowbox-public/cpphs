@@ -2,8 +2,8 @@
 --   version 1.2, appendix C.
 module Language.Preprocessor.Unlit (unlit) where
 
-import Char
-import List (isPrefixOf)
+import Data.Char
+import Data.List (isPrefixOf)
 
 data Classified = Program String | Blank | Comment
                 | Include Int String | Pre String
