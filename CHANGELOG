@@ -1,3 +1,7 @@
+Version 1.12
+------------
+  * Allow it to build with ghc-7.2.
+
 Version 1.11
 ------------
   * API change: runCpphs, cppIfdef, and macroPass are now in the IO monad.

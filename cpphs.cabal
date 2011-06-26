@@ -1,6 +1,6 @@
 Name: cpphs
-Version: 1.11
-Copyright: 2004-2010, Malcolm Wallace
+Version: 1.12
+Copyright: 2004-2011, Malcolm Wallace
 Build-Depends: base, old-locale, old-time, directory
 License: LGPL
 License-File: LICENCE-LGPL
