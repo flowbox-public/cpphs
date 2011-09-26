@@ -1,7 +1,6 @@
 Name: cpphs
-Version: 1.13
+Version: 1.13.1
 Copyright: 2004-2011, Malcolm Wallace
-Build-Depends: base>3&&<6, old-locale, old-time, directory
 License: LGPL
 License-File: LICENCE-LGPL
 Cabal-Version: >= 1.6
@@ -23,6 +22,7 @@ Category: Development
 Build-type: Simple
 
 Library
+    Build-Depends: base>3&&<6, old-locale, old-time, directory
     Exposed-Modules:
         Language.Preprocessor.Cpphs
         Language.Preprocessor.Unlit
@@ -39,6 +39,7 @@ Library
         Text.ParserCombinators.HuttonMeijer
 
 Executable cpphs
+    Build-Depends: base>3&&<6, old-locale, old-time, directory
     Main-Is: cpphs.hs
     Other-Modules:
         Language.Preprocessor.Cpphs
