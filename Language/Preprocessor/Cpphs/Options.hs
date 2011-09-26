@@ -80,6 +80,7 @@ data RawOption
     | Macro (String,String)
     | Path String
     | PreInclude FilePath
+    | IgnoredForCompatibility
       deriving (Eq, Show)
 
 flags :: [(String, RawOption)]
@@ -103,6 +104,7 @@ rawOption x | isJust a = a
     where a = lookup x flags
 rawOption ('-':'D':xs) = Just $ Macro (s, if null d then "1" else tail d)
     where (s,d) = break (=='=') xs
+rawOption ('-':'U':xs) = Just $ IgnoredForCompatibility
 rawOption ('-':'I':xs) = Just $ Path $ trailing "/\\" xs
 rawOption xs | "--include="`isPrefixOf`xs
             = Just $ PreInclude (drop 10 xs)
