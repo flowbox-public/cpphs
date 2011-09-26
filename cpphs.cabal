@@ -4,7 +4,7 @@ Copyright: 2004-2011, Malcolm Wallace
 Build-Depends: base>3&&<6, old-locale, old-time, directory
 License: LGPL
 License-File: LICENCE-LGPL
-Cabal-Version: >= 1.2
+Cabal-Version: >= 1.6
 Author: Malcolm Wallace <Malcolm.Wallace@me.com>
 Maintainer: Malcolm Wallace <Malcolm.Wallace@me.com>
 Homepage: http://haskell.org/cpphs/
