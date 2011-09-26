@@ -1,3 +1,7 @@
+Version 1.13
+------------
+  * Accept -U cmdline option for compatibility with cpp.
+
 Version 1.12
 ------------
   * Allow it to build with ghc-7.2.

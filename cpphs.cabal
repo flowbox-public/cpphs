@@ -1,5 +1,5 @@
 Name: cpphs
-Version: 1.12
+Version: 1.13
 Copyright: 2004-2011, Malcolm Wallace
 Build-Depends: base>3&&<6, old-locale, old-time, directory
 License: LGPL
