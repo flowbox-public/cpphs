@@ -2,8 +2,7 @@
 -- The main program for cpphs, a simple C pre-processor written in Haskell.
 
 -- Copyright (c) 2004 Malcolm Wallace
--- This file is GPL, although the libraries it uses are either standard
--- Haskell'98 or distributed under the LGPL.
+-- This file is LGPL (relicensed from the GPL by Malcolm Wallace, October 2011).
 -}
 module Language.Preprocessor.Cpphs.RunCpphs ( runCpphs ) where
 

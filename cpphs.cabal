@@ -1,5 +1,5 @@
 Name: cpphs
-Version: 1.13.1
+Version: 1.13.2
 Copyright: 2004-2011, Malcolm Wallace
 License: LGPL
 License-File: LICENCE-LGPL
@@ -20,6 +20,7 @@ Description:
     off macro-expansion.
 Category: Development
 Build-type: Simple
+Extra-Source-Files: README, LICENCE-GPL, LICENCE-commercial
 
 Library
     Build-Depends: base>3&&<6, old-locale, old-time, directory
