@@ -7,7 +7,7 @@
 -- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
 -- Stability   :  experimental
 -- Portability :  All
---
+
 -- Perform a cpp.first-pass, gathering \#define's and evaluating \#ifdef's.
 -- and \#include's.
 -----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ cppIfdef :: FilePath		-- ^ File for error reports
 	-> String		-- ^ The input file content
 	-> IO [(Posn,String)]	-- ^ The file after processing (in lines)
 cppIfdef fp syms search options =
-    cpp posn defs search options Keep . (cppline posn:) . linesCpp
+    cpp posn defs search options (Keep []) . (cppline posn:) . linesCpp
   where
     posn = newfile fp
     defs = preDefine options syms
@@ -53,17 +53,23 @@ cppIfdef fp syms search options =
 
 
 -- | Internal state for whether lines are being kept or dropped.
---   In @Drop n b@, @n@ is the depth of nesting, @b@ is whether
+--   In @Drop n b ps@, @n@ is the depth of nesting, @b@ is whether
 --   we have already succeeded in keeping some lines in a chain of
---   @elif@'s
-data KeepState = Keep | Drop Int Bool
+--   @elif@'s, and @ps@ is the stack of positions of open @#if@ contexts,
+--   used for error messages in case EOF is reached too soon.
+data KeepState = Keep [Posn] | Drop Int Bool [Posn]
 
 -- | Return just the list of lines that the real cpp would decide to keep.
 cpp :: Posn -> SymTab HashDefine -> [String] -> BoolOptions -> KeepState
        -> [String] -> IO [(Posn,String)]
+
+cpp _ _ _ _ (Keep ps) [] | not (null ps) = do
+    hPutStrLn stderr $ "Unmatched #if: positions of open context are:\n"++
+                       unlines (map show ps)
+    return []
 cpp _ _ _ _ _ [] = return []
 
-cpp p syms path options Keep (l@('#':x):xs) =
+cpp p syms path options (Keep ps) (l@('#':x):xs) =
     let ws = words x
         cmd = head ws
         line = tail ws
@@ -71,67 +77,70 @@ cpp p syms path options Keep (l@('#':x):xs) =
         rest = tail (tail ws)
         def = defineMacro options (sym++" "++ maybe "1" id (un rest))
         un v = if null v then Nothing else Just (unwords v)
-        keepIf p = if p then Keep else (Drop 1 False)
+        keepIf b = if b then Keep (p:ps) else Drop 1 False (p:ps)
         skipn syms' retain ud xs' =
             let n = 1 + length (filter (=='\n') l) in
             (if macros options && retain then emitOne  (p,reslash l)
                                          else emitMany (replicate n (p,""))) $
             cpp (newlines n p) syms' path options ud xs'
     in case cmd of
-	"define" -> skipn (insertST def syms) True Keep xs
-	"undef"  -> skipn (deleteST sym syms) True Keep xs
+	"define" -> skipn (insertST def syms) True (Keep ps) xs
+	"undef"  -> skipn (deleteST sym syms) True (Keep ps) xs
 	"ifndef" -> skipn syms False (keepIf (not (definedST sym syms))) xs
 	"ifdef"  -> skipn syms False (keepIf      (definedST sym syms)) xs
 	"if"     -> skipn syms False
                                (keepIf (gatherDefined p syms (unwords line))) xs
-	"else"   -> skipn syms False (Drop 1 False) xs
-	"elif"   -> skipn syms False (Drop 1 True) xs
-	"endif"  -> skipn syms False  Keep xs
-	"pragma" -> skipn syms True   Keep xs
-        ('!':_)  -> skipn syms False  Keep xs	-- \#!runhs scripts
+	"else"   -> skipn syms False (Drop 1 False ps) xs
+	"elif"   -> skipn syms False (Drop 1 True ps) xs
+	"endif"  | null ps ->
+                    do hPutStrLn stderr $ "Unmatched #endif at "++show p
+                       return []
+	"endif"  -> skipn syms False (Keep (tail ps)) xs
+	"pragma" -> skipn syms True  (Keep ps) xs
+        ('!':_)  -> skipn syms False (Keep ps) xs	-- \#!runhs scripts
 	"include"-> do (inc,content) <- readFirst (file syms (unwords line))
                                                   p path
                                                   (warnings options)
-                       cpp p syms path options Keep (("#line 1 "++show inc)
-                                                    : linesCpp content
+                       cpp p syms path options (Keep ps)
+                             (("#line 1 "++show inc): linesCpp content
                                                     ++ cppline (newline p): xs)
 	"warning"-> if warnings options then
                       do hPutStrLn stderr (l++"\nin "++show p)
-                         skipn syms False Keep xs
-                    else skipn syms False Keep xs
+                         skipn syms False (Keep ps) xs
+                    else skipn syms False (Keep ps) xs
 	"error"  -> error (l++"\nin "++show p)
 	"line"   | all isDigit sym
 	         -> (if locations options && hashline options then emitOne (p,l)
                      else if locations options then emitOne (p,cpp2hask l)
                      else id) $
                     cpp (newpos (read sym) (un rest) p)
-                        syms path options Keep xs
+                        syms path options (Keep ps) xs
 	n | all isDigit n
 	         -> (if locations options && hashline options then emitOne (p,l)
                      else if locations options then emitOne (p,cpp2hask l)
                      else id) $
 	            cpp (newpos (read n) (un (tail ws)) p)
-                        syms path options Keep xs
+                        syms path options (Keep ps) xs
           | otherwise
 	         -> if warnings options then
                       do hPutStrLn stderr ("Warning: unknown directive #"++n
                                            ++"\nin "++show p)
                          emitOne (p,l) $
-                                 cpp (newline p) syms path options Keep xs
+                                 cpp (newline p) syms path options (Keep ps) xs
                     else emitOne (p,l) $
-                                 cpp (newline p) syms path options Keep xs
+                                 cpp (newline p) syms path options (Keep ps) xs
 
-cpp p syms path options (Drop n b) (('#':x):xs) =
+cpp p syms path options (Drop n b ps) (('#':x):xs) =
     let ws = words x
         cmd = head ws
-        delse    | n==1 && b = Drop 1 b
-                 | n==1      = Keep
-                 | otherwise = Drop n b
-        dend     | n==1      = Keep
-                 | otherwise = Drop (n-1) b
+        delse    | n==1 && b = Drop 1 b ps
+                 | n==1      = Keep ps
+                 | otherwise = Drop n b ps
+        dend     | n==1      = Keep (tail ps)
+                 | otherwise = Drop (n-1) b ps
         delif s  | n==1 && not b && gatherDefined p syms s
-                             = Keep
-                 | otherwise = Drop n b
+                             = Keep ps
+                 | otherwise = Drop n b ps
         skipn ud xs' =
                  let n' = 1 + length (filter (=='\n') x) in
                  emitMany (replicate n' (p,"")) $
@@ -139,17 +148,20 @@ cpp p syms path options (Drop n b) (('#':x):xs) =
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
-            cmd == "ifdef"  then  skipn (Drop (n+1) b) xs
+            cmd == "ifdef"  then  skipn (Drop (n+1) b (p:ps)) xs
     else if cmd == "elif"   then  skipn (delif (unwords (tail ws))) xs
     else if cmd == "else"   then  skipn  delse xs
-    else if cmd == "endif"  then  skipn  dend  xs
-    else skipn (Drop n b) xs
+    else if cmd == "endif"  then
+            if null ps then do hPutStrLn stderr $ "Unmatched #endif at "++show p
+                               return []
+                       else skipn  dend  xs
+    else skipn (Drop n b ps) xs
 	-- define, undef, include, error, warning, pragma, line
 
-cpp p syms path options Keep (x:xs) =
+cpp p syms path options (Keep ps) (x:xs) =
     let p' = newline p in seq p' $
-    emitOne (p,x)  $  cpp p' syms path options Keep xs
-cpp p syms path options d@(Drop _ _) (_:xs) =
+    emitOne (p,x)  $  cpp p' syms path options (Keep ps) xs
+cpp p syms path options d@(Drop _ _ _) (_:xs) =
     let p' = newline p in seq p' $
     emitOne (p,"") $  cpp p' syms path options d xs
 
