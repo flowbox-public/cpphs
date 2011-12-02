@@ -137,7 +137,7 @@ cpp p syms path options (Drop n b ps) (('#':x):xs) =
                  | n==1      = Keep ps
                  | otherwise = Drop n b ps
         dend     | n==1      = Keep (tail ps)
-                 | otherwise = Drop (n-1) b ps
+                 | otherwise = Drop (n-1) b (tail ps)
         delif s  | n==1 && not b && gatherDefined p syms s
                              = Keep ps
                  | otherwise = Drop n b ps
