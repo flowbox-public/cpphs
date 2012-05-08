@@ -1,6 +1,6 @@
 Name: cpphs
-Version: 1.13.2
-Copyright: 2004-2011, Malcolm Wallace
+Version: 1.13.3
+Copyright: 2004-2012, Malcolm Wallace
 License: LGPL
 License-File: LICENCE-LGPL
 Cabal-Version: >= 1.6
@@ -20,7 +20,7 @@ Description:
     off macro-expansion.
 Category: Development
 Build-type: Simple
-Extra-Source-Files: README, LICENCE-GPL, LICENCE-commercial
+Extra-Source-Files: README, LICENCE-GPL, LICENCE-commercial, CHANGELOG, docs/cpphs.1, docs/index.html
 
 Library
     Build-Depends: base>3&&<6, old-locale, old-time, directory
