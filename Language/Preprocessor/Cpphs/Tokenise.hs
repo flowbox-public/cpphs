@@ -146,7 +146,7 @@ tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
                                                                         p ls xs
   haskell CComment acc p ls ('*':'/':xs)  = emit ("  "++acc) $
                                             haskell Any [] p ls xs
-  haskell CComment acc p ls (_:xs)        = haskell CComment (' ':acc) p ls xs
+  haskell CComment acc p ls (x:xs)        = haskell CComment (white x:acc) p ls xs
   haskell CLineComment acc p ls xs@('\n':_)= emit acc $ haskell Any [] p ls xs
   haskell CLineComment acc p ls (_:xs)    = haskell CLineComment (' ':acc)
                                                                        p ls xs
@@ -197,7 +197,7 @@ tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
     lexcpp LineComment w l ls (_:xs)      = lexcpp LineComment (' ':w) l ls xs
     lexcpp (NestComment _) w l ls ('*':'/':xs)
                                           = lexcpp Any [] (w*/*l) ls xs
-    lexcpp (NestComment n) w l ls (_:xs)  = lexcpp (NestComment n) (' ':w) l
+    lexcpp (NestComment n) w l ls (x:xs)  = lexcpp (NestComment n) (white x:w) l
                                                                         ls xs
     lexcpp mode w l ((p,l'):ls) []        = cpp mode next w l p ls ('\n':l')
     lexcpp _    _ _ []          []        = []
@@ -228,7 +228,7 @@ tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
                                              plaintext Any [] p ls xs
   plaintext CComment acc p ls ('*':'/':xs) = emit ("  "++acc) $
                                              plaintext Any [] p ls xs
-  plaintext CComment acc p ls (_:xs)    = plaintext CComment (' ':acc) p ls xs
+  plaintext CComment acc p ls (x:xs)       = plaintext CComment (white x:acc) p ls xs
   plaintext CLineComment acc p ls xs@('\n':_)
                                         = emit acc $ plaintext Any [] p ls xs
   plaintext CLineComment acc p ls (_:xs)= plaintext CLineComment (' ':acc)
@@ -242,6 +242,10 @@ tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
   symbol x = x `elem` ":!#$%&*+./<=>?@\\^|-~"
   single x = x `elem` "(),[];{}"
   space  x = x `elem` " \t"
+  -- conversion of comment text to whitespace
+  white '\n' = '\n'
+  white '\r' = '\r'
+  white _    = ' '
   -- emit a token (if there is one) from the accumulator
   emit ""  = id
   emit xs  = (Other (reverse xs):)
