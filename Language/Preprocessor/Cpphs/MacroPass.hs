@@ -16,6 +16,7 @@ module Language.Preprocessor.Cpphs.MacroPass
   ( macroPass
   , preDefine
   , defineMacro
+  , macroPassReturningSymTab
   ) where
 
 import Language.Preprocessor.Cpphs.HashDefine (HashDefine(..), expandMacro)
@@ -40,7 +41,8 @@ macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> IO String		-- ^ The file after processing
 macroPass syms options =
     fmap (safetail		-- to remove extra "\n" inserted below
-         . concat)
+         . concat
+         . onlyRights)
     . macroProcess (pragma options) (layout options) (lang options)
                    (preDefine options syms)
     . tokenise (stripEol options) (stripC89 options)
@@ -49,6 +51,36 @@ macroPass syms options =
   where
     safetail [] = []
     safetail (_:xs) = xs
+
+-- | auxiliary
+onlyRights :: [Either a b] -> [b]
+onlyRights = concatMap (\x->case x of Right t-> [t]; Left _-> [];)
+
+-- | Walk through the document, replacing calls of macros with the expanded RHS.
+--   Additionally returns the active symbol table after processing.
+macroPassReturningSymTab
+          :: [(String,String)]	-- ^ Pre-defined symbols and their values
+          -> BoolOptions	-- ^ Options that alter processing style
+          -> [(Posn,String)]	-- ^ The input file content
+          -> IO (String,SymTab HashDefine)
+				-- ^ The file and symbol table after processing
+macroPassReturningSymTab syms options =
+    fmap (mapFst (safetail		-- to remove extra "\n" inserted below
+                 . concat)
+         . walk)
+    . macroProcess (pragma options) (layout options) (lang options)
+                   (preDefine options syms)
+    . tokenise (stripEol options) (stripC89 options)
+               (ansi options) (lang options)
+    . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
+  where
+    safetail [] = []
+    safetail (_:xs) = xs
+    walk (Right x: rest) = let (xs,   foo) = walk rest
+                           in  (x:xs, foo)
+    walk (Left  x: [])   =     ( [] , x)
+    walk (Left  x: rest) = walk rest
+    mapFst f (a,b) = (f a, b)
 
 
 -- | Turn command-line definitions (from @-D@) into 'HashDefine's.
@@ -73,9 +105,12 @@ defineMacro opts s =
 --   All valid identifiers are checked for the presence of a definition
 --   of that name in the symbol table, and if so, expanded appropriately.
 --   (Bool arguments are: keep pragmas?  retain layout?  haskell language?)
+--   The result lazily intersperses output text with symbol tables.  Lines
+--   are emitted as they are encountered.  A symbol table is emitted after
+--   each change to the defined symbols, and always at the end of processing.
 macroProcess :: Bool -> Bool -> Bool -> SymTab HashDefine -> [WordStyle]
-             -> IO [String]
-macroProcess _ _ _ _         []          = return []
+             -> IO [Either (SymTab HashDefine) String]
+macroProcess _ _ _ st        []          = return [Left st]
 macroProcess p y l st (Other x: ws)      = emit x    $ macroProcess p y l st ws
 macroProcess p y l st (Cmd Nothing: ws)  = emit "\n" $ macroProcess p y l st ws
 macroProcess p y l st (Cmd (Just (LineDrop x)): ws)
@@ -85,9 +120,12 @@ macroProcess pragma y l st (Cmd (Just (Pragma x)): ws)
                | pragma    = emit "\n" $ emit x $ macroProcess pragma y l st ws
                | otherwise = emit "\n" $          macroProcess pragma y l st ws
 macroProcess p layout lang st (Cmd (Just hd): ws) =
-    let n = 1 + linebreaks hd in
+    let n = 1 + linebreaks hd
+        newST = insertST (name hd, hd) st
+    in
     emit (replicate n '\n') $
-    macroProcess p layout lang (insertST (name hd, hd) st) ws
+    emitSymTab newST $
+    macroProcess p layout lang newST ws
 macroProcess pr layout lang st (Ident p x: ws) =
     case x of
       "__FILE__" -> emit (show (filename p))$ macroProcess pr layout lang st ws
@@ -122,9 +160,9 @@ macroProcess pr layout lang st (Ident p x: ws) =
                             Just (args,ws') ->
                                 if length args /= length (arguments hd) then
                                      emit x $ macroProcess pr layout lang st ws
-                                else do args' <- mapM (fmap concat .
-                                                       macroProcess pr layout
-                                                                       lang st)
+                                else do args' <- mapM (fmap (concat.onlyRights)
+                                                       . macroProcess pr layout
+                                                                        lang st)
                                                       args
                                         -- one-level expansion only:
                                         -- emit (expandMacro hd args' layout) $
@@ -136,6 +174,10 @@ macroProcess pr layout lang st (Ident p x: ws) =
                                             ++ ws')
 
 -- | Useful helper function.
-emit :: a -> IO [a] -> IO [a]
+emit :: a -> IO [Either b a] -> IO [Either b a]
 emit x io = do xs <- unsafeInterleaveIO io
-               return (x:xs)
+               return (Right x:xs)
+-- | Useful helper function.
+emitSymTab :: b -> IO [Either b a] -> IO [Either b a]
+emitSymTab x io = do xs <- unsafeInterleaveIO io
+                     return (Left x:xs)

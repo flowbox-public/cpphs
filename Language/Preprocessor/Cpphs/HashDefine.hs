@@ -16,10 +16,11 @@ module Language.Preprocessor.Cpphs.HashDefine
   , ArgOrText(..)
   , expandMacro
   , parseHashDefine
+  , simplifyHashDefines
   ) where
 
 import Data.Char (isSpace)
-import Data.List (intersperse)
+import Data.List (intercalate)
 
 data HashDefine
 	= LineDrop
@@ -93,7 +94,7 @@ parseHashDefine ansi def = (command . skip) def
     macroHead sym args (var:xs) = (macroHead sym (var:args) . skip) xs
     macroHead sym args []       = error ("incomplete macro definition:\n"
                                         ++"  #define "++sym++"("
-                                        ++concat (intersperse "," args))
+                                        ++intercalate "," args)
     classifyRhs args ("#":x:xs)
                           | ansi &&
                             x `elem` args    = (Str,x): classifyRhs args xs
@@ -109,3 +110,14 @@ parseHashDefine ansi def = (command . skip) def
     count = length . filter (=='\n') . concat
     chop  = reverse . dropWhile (all isSpace) . reverse
 
+-- | Pretty-print hash defines to a simpler format, as key-value pairs.
+simplifyHashDefines :: [HashDefine] -> [(String,String)]
+simplifyHashDefines = concatMap simp
+  where
+    simp hd@LineDrop{}    = []
+    simp hd@Pragma{}      = []
+    simp hd@AntiDefined{} = []
+    simp hd@SymbolReplacement{} = [(name hd, replacement hd)]
+    simp hd@MacroExpansion{}    = [(name hd++"("++intercalate "," (arguments hd)
+                                           ++")"
+                                   ,concatMap snd (expansion hd))]
