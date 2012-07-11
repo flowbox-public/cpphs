@@ -19,6 +19,7 @@ module Language.Preprocessor.Cpphs.SymTab
   , deleteST
   , lookupST
   , definedST
+  , flattenST
   , IndTree
   ) where
 
@@ -31,6 +32,7 @@ insertST  :: (String,v) -> SymTab v -> SymTab v
 deleteST  :: String -> SymTab v -> SymTab v
 lookupST  :: String -> SymTab v -> Maybe v
 definedST :: String -> SymTab v -> Bool
+flattenST :: SymTab v -> [v]
 
 emptyST           = itgen maxHash []
 insertST (s,v) ss = itiap (hash s) ((s,v):)    ss id
@@ -40,6 +42,7 @@ lookupST  s    ss = let vs = filter ((==s).fst) ((itind (hash s)) ss)
                        else (Just . snd . head) vs
 definedST s    ss = let vs = filter ((==s).fst) ((itind (hash s)) ss)
                     in (not . null) vs
+flattenST      ss = itfold (map snd) (++) ss
 
 
 ----
@@ -62,10 +65,13 @@ itiap i f (Fork n lt rt) k =
        itiap i f lt $ \lt' -> k (Fork n lt' rt)
   else itiap (i-n) f rt $ \rt' -> k (Fork n lt rt')
 
-itind :: Int -> IndTree a -> a  
+itind :: Int -> IndTree a -> a
 itind _ (Leaf x) = x
 itind i (Fork n lt rt) = if i<n then itind i lt else itind (i-n) rt
 
+itfold :: (a->b) -> (b->b->b) -> IndTree a -> b
+itfold leaf _fork (Leaf x) = leaf x
+itfold leaf  fork (Fork _ l r) = fork (itfold leaf fork l) (itfold leaf fork r)
 
 ----
 -- Hash values

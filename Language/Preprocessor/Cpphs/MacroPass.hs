@@ -19,11 +19,12 @@ module Language.Preprocessor.Cpphs.MacroPass
   , macroPassReturningSymTab
   ) where
 
-import Language.Preprocessor.Cpphs.HashDefine (HashDefine(..), expandMacro)
+import Language.Preprocessor.Cpphs.HashDefine (HashDefine(..), expandMacro
+                                              , simplifyHashDefines)
 import Language.Preprocessor.Cpphs.Tokenise   (tokenise, WordStyle(..)
                                               , parseMacroCall)
 import Language.Preprocessor.Cpphs.SymTab     (SymTab, lookupST, insertST
-                                              , emptyST)
+                                              , emptyST, flattenST)
 import Language.Preprocessor.Cpphs.Position   (Posn, newfile, filename, lineno)
 import Language.Preprocessor.Cpphs.Options    (BoolOptions(..))
 import System.IO.Unsafe (unsafeInterleaveIO)
@@ -62,7 +63,7 @@ macroPassReturningSymTab
           :: [(String,String)]	-- ^ Pre-defined symbols and their values
           -> BoolOptions	-- ^ Options that alter processing style
           -> [(Posn,String)]	-- ^ The input file content
-          -> IO (String,SymTab HashDefine)
+          -> IO (String,[(String,String)])
 				-- ^ The file and symbol table after processing
 macroPassReturningSymTab syms options =
     fmap (mapFst (safetail		-- to remove extra "\n" inserted below
@@ -78,7 +79,7 @@ macroPassReturningSymTab syms options =
     safetail (_:xs) = xs
     walk (Right x: rest) = let (xs,   foo) = walk rest
                            in  (x:xs, foo)
-    walk (Left  x: [])   =     ( [] , x)
+    walk (Left  x: [])   =     ( [] , simplifyHashDefines (flattenST x) )
     walk (Left  x: rest) = walk rest
     mapFst f (a,b) = (f a, b)
 
