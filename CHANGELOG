@@ -1,3 +1,7 @@
+Version 1.14
+------------
+  * New API to return symbol table after processing.
+
 Version 1.13
 ------------
   * Accept -U cmdline option for compatibility with cpp.

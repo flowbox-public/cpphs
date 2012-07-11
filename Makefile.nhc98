@@ -3,7 +3,7 @@ include Makefile.inc
 OBJDIR	= $(BUILDDIR)/$(OBJ)/cpphs
 CPPHS	= $(DST)/cpphs$(EXE)
 TARGET	= $(CPPHS)
-VERSION = 1.12
+VERSION = 1.14
 
 SRCS    = Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/CppIfdef.hs \
@@ -57,7 +57,7 @@ install: $(TARGET)
 cfiles: cleanC $(CFILES)
 fromC: $(OBJDIR)
 	$(LOCAL)/nhc98 -c -d $(OBJDIR) $(CFILES)
-	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS)
+	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS) -package base
 	$(HOSTSTRIP) $(TARGET)
 
 clean: cleanHi cleanO
