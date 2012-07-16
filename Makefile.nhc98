@@ -38,7 +38,7 @@ HC = $(LOCAL)nhc98	# can be overridden by caller HC=...
 HFLAGS = $(shell echo $(BUILDOPTS)) #-$(CFG)
 
 ifeq "nhc98" "$(findstring nhc98, ${HC})"
-HEAP = -H4M -package base
+HEAP = -H4M -package base -package directory
 endif
 ifeq "ghc" "$(findstring ghc, ${HC})"
 HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base)
@@ -57,7 +57,7 @@ install: $(TARGET)
 cfiles: cleanC $(CFILES)
 fromC: $(OBJDIR)
 	$(LOCAL)/nhc98 -c -d $(OBJDIR) $(CFILES)
-	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS) -package base
+	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS) -package base -package directory
 	$(HOSTSTRIP) $(TARGET)
 
 clean: cleanHi cleanO
@@ -103,7 +103,7 @@ $(OBJS): $(OBJDIR)/%.$O : %.hs
 	$(HC) $(HFLAGS) -c -o $@ $<
 
 $(CFILES): %.$C : %.hs
-	$(HC) $(HFLAGS) -C $<
+	$(HC) $(HFLAGS) -C -package directory -package old-locale -package old-time $<
 
 #$(FLATSRCS): $(SRCS)
 #	-cp $(SRCS) .
