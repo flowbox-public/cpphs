@@ -68,4 +68,8 @@ runtest "$CPPHS --unlit endcode-a" expect47
 runtest "$CPPHS --unlit endcode-b" expect48
 runtest "$CPPHS undef.hs" expect49
 runtest "$CPPHS --linepragma linepragma" expect50
+runtest "$CPPHS nomacro" expect51
+runtest "$CPPHS --nomacro nomacro" expect52
+runtest "$CPPHS --nomacro --strip-eol nomacro" expect53
+runtest "$CPPHS --strip-eol nomacro" expect54
 exit $FAIL
