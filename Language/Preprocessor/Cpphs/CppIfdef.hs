@@ -32,6 +32,7 @@ import Data.Char      (isDigit)
 import Numeric   (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.IO        (hPutStrLn,stderr)
+import Control.Monad (when)
 
 
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
@@ -71,7 +72,7 @@ cpp _ _ _ _ _ [] = return []
 
 cpp p syms path options (Keep ps) (l@('#':x):xs) =
     let ws = words x
-        cmd = head ws
+        cmd = if null ws then "" else head ws
         line = tail ws
         sym  = head (tail ws)
         rest = tail (tail ws)
@@ -115,24 +116,22 @@ cpp p syms path options (Keep ps) (l@('#':x):xs) =
                      else id) $
                     cpp (newpos (read sym) (un rest) p)
                         syms path options (Keep ps) xs
-	n | all isDigit n
+	n | all isDigit n && not (null n)
 	         -> (if locations options && hashline options then emitOne (p,l)
                      else if locations options then emitOne (p,cpp2hask l)
                      else id) $
 	            cpp (newpos (read n) (un (tail ws)) p)
                         syms path options (Keep ps) xs
           | otherwise
-	         -> if warnings options then
-                      do hPutStrLn stderr ("Warning: unknown directive #"++n
-                                           ++"\nin "++show p)
-                         emitOne (p,l) $
-                                 cpp (newline p) syms path options (Keep ps) xs
-                    else emitOne (p,l) $
-                                 cpp (newline p) syms path options (Keep ps) xs
+	         -> do when (warnings options) $
+                           hPutStrLn stderr ("Warning: unknown directive #"++n
+                                             ++"\nin "++show p)
+                       emitOne (p,l) $
+                               cpp (newline p) syms path options (Keep ps) xs
 
 cpp p syms path options (Drop n b ps) (('#':x):xs) =
     let ws = words x
-        cmd = head ws
+        cmd = if null ws then "" else head ws
         delse    | n==1 && b = Drop 1 b ps
                  | n==1      = Keep ps
                  | otherwise = Drop n b ps
