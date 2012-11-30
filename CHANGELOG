@@ -1,3 +1,8 @@
+Version 1.15
+------------
+  * Fix the interaction of --nomacro with --strip.
+  * Fix the error message received when # appears without a command.
+
 Version 1.14
 ------------
   * New API to return symbol table after processing.
