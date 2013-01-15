@@ -45,18 +45,24 @@ runCpphsReturningSymTab options filename input = do
                  [] -> ""
                  is -> concatMap (\f->"#include \""++f++"\"\n") is 
                        ++ "#line 1 \""++filename++"\"\n"
+  (pass2,syms) <-
+      if macros bools then do
+          pass1 <- cppIfdef filename (defines options) (includes options)
+                            bools (preInc++input)
+          macroPassReturningSymTab (defines options) bools pass1
+      else do
+          pass1 <- cppIfdef filename (defines options) (includes options)
+                            bools{macros=True} (preInc++input)
+          (_,syms) <- macroPassReturningSymTab (defines options) bools pass1
+          pass1 <- cppIfdef filename (defines options) (includes options)
+                            bools (preInc++input)
+          let result = if   stripC89 bools || stripEol bools
+                       then concatMap deWordStyle $
+                            tokenise (stripC89 bools) (stripEol bools)
+                                     (ansi bools) (lang bools) pass1
+                       else init $ unlines (map snd pass1)
+          return (result,syms)
 
-  pass1 <- cppIfdef filename (defines options) (includes options) bools
-                    (preInc++input)
-  (pass2,syms) <- macroPassReturningSymTab (defines options) bools pass1
-  let result= if not (macros bools)
-              then if   stripC89 bools || stripEol bools
-                   then concatMap deWordStyle $
-                        tokenise (stripC89 bools) (stripEol bools)
-                                 (ansi bools) (lang bools) pass1
-                   else unlines (map snd pass1)
-              else pass2
-      pass3 = if literate bools then Unlit.unlit filename else id
-
-  return (pass3 result, syms)
+  let pass3 = if literate bools then Unlit.unlit filename else id
+  return (pass3 pass2, syms)
 
