@@ -1,3 +1,7 @@
+Version 1.16
+------------
+  * fix interaction of runCpphsReturningSymTab with --nomacro
+
 Version 1.15
 ------------
   * Fix the interaction of --nomacro with --strip.
