@@ -28,7 +28,7 @@ data CpphsOptions = CpphsOptions
     , outfiles	:: [FilePath]
     , defines	:: [(String,String)]
     , includes	:: [String]
-    , preInclude:: [FilePath]	-- ^ Files to #include before anything else
+    , preInclude:: [FilePath]	-- ^ Files to \#include before anything else
     , boolopts	:: BoolOptions
     }
 
@@ -42,9 +42,9 @@ defaultCpphsOptions = CpphsOptions { infiles = [], outfiles = []
 -- | Options representable as Booleans.
 data BoolOptions = BoolOptions
     { macros	:: Bool  -- ^ Leave \#define and \#undef in output of ifdef?
-    , locations	:: Bool	 -- ^ Place #line droppings in output?
-    , hashline	:: Bool	 -- ^ Write #line or {-# LINE #-} ?
-    , pragma	:: Bool  -- ^ Keep #pragma in final output?
+    , locations	:: Bool	 -- ^ Place \#line droppings in output?
+    , hashline	:: Bool	 -- ^ Write \#line or {-\# LINE \#-} ?
+    , pragma	:: Bool  -- ^ Keep \#pragma in final output?
     , stripEol	:: Bool  -- ^ Remove C eol (\/\/) comments everywhere?
     , stripC89	:: Bool  -- ^ Remove C inline (\/**\/) comments everywhere?
     , lang	:: Bool  -- ^ Lex input as Haskell code?
