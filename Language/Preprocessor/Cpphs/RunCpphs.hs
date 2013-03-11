@@ -10,13 +10,15 @@ module Language.Preprocessor.Cpphs.RunCpphs ( runCpphs
 
 import Language.Preprocessor.Cpphs.CppIfdef (cppIfdef)
 import Language.Preprocessor.Cpphs.MacroPass(macroPass,macroPassReturningSymTab)
-import Language.Preprocessor.Cpphs.Options  (CpphsOptions(..), BoolOptions(..))
+import Language.Preprocessor.Cpphs.Options  (CpphsOptions(..), BoolOptions(..)
+                                            ,trailing)
 import Language.Preprocessor.Cpphs.Tokenise (deWordStyle, tokenise)
 import Language.Preprocessor.Unlit as Unlit (unlit)
 
 
 runCpphs :: CpphsOptions -> FilePath -> String -> IO String
-runCpphs options filename input = do
+runCpphs options' filename input = do
+  let options= options'{ includes= map (trailing "\\/") (includes options') }
   let bools  = boolopts options
       preInc = case preInclude options of
                  [] -> ""
@@ -39,7 +41,8 @@ runCpphs options filename input = do
 
 runCpphsReturningSymTab :: CpphsOptions -> FilePath -> String
              -> IO (String,[(String,String)])
-runCpphsReturningSymTab options filename input = do
+runCpphsReturningSymTab options' filename input = do
+  let options= options'{ includes= map (trailing "\\/") (includes options') }
   let bools  = boolopts options
       preInc = case preInclude options of
                  [] -> ""

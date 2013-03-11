@@ -17,6 +17,7 @@ module Language.Preprocessor.Cpphs.Options
   , parseOptions
   , defaultCpphsOptions
   , defaultBoolOptions
+  , trailing
   ) where
 
 import Data.Maybe
@@ -110,6 +111,9 @@ rawOption xs | "--include="`isPrefixOf`xs
             = Just $ PreInclude (drop 10 xs)
 rawOption _ = Nothing
 
+-- | Trim trailing elements of the second list that match any from
+--   the first list.  Typically used to remove trailing forward\/back
+--   slashes from a directory path.
 trailing :: (Eq a) => [a] -> [a] -> [a]
 trailing xs = reverse . dropWhile (`elem`xs) . reverse
 
