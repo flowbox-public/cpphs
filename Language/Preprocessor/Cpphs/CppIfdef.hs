@@ -265,7 +265,7 @@ parseSymOrCall st =
       case lookupST sym st of
         Nothing  -> sym
         Just (a@SymbolReplacement{}) -> recursivelyExpand st (replacement a)
-        Just (a@MacroExpansion{})    -> expandMacro a args False
+        Just (a@MacroExpansion{})    -> recursivelyExpand st (expandMacro a args False)
         Just (a@AntiDefined{})       -> name a
 
 recursivelyExpand :: SymTab HashDefine -> String -> String
