@@ -1,3 +1,7 @@
+Version 1.17
+------------
+  * recursively evaluate #if expressions after macro expansion (fix)
+
 Version 1.16
 ------------
   * fix interaction of runCpphsReturningSymTab with --nomacro
