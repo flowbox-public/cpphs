@@ -1,6 +1,7 @@
 Version 1.17
 ------------
   * recursively evaluate #if expressions after macro expansion (fix)
+  * (1.17.1): report the right version with cpphs --version
 
 Version 1.16
 ------------
