@@ -73,4 +73,5 @@ runtest "$CPPHS --nomacro nomacro" expect52
 runtest "$CPPHS --nomacro --strip-eol nomacro" expect53
 runtest "$CPPHS --strip-eol nomacro" expect54
 runtest "$CPPHS ballard" expect55
+runtest "$CPPHS th" expect56
 exit $FAIL

@@ -106,8 +106,14 @@ tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
                                             haskell CLineComment "  " p ls xs
   haskell Any acc p ls ('"':xs)           = emit acc $
                                             haskell (String '"') ['"'] p ls xs
-  haskell Any acc p ls ('\'':xs)          = emit acc $
+  haskell Any acc p ls ('\'':'\'':xs)     = emit acc $ -- TH type quote
+                                            haskell Any "''" p ls xs
+  haskell Any acc p ls ('\'':xs@('\\':_)) = emit acc $ -- escaped char literal
                                             haskell (String '\'') "'" p ls xs
+  haskell Any acc p ls ('\'':x:'\'':xs)   = emit acc $ -- character literal
+                                            haskell Any ['\'', x, '\''] p ls xs
+  haskell Any acc p ls ('\'':xs)          = emit acc $ -- TH name quote
+                                            haskell Any "'" p ls xs
   haskell Any acc p ls (x:xs) | single x  = emit acc $ emit [x] $
                                             haskell Any [] p ls xs
   haskell Any acc p ls (x:xs) | space x   = emit acc $
@@ -272,4 +278,3 @@ parseMacroCall p = call . skip
     args n w acc (x@(Other _)  :xs)  = args n     (x:w)         acc    xs
     args _ _ _   _                   = Nothing
     addone w acc = reverse (skip w): acc
-
