@@ -1,3 +1,7 @@
+Version 1.18
+------------
+  * better lexing of Template Haskell single quotes (thanks to Stephan Wehr)
+
 Version 1.17
 ------------
   * recursively evaluate #if expressions after macro expansion (fix)
