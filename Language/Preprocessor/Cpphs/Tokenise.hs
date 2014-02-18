@@ -111,7 +111,8 @@ tokenise stripEol stripComments ansi lang ((pos,str):pos_strs) =
   haskell Any acc p ls ('\'':xs@('\\':_)) = emit acc $ -- escaped char literal
                                             haskell (String '\'') "'" p ls xs
   haskell Any acc p ls ('\'':x:'\'':xs)   = emit acc $ -- character literal
-                                            haskell Any ['\'', x, '\''] p ls xs
+                                            emit ['\'', x, '\''] $
+                                            haskell Any [] p ls xs
   haskell Any acc p ls ('\'':xs)          = emit acc $ -- TH name quote
                                             haskell Any "'" p ls xs
   haskell Any acc p ls (x:xs) | single x  = emit acc $ emit [x] $
