@@ -88,7 +88,8 @@ cpp2hask :: String -> String
 cpp2hask line | "#line" `isPrefixOf` line = "{-# LINE "
                                             ++unwords (tail (words line))
                                             ++" #-}"
-                                                                                
+              | otherwise = line
+
 -- | Strip non-directory suffix from file name (analogous to the shell
 --   command of the same name).
 dirname :: String -> String
