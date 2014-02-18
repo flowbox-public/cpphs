@@ -1,6 +1,7 @@
 Version 1.18
 ------------
   * better lexing of Template Haskell single quotes (thanks to Stephan Wehr)
+  * (1.18.1): fix incomplete pattern match
 
 Version 1.17
 ------------
