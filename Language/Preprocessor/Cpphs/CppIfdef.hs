@@ -184,20 +184,20 @@ gatherDefined p st inp =
 parseBoolExp :: SymTab HashDefine -> Parser Bool
 parseBoolExp st =
   do  a <- parseExp1 st
-      skip (string "||")
-      b <- first (skip (parseBoolExp st))
-      return (a || b)
-  +++
-      parseExp1 st
+      (do skip (string "||")
+          b <- first (skip (parseBoolExp st))
+          return (a || b)
+       +++
+       do return a)
 
 parseExp1 :: SymTab HashDefine -> Parser Bool
 parseExp1 st =
   do  a <- parseExp0 st
-      skip (string "&&")
-      b <- first (skip (parseExp1 st))
-      return (a && b)
-  +++
-      parseExp0 st
+      (do skip (string "&&")
+          b <- first (skip (parseExp1 st))
+          return (a && b)
+       +++
+       do return a)
 
 parseExp0 :: SymTab HashDefine -> Parser Bool
 parseExp0 st =
