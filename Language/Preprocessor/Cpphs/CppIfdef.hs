@@ -34,7 +34,6 @@ import System.IO.Unsafe (unsafeInterleaveIO)
 import System.IO        (hPutStrLn,stderr)
 import Control.Monad (when)
 
-
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
 --   whilst taking account of \#define's and \#undef's as we encounter them.
 cppIfdef :: FilePath		-- ^ File for error reports
@@ -206,18 +205,21 @@ parseExp0 st =
       sym <- parens parseSym
       return (definedST sym st)
   +++
+  do  ()  <- expandSymOrCall st
+      parseBoolExp st
+  +++
   do  parens (parseBoolExp st)
   +++
   do  skip (char '!')
       a <- parseExp0 st
       return (not a)
   +++
-  do  sym1 <- parseSymOrCall st
-      op <- parseOp st
-      sym2 <- parseSymOrCall st
+  do  sym1 <- skip parseSym
+      op   <- parseOp st
+      sym2 <- skip parseSym
       return (op (safeRead sym1) (safeRead sym2))
   +++
-  do  sym <- parseSymOrCall st
+  do  sym <- skip parseSym
       case safeRead sym of
         0 -> return False
         _ -> return True
@@ -252,14 +254,32 @@ parseOp _ =
   do  skip (string "!=")
       return (/=)
 
+-- | Fails if no expansion is required, to prevent infinite recursion.
+expandSymOrCall :: SymTab HashDefine -> Parser ()
+expandSymOrCall st =
+  do  sym <- skip parseSym
+      args <- parens (parseSymOrCall st `sepby` skip (char ','))
+      convert sym args
+  +++
+  do  sym <- skip parseSym
+      convert sym []
+  where
+    convert sym args =
+      case lookupST sym st of
+        Nothing  -> fail "not a macro"
+        Just (a@SymbolReplacement{}) -> reparse (replacement a)
+        Just (a@MacroExpansion{})    -> reparse (expandMacro a args False)
+        Just (a@AntiDefined{})       -> fail "anti-defined"
+
+-- | Return the expansion of the symbol (if there is one).
 parseSymOrCall :: SymTab HashDefine -> Parser String
 parseSymOrCall st =
   do  sym <- skip parseSym
       args <- parens (parseSymOrCall st `sepby` skip (char ','))
-      return (convert sym args)
+      return $ convert sym args
   +++
   do  sym <- skip parseSym
-      return (convert sym [])
+      return $ convert sym []
   where
     convert sym args =
       case lookupST sym st of
@@ -287,3 +307,4 @@ file st name =
       ('<':ns) -> init ns
       _ -> let ex = recursivelyExpand st name in
            if ex == name then name else file st ex
+

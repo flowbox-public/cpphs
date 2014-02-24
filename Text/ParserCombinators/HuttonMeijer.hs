@@ -32,7 +32,7 @@ module Text.ParserCombinators.HuttonMeijer
     sepby, sepby1, chainl,
     chainl1, chainr, chainr1, ops, bracket, char, digit, lower, upper,
     letter, alphanum, string, ident, nat, int, spaces, comment, junk,
-    skip, token, natural, integer, symbol, identifier) where
+    skip, token, natural, integer, symbol, identifier, reparse) where
 
 import Data.Char
 import Control.Monad
@@ -215,4 +215,14 @@ identifier ks      = token (do {x <- ident;
                                 if not (elem x ks) then return x
                                 else return mzero})
 
+--- Push some tokens back onto the input stream and reparse ------------------
+
+-- | This is useful for recursively expanding macros.  When the
+--   user-parser recognises a macro use, it can lookup the macro
+--   expansion from the parse state, lex it, and then stuff the
+--   lexed expansion back down into the parser.
+reparse    :: [Token] -> Parser ()
+reparse ts  = P (\inp-> [((), ts++inp)])
+
 ------------------------------------------------------------------------------
+
