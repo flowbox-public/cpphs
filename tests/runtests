@@ -75,4 +75,5 @@ runtest "$CPPHS --strip-eol nomacro" expect54
 runtest "$CPPHS ballard" expect55
 runtest "$CPPHS th" expect56
 runtest "$CPPHS cheplyaka" expect57
+runtest "$CPPHS booleanchain" expect58
 exit $FAIL
