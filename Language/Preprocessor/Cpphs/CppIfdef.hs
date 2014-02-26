@@ -18,8 +18,8 @@ module Language.Preprocessor.Cpphs.CppIfdef
   ) where
 
 
+import Text.Parse
 import Language.Preprocessor.Cpphs.SymTab
-import Text.ParserCombinators.HuttonMeijer
 import Language.Preprocessor.Cpphs.Position  (Posn,newfile,newline,newlines
                                              ,cppline,cpp2hask,newpos)
 import Language.Preprocessor.Cpphs.ReadFirst (readFirst)
@@ -28,11 +28,12 @@ import Language.Preprocessor.Cpphs.Options   (BoolOptions(..))
 import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),parseHashDefine
                                              ,expandMacro)
 import Language.Preprocessor.Cpphs.MacroPass (preDefine,defineMacro)
-import Data.Char      (isDigit)
-import Numeric   (readHex,readOct,readDec)
+import Data.Char        (isDigit,isSpace,isAlphaNum)
+import Data.List        (intercalate)
+import Numeric          (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.IO        (hPutStrLn,stderr)
-import Control.Monad (when)
+import Control.Monad    (when)
 
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
 --   whilst taking account of \#define's and \#undef's as we encounter them.
@@ -88,8 +89,8 @@ cpp p syms path options (Keep ps) (l@('#':x):xs) =
 	"undef"  -> skipn (deleteST sym syms) True (Keep ps) xs
 	"ifndef" -> skipn syms False (keepIf (not (definedST sym syms))) xs
 	"ifdef"  -> skipn syms False (keepIf      (definedST sym syms)) xs
-	"if"     -> skipn syms False
-                               (keepIf (gatherDefined p syms (unwords line))) xs
+	"if"     -> do b <- gatherDefined p syms (unwords line)
+                       skipn syms False (keepIf b) xs
 	"else"   -> skipn syms False (Drop 1 False ps) xs
 	"elif"   -> skipn syms False (Drop 1 True ps) xs
 	"endif"  | null ps ->
@@ -136,7 +137,7 @@ cpp p syms path options (Drop n b ps) (('#':x):xs) =
                  | otherwise = Drop n b ps
         dend     | n==1      = Keep (tail ps)
                  | otherwise = Drop (n-1) b (tail ps)
-        delif s  | n==1 && not b && gatherDefined p syms s
+        delif v  | n==1 && not b && v
                              = Keep ps
                  | otherwise = Drop n b ps
         skipn ud xs' =
@@ -146,10 +147,11 @@ cpp p syms path options (Drop n b ps) (('#':x):xs) =
     in
     if      cmd == "ifndef" ||
             cmd == "if"     ||
-            cmd == "ifdef"  then  skipn (Drop (n+1) b (p:ps)) xs
-    else if cmd == "elif"   then  skipn (delif (unwords (tail ws))) xs
-    else if cmd == "else"   then  skipn  delse xs
-    else if cmd == "endif"  then
+            cmd == "ifdef" then    skipn (Drop (n+1) b (p:ps)) xs
+    else if cmd == "elif"  then do v <- gatherDefined p syms (unwords (tail ws))
+                                   skipn (delif v) xs
+    else if cmd == "else"  then    skipn  delse xs
+    else if cmd == "endif" then
             if null ps then do hPutStrLn stderr $ "Unmatched #endif at "++show p
                                return []
                        else skipn  dend  xs
@@ -174,55 +176,130 @@ emitMany xs io = do ys <- unsafeInterleaveIO io
 
 
 ----
-gatherDefined :: Posn -> SymTab HashDefine -> String -> Bool
+gatherDefined :: Posn -> SymTab HashDefine -> String -> IO Bool
 gatherDefined p st inp =
-  case papply (parseBoolExp st) inp of
-    []      -> error ("Cannot parse #if directive in file "++show p)
-    [(b,_)] -> b
-    _       -> error ("Ambiguous parse for #if directive in file "++show p)
+  case runParser (preExpand st) inp of
+    (Left msg, _) -> error ("Cannot expand #if directive in file "++show p
+                           ++":\n    "++msg)
+    (Right s, xs) -> do
+--      hPutStrLn stderr $ "Expanded #if at "++show p++" is:\n  "++s
+        when (any (not . isSpace) xs) $
+             hPutStrLn stderr ("Warning: trailing characters after #if"
+                              ++" macro expansion in file "++show p++": "++xs)
 
-parseBoolExp :: SymTab HashDefine -> Parser Bool
-parseBoolExp st =
-  do  a <- parseExp1 st
-      (do skip (string "||")
-          b <- first (skip (parseBoolExp st))
-          return (a || b)
-       +++
-       do return a)
+        case runParser parseBoolExp s of
+          (Left msg, _) -> error ("Cannot parse #if directive in file "++show p
+                                 ++":\n    "++msg)
+          (Right b, xs) -> do when (any (not . isSpace) xs) $
+                                   hPutStrLn stderr
+                                     ("Warning: trailing characters after #if"
+                                      ++" directive in file "++show p++": "++xs)
+                              return b
 
-parseExp1 :: SymTab HashDefine -> Parser Bool
-parseExp1 st =
-  do  a <- parseExp0 st
-      (do skip (string "&&")
-          b <- first (skip (parseExp1 st))
-          return (a && b)
-       +++
-       do return a)
+-- | The preprocessor must expand all macros (recursively) before evaluating
+--   the conditional.
+preExpand :: SymTab HashDefine -> TextParser String
+preExpand st =
+  do  eof
+      return ""
+  <|>
+  do  a <- many1 (satisfy notIdent)
+      commit $ pure (a++) `apply` preExpand st
+  <|>
+  do  b <- expandSymOrCall st
+      commit $ pure (b++) `apply` preExpand st
 
-parseExp0 :: SymTab HashDefine -> Parser Bool
-parseExp0 st =
-  do  skip (string "defined")
-      sym <- parens parseSym
-      return (definedST sym st)
-  +++
-  do  ()  <- expandSymOrCall st
-      parseBoolExp st
-  +++
-  do  parens (parseBoolExp st)
-  +++
-  do  skip (char '!')
-      a <- parseExp0 st
+-- | Expansion of symbols.
+expandSymOrCall :: SymTab HashDefine -> TextParser String
+expandSymOrCall st =
+  do  sym <- parseSym
+      ( do  args <- parenthesis (commit $ fragment `sepBy` skip (isWord ","))
+            args' <- flip mapM args $ \arg->
+                         case runParser (preExpand st) arg of
+                             (Left msg, _) -> fail msg
+                             (Right s, _)  -> return s
+            convert sym args'
+        <|>
+        do  convert sym [] )
+  where
+    fragment = many1 (satisfy (`notElem`",)"))
+    convert "defined" [arg] =
+      case lookupST arg st of
+        Nothing | all isDigit arg    -> return arg 
+        Nothing                      -> return "0"
+        Just (a@AntiDefined{})       -> return "0"
+        Just (a@SymbolReplacement{}) -> return "1"
+        Just (a@MacroExpansion{})    -> return "1"
+    convert sym args =
+      case lookupST sym st of
+        Nothing  -> if null args then return sym
+                    else fail (disp sym args++" is not a defined macro")
+        Just (a@SymbolReplacement{}) -> do reparse (replacement a)
+                                           return ""
+        Just (a@MacroExpansion{})    -> do reparse (expandMacro a args False)
+                                           return ""
+        Just (a@AntiDefined{})       ->
+                    if null args then return sym
+                    else fail (disp sym args++" explicitly undefined with -U")
+    disp sym args = let len = length args
+                        chars = map (:[]) ['a'..'z']
+                    in sym ++ if null args then ""
+                              else "("++intercalate "," (take len chars)++")"
+
+parseBoolExp :: TextParser Bool
+parseBoolExp =
+  do  a <- parseExp1
+      bs <- many (do skip (isWord "||")
+                     commit $ skip parseBoolExp)
+      return $ foldr (||) a bs
+
+parseExp1 :: TextParser Bool
+parseExp1 =
+  do  a <- parseExp0
+      bs <- many (do skip (isWord "&&")
+                     commit $ skip parseExp1)
+      return $ foldr (&&) a bs
+
+parseExp0 :: TextParser Bool
+parseExp0 =
+  do  skip (isWord "!")
+      a <- commit $ parseExp0
       return (not a)
-  +++
-  do  sym1 <- skip parseSym
-      op   <- parseOp st
-      sym2 <- skip parseSym
-      return (op (safeRead sym1) (safeRead sym2))
-  +++
-  do  sym <- skip parseSym
-      case safeRead sym of
+  <|>
+  do  val1 <- parseArithExp1
+      op   <- parseCmpOp
+      val2 <- parseArithExp1
+      return (val1 `op` val2)
+  <|>
+  do  sym <- parseArithExp1
+      case sym of
         0 -> return False
         _ -> return True
+  <|>
+  do  parenthesis (commit parseBoolExp)
+
+parseArithExp1 :: TextParser Integer
+parseArithExp1 =
+  do  val1 <- parseArithExp0
+      ( do op   <- parseArithOp1
+           val2 <- parseArithExp1
+           return (val1 `op` val2)
+        <|> return val1 )
+  <|>
+  do  parenthesis parseArithExp1
+
+parseArithExp0 :: TextParser Integer
+parseArithExp0 =
+  do  val1 <- parseNumber
+      ( do op   <- parseArithOp0
+           val2 <- parseArithExp0
+           return (val1 `op` val2)
+        <|> return val1 )
+  <|>
+  do  parenthesis parseArithExp0
+
+parseNumber :: TextParser Integer
+parseNumber = fmap safeRead $ skip parseSym
   where
     safeRead s =
       case s of
@@ -234,50 +311,52 @@ parseExp0 st =
         []        -> 0 :: Integer
         ((n,_):_) -> n :: Integer
 
-parseOp :: SymTab HashDefine -> Parser (Integer -> Integer -> Bool)
-parseOp _ =
-  do  skip (string ">=")
+parseCmpOp :: TextParser (Integer -> Integer -> Bool)
+parseCmpOp =
+  do  skip (isWord ">=")
       return (>=)
-  +++
-  do  skip (char '>')
+  <|>
+  do  skip (isWord ">")
       return (>)
-  +++
-  do  skip (string "<=")
+  <|>
+  do  skip (isWord "<=")
       return (<=)
-  +++
-  do  skip (char '<')
+  <|>
+  do  skip (isWord "<")
       return (<)
-  +++
-  do  skip (string "==")
+  <|>
+  do  skip (isWord "==")
       return (==)
-  +++
-  do  skip (string "!=")
+  <|>
+  do  skip (isWord "!=")
       return (/=)
 
--- | Fails if no expansion is required, to prevent infinite recursion.
-expandSymOrCall :: SymTab HashDefine -> Parser ()
-expandSymOrCall st =
-  do  sym <- skip parseSym
-      args <- parens (parseSymOrCall st `sepby` skip (char ','))
-      convert sym args
-  +++
-  do  sym <- skip parseSym
-      convert sym []
-  where
-    convert sym args =
-      case lookupST sym st of
-        Nothing  -> fail "not a macro"
-        Just (a@SymbolReplacement{}) -> reparse (replacement a)
-        Just (a@MacroExpansion{})    -> reparse (expandMacro a args False)
-        Just (a@AntiDefined{})       -> fail "anti-defined"
+parseArithOp1 :: TextParser (Integer -> Integer -> Integer)
+parseArithOp1 =
+  do  skip (isWord "+")
+      return (+)
+  <|>
+  do  skip (isWord "-")
+      return (-)
+
+parseArithOp0 :: TextParser (Integer -> Integer -> Integer)
+parseArithOp0 =
+  do  skip (isWord "*")
+      return (*)
+  <|>
+  do  skip (isWord "/")
+      return (div)
+  <|>
+  do  skip (isWord "%")
+      return (rem)
 
 -- | Return the expansion of the symbol (if there is one).
-parseSymOrCall :: SymTab HashDefine -> Parser String
+parseSymOrCall :: SymTab HashDefine -> TextParser String
 parseSymOrCall st =
   do  sym <- skip parseSym
-      args <- parens (parseSymOrCall st `sepby` skip (char ','))
+      args <- parenthesis (commit $ parseSymOrCall st `sepBy` skip (isWord ","))
       return $ convert sym args
-  +++
+  <|>
   do  sym <- skip parseSym
       return $ convert sym []
   where
@@ -290,14 +369,28 @@ parseSymOrCall st =
 
 recursivelyExpand :: SymTab HashDefine -> String -> String
 recursivelyExpand st inp =
-  case papply (parseSymOrCall st) inp of
-    [(b,_)] -> b
-    _       -> inp
+  case runParser (parseSymOrCall st) inp of
+    (Left msg, _) -> inp
+    (Right s,  _) -> s
 
-parseSym :: Parser String
-parseSym = many1 (alphanum+++char '\''+++char '`')
+parseSym :: TextParser String
+parseSym = many1 (satisfy (\c-> isAlphaNum c || c`elem`"'`_"))
+           `onFail`
+           do xs <- allAsString
+              fail $ "Expected an identifier, got \""++xs++"\""
 
-parens p = bracket (skip (char '(')) (skip p) (skip (char ')'))
+notIdent :: Char -> Bool
+notIdent c = not (isAlphaNum c || c`elem`"'`_")
+
+skip :: TextParser a -> TextParser a
+skip p = many (satisfy isSpace) >> p
+
+-- | The standard "parens" parser does not work for us here.  Define our own.
+parenthesis :: TextParser a -> TextParser a
+parenthesis p = do isWord "("
+                   x <- p
+                   isWord ")"
+                   return x
 
 -- | Determine filename in \#include
 file :: SymTab HashDefine -> String -> String
