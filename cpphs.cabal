@@ -1,5 +1,5 @@
 Name: cpphs
-Version: 1.18.2
+Version: 1.18.3
 Copyright: 2004-2014, Malcolm Wallace
 License: LGPL
 License-File: LICENCE-LGPL
@@ -23,7 +23,7 @@ Build-type: Simple
 Extra-Source-Files: README, LICENCE-GPL, LICENCE-commercial, CHANGELOG, docs/cpphs.1, docs/index.html
 
 Library
-    Build-Depends: base>3&&<6, old-locale, old-time, directory
+    Build-Depends: base>3&&<6, old-locale, old-time, directory, polyparse>=1.9
     Exposed-Modules:
         Language.Preprocessor.Cpphs
         Language.Preprocessor.Unlit
@@ -37,7 +37,6 @@ Library
         Language.Preprocessor.Cpphs.RunCpphs,
         Language.Preprocessor.Cpphs.SymTab,
         Language.Preprocessor.Cpphs.Tokenise,
-        Text.ParserCombinators.HuttonMeijer
 
 Executable cpphs
     Build-Depends: base>3&&<6, old-locale, old-time, directory
@@ -54,7 +53,6 @@ Executable cpphs
         Language.Preprocessor.Cpphs.RunCpphs,
         Language.Preprocessor.Cpphs.SymTab,
         Language.Preprocessor.Cpphs.Tokenise,
-        Text.ParserCombinators.HuttonMeijer
 
 Source-Repository head
     Type:     darcs

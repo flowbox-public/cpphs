@@ -3,7 +3,7 @@ include Makefile.inc
 OBJDIR	= $(BUILDDIR)/$(OBJ)/cpphs
 CPPHS	= $(DST)/cpphs$(EXE)
 TARGET	= $(CPPHS)
-VERSION = 1.18.2
+VERSION = 1.18.3
 
 SRCS    = Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/CppIfdef.hs \
@@ -16,7 +16,6 @@ SRCS    = Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/SymTab.hs \
           Language/Preprocessor/Cpphs/Tokenise.hs \
           Language/Preprocessor/Unlit.hs \
-          Text/ParserCombinators/HuttonMeijer.hs \
           cpphs.hs
 
 DIRS =	Language/Preprocessor \
@@ -38,10 +37,10 @@ HC = $(LOCAL)nhc98	# can be overridden by caller HC=...
 HFLAGS = $(shell echo $(BUILDOPTS)) #-$(CFG)
 
 ifeq "nhc98" "$(findstring nhc98, ${HC})"
-HEAP = -H4M -package base -package directory
+HEAP = -H4M -package base -package directory -package polyparse
 endif
 ifeq "ghc" "$(findstring ghc, ${HC})"
-HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base)
+HFLAGS += $(shell ${LOCAL}fixghc ${GHCSYM} -package base -package polyparse)
 endif
 ifeq "hbc" "$(findstring hbc, ${HC})"
 hbc: $(FLATSRCS)
@@ -57,7 +56,7 @@ install: $(TARGET)
 cfiles: cleanC $(CFILES)
 fromC: $(OBJDIR)
 	$(LOCAL)/nhc98 -c -d $(OBJDIR) $(CFILES)
-	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS) -package base -package directory
+	$(LOCAL)nhc98 -H8M -o $(TARGET) $(OBJS) -package base -package directory -package polyparse
 	$(HOSTSTRIP) $(TARGET)
 
 clean: cleanHi cleanO
@@ -103,7 +102,7 @@ $(OBJS): $(OBJDIR)/%.$O : %.hs
 	$(HC) $(HFLAGS) -c -o $@ $<
 
 $(CFILES): %.$C : %.hs
-	$(HC) $(HFLAGS) -C -package directory -package old-locale -package old-time $<
+	$(HC) $(HFLAGS) -C -package directory -package old-locale -package old-time -package polyparse $<
 
 #$(FLATSRCS): $(SRCS)
 #	-cp $(SRCS) .
@@ -132,11 +131,9 @@ ${OBJDIR}/Language/Preprocessor/Cpphs/ReadFirst.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/SymTab.o 
 ${OBJDIR}/Language/Preprocessor/Cpphs/Position.o:
-${OBJDIR}/Text/ParserCombinators/HuttonMeijer.o:
 ${OBJDIR}/Language/Preprocessor/Cpphs/SymTab.o:
 ${OBJDIR}/Language/Preprocessor/Cpphs/CppIfdef.o: \
 	${OBJDIR}/Language/Preprocessor/Cpphs/SymTab.o \
-	${OBJDIR}/Text/ParserCombinators/HuttonMeijer.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Position.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/ReadFirst.o \
 	${OBJDIR}/Language/Preprocessor/Cpphs/Tokenise.o \
@@ -173,11 +170,9 @@ Language/Preprocessor/Cpphs/Tokenise.hc: \
 Language/Preprocessor/Cpphs/ReadFirst.hc: \
 	Language/Preprocessor/Cpphs/Position.hc
 Language/Preprocessor/Cpphs/Position.hc:
-Text/ParserCombinators/HuttonMeijer.hc:
 Language/Preprocessor/Cpphs/SymTab.hc:
 Language/Preprocessor/Cpphs/CppIfdef.hc: \
 	Language/Preprocessor/Cpphs/SymTab.hc \
-	Text/ParserCombinators/HuttonMeijer.hc \
 	Language/Preprocessor/Cpphs/Position.hc \
 	Language/Preprocessor/Cpphs/ReadFirst.hc \
 	Language/Preprocessor/Cpphs/Tokenise.hc \

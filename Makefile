@@ -1,5 +1,5 @@
 LIBRARY = cpphs
-VERSION = 1.18.2
+VERSION = 1.18.3
 
 DIRS	= Language/Preprocessor/Cpphs \
 	  Text/ParserCombinators
@@ -15,7 +15,6 @@ SRCS	= Language/Preprocessor/Cpphs.hs \
           Language/Preprocessor/Cpphs/SymTab.hs \
           Language/Preprocessor/Cpphs/Tokenise.hs \
           Language/Preprocessor/Unlit.hs \
-          Text/ParserCombinators/HuttonMeijer.hs \
           cpphs.hs
 
 AUX	= README LICENCE* CHANGELOG $(LIBRARY).cabal Setup.hs Makefile \
