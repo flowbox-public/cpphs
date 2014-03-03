@@ -2,6 +2,8 @@ Version 1.18
 ------------
   * better lexing of Template Haskell single quotes (thanks to Stephan Wehr)
   * (1.18.1): fix incomplete pattern match
+  * (1.18.2): bugfix for erroneous boolean intepretation of some macro
+              expansions in #if clauses
 
 Version 1.17
 ------------
