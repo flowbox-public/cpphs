@@ -28,15 +28,15 @@ Library
         Language.Preprocessor.Cpphs
         Language.Preprocessor.Unlit
     Other-Modules:
-        Language.Preprocessor.Cpphs.CppIfdef,
-        Language.Preprocessor.Cpphs.HashDefine,
-        Language.Preprocessor.Cpphs.MacroPass,
-        Language.Preprocessor.Cpphs.Options,
-        Language.Preprocessor.Cpphs.Position,
-        Language.Preprocessor.Cpphs.ReadFirst,
-        Language.Preprocessor.Cpphs.RunCpphs,
-        Language.Preprocessor.Cpphs.SymTab,
-        Language.Preprocessor.Cpphs.Tokenise,
+        Language.Preprocessor.Cpphs.CppIfdef
+        Language.Preprocessor.Cpphs.HashDefine
+        Language.Preprocessor.Cpphs.MacroPass
+        Language.Preprocessor.Cpphs.Options
+        Language.Preprocessor.Cpphs.Position
+        Language.Preprocessor.Cpphs.ReadFirst
+        Language.Preprocessor.Cpphs.RunCpphs
+        Language.Preprocessor.Cpphs.SymTab
+        Language.Preprocessor.Cpphs.Tokenise
 
 Executable cpphs
     Build-Depends: base>3&&<6, old-locale, old-time, directory
@@ -44,15 +44,15 @@ Executable cpphs
     Other-Modules:
         Language.Preprocessor.Cpphs
         Language.Preprocessor.Unlit
-        Language.Preprocessor.Cpphs.CppIfdef,
-        Language.Preprocessor.Cpphs.HashDefine,
-        Language.Preprocessor.Cpphs.MacroPass,
-        Language.Preprocessor.Cpphs.Options,
-        Language.Preprocessor.Cpphs.Position,
-        Language.Preprocessor.Cpphs.ReadFirst,
-        Language.Preprocessor.Cpphs.RunCpphs,
-        Language.Preprocessor.Cpphs.SymTab,
-        Language.Preprocessor.Cpphs.Tokenise,
+        Language.Preprocessor.Cpphs.CppIfdef
+        Language.Preprocessor.Cpphs.HashDefine
+        Language.Preprocessor.Cpphs.MacroPass
+        Language.Preprocessor.Cpphs.Options
+        Language.Preprocessor.Cpphs.Position
+        Language.Preprocessor.Cpphs.ReadFirst
+        Language.Preprocessor.Cpphs.RunCpphs
+        Language.Preprocessor.Cpphs.SymTab
+        Language.Preprocessor.Cpphs.Tokenise
 
 Source-Repository head
     Type:     darcs
