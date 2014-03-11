@@ -31,7 +31,7 @@ data CpphsOptions = CpphsOptions
     , includes	:: [String]
     , preInclude:: [FilePath]	-- ^ Files to \#include before anything else
     , boolopts	:: BoolOptions
-    }
+    } deriving (Show)
 
 -- | Default options.
 defaultCpphsOptions :: CpphsOptions
@@ -53,7 +53,7 @@ data BoolOptions = BoolOptions
     , layout	:: Bool  -- ^ Retain newlines in macro expansions?
     , literate	:: Bool  -- ^ Remove literate markup?
     , warnings	:: Bool  -- ^ Issue warnings?
-    }
+    } deriving (Show)
 
 -- | Default settings of boolean options.
 defaultBoolOptions :: BoolOptions
