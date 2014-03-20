@@ -31,7 +31,7 @@ runCpphs options' filename input = do
   let result= if not (macros bools)
               then if   stripC89 bools || stripEol bools
                    then concatMap deWordStyle $
-                        tokenise (stripC89 bools) (stripEol bools)
+                        tokenise (stripEol bools) (stripC89 bools)
                                  (ansi bools) (lang bools) pass1
                    else unlines (map snd pass1)
               else pass2
@@ -61,7 +61,7 @@ runCpphsReturningSymTab options' filename input = do
                             bools (preInc++input)
           let result = if   stripC89 bools || stripEol bools
                        then concatMap deWordStyle $
-                            tokenise (stripC89 bools) (stripEol bools)
+                            tokenise (stripEol bools) (stripC89 bools)
                                      (ansi bools) (lang bools) pass1
                        else init $ unlines (map snd pass1)
           return (result,syms)
