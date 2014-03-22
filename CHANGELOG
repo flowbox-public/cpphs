@@ -5,6 +5,9 @@ Version 1.18
   * (1.18.2): bugfix for erroneous boolean intepretation of some macro
               expansions in #if clauses
   * (1.18.3): further rewrites of the #if expression parser
+  * (1.18.4): fix the accidental flipping of comment-stripping behaviour
+              with --cpp -traditional flags
+
 
 Version 1.17
 ------------
