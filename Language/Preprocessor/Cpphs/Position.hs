@@ -17,6 +17,7 @@ module Language.Preprocessor.Cpphs.Position
   , addcol, newline, tab, newlines, newpos
   , cppline, haskline, cpp2hask
   , filename, lineno, directory
+  , cleanPath
   ) where
 
 import Data.List (isPrefixOf)
@@ -38,7 +39,7 @@ instance Show Posn where
 
 -- | Constructor.  Argument is filename.
 newfile :: String -> Posn
-newfile name = Pn name 1 1 Nothing
+newfile name = Pn (cleanPath name) 1 1 Nothing
 
 -- | Increment column number by given quantity.
 addcol :: Int -> Posn -> Posn
@@ -96,4 +97,11 @@ dirname :: String -> String
 dirname  = reverse . safetail . dropWhile (not.(`elem`"\\/")) . reverse
   where safetail [] = []
         safetail (_:x) = x
+
+-- | Sigh.  Mixing Windows filepaths with unix is bad.  Make sure there is a
+--   canonical path separator.
+cleanPath :: FilePath -> FilePath
+cleanPath [] = []
+cleanPath ('\\':cs) = '/': cleanPath cs
+cleanPath (c:cs)    = c:   cleanPath cs
 

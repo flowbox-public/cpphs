@@ -19,7 +19,7 @@ import System.IO        (hPutStrLn, stderr)
 import System.Directory (doesFileExist)
 import Data.List      (intersperse)
 import Control.Monad     (when)
-import Language.Preprocessor.Cpphs.Position  (Posn,directory)
+import Language.Preprocessor.Cpphs.Position  (Posn,directory,cleanPath)
 
 -- | Attempt to read the given file from any location within the search path.
 --   The first location found is returned, together with the file content.
@@ -46,7 +46,7 @@ readFirst name demand path warn =
                            ++"\n  Asked for by: "++show demand)
         return ("missing file: "++name,"")
     try (p:ps) = do
-        let file = p++'/':name
+        let file = cleanPath p++'/':cleanPath name
         ok <- doesFileExist file
         if not ok then try ps
           else do content <- readFile file

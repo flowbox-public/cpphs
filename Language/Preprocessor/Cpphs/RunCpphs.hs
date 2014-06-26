@@ -13,6 +13,7 @@ import Language.Preprocessor.Cpphs.MacroPass(macroPass,macroPassReturningSymTab)
 import Language.Preprocessor.Cpphs.Options  (CpphsOptions(..), BoolOptions(..)
                                             ,trailing)
 import Language.Preprocessor.Cpphs.Tokenise (deWordStyle, tokenise)
+import Language.Preprocessor.Cpphs.Position (cleanPath)
 import Language.Preprocessor.Unlit as Unlit (unlit)
 
 
@@ -23,7 +24,7 @@ runCpphs options' filename input = do
       preInc = case preInclude options of
                  [] -> ""
                  is -> concatMap (\f->"#include \""++f++"\"\n") is 
-                       ++ "#line 1 \""++filename++"\"\n"
+                       ++ "#line 1 \""++cleanPath filename++"\"\n"
 
   pass1 <- cppIfdef filename (defines options) (includes options) bools
                     (preInc++input)
@@ -47,7 +48,7 @@ runCpphsReturningSymTab options' filename input = do
       preInc = case preInclude options of
                  [] -> ""
                  is -> concatMap (\f->"#include \""++f++"\"\n") is 
-                       ++ "#line 1 \""++filename++"\"\n"
+                       ++ "#line 1 \""++cleanPath filename++"\"\n"
   (pass2,syms) <-
       if macros bools then do
           pass1 <- cppIfdef filename (defines options) (includes options)
