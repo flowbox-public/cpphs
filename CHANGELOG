@@ -7,6 +7,8 @@ Version 1.18
   * (1.18.3): further rewrites of the #if expression parser
   * (1.18.4): fix the accidental flipping of comment-stripping behaviour
               with --cpp -traditional flags
+  * (1.18.5): fix a bug with windows filepath directory separators in a
+              #include
 
 
 Version 1.17
