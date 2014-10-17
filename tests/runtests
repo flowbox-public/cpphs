@@ -2,11 +2,24 @@
 CPPHS=${1:-"../cpphs"}
 FAIL=0
 
+# Run a test and report whether it matched the expected output.
 runtest() {
   if $1 >out 2>&1 && diff $2 out >/dev/null
   then echo "passed: " $1
   else FAIL=$?
        echo "FAILED: ($2) " $1
+  fi
+}
+
+# For tests which are expected to fail
+runtestE() {
+  if $1 >out 2>&1 && dos2unix -q out && diff $2 out >/dev/null
+  then echo "UNEXPECTED PASS: ($2) " $1
+  else if dos2unix -q out && diff $2 out >/dev/null
+       then echo "passed: " $1
+       else FAIL=$?
+            echo "FAILED: ($2) " $1
+       fi
   fi
 }
 
@@ -76,6 +89,6 @@ runtest "$CPPHS ballard" expect55
 runtest "$CPPHS th" expect56
 runtest "$CPPHS cheplyaka" expect57
 runtest "$CPPHS booleanchain" expect58
-runtest "$CPPHS wrongarity" expect59
+runtestE "$CPPHS wrongarity" expect59
 runtest "$CPPHS --hashes wrongarity0" expect60
 exit $FAIL
