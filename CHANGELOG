@@ -9,6 +9,8 @@ Version 1.18
               with --cpp -traditional flags
   * (1.18.5): fix a bug with windows filepath directory separators in a
               #include
+  * (1.18.6): bugfix to reject a macro usage with different arity than
+              its definition
 
 
 Version 1.17
