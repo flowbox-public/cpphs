@@ -39,7 +39,7 @@ Library
         Language.Preprocessor.Cpphs.Tokenise
 
 Executable cpphs
-    Build-Depends: base>3&&<6, old-locale, old-time, directory
+    Build-Depends: base>3&&<6, old-locale, old-time, directory, polyparse>=1.9
     Main-Is: cpphs.hs
     Other-Modules:
         Language.Preprocessor.Cpphs

@@ -32,7 +32,7 @@ package:
 	tar cf tmp.tar $(SRCS) $(AUX)
 	mkdir $(LIBRARY)-$(VERSION)
 	cd $(LIBRARY)-$(VERSION); tar xf ../tmp.tar
-	tar zcf $(LIBRARY)-$(VERSION).tar.gz $(LIBRARY)-$(VERSION)
+	tar --format=ustar -zcf $(LIBRARY)-$(VERSION).tar.gz $(LIBRARY)-$(VERSION)
 	zip -r $(LIBRARY)-$(VERSION).zip $(LIBRARY)-$(VERSION)
 	rm -r tmp.tar $(LIBRARY)-$(VERSION)
 haddock: $(SRCS)
