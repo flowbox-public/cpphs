@@ -64,8 +64,14 @@ expandMacro macro parameters layout =
         replace (Str,s)  = maybe (error "formal param") str (lookup s env)
         replace (Text,s) = if layout then s else filter (/='\n') s
         str s = '"':s++"\""
+        checkArity | length (arguments macro) == 1 && length parameters <= 1
+                   || length (arguments macro) == length parameters = id
+                   | otherwise = error ("macro "++name macro++" expected "++
+                                        show (length (arguments macro))++
+                                        " arguments, but was given "++
+                                        show (length parameters))
     in
-    concatMap replace (expansion macro)
+    checkArity $ concatMap replace (expansion macro)
 
 -- | Parse a \#define, or \#undef, ignoring other \# directives
 parseHashDefine :: Bool -> [String] -> Maybe HashDefine
