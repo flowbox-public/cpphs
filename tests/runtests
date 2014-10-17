@@ -76,4 +76,6 @@ runtest "$CPPHS ballard" expect55
 runtest "$CPPHS th" expect56
 runtest "$CPPHS cheplyaka" expect57
 runtest "$CPPHS booleanchain" expect58
+runtest "$CPPHS wrongarity" expect59
+runtest "$CPPHS --hashes wrongarity0" expect60
 exit $FAIL
