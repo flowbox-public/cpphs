@@ -60,8 +60,8 @@ data ArgOrText = Arg | Text | Str deriving (Eq,Show)
 expandMacro :: HashDefine -> [String] -> Bool -> String
 expandMacro macro parameters layout =
     let env = zip (arguments macro) parameters
-        replace (Arg,s)  = maybe (error "formal param") id (lookup s env)
-        replace (Str,s)  = maybe (error "formal param") str (lookup s env)
+        replace (Arg,s)  = maybe ("")      id (lookup s env)
+        replace (Str,s)  = maybe (str "") str (lookup s env)
         replace (Text,s) = if layout then s else filter (/='\n') s
         str s = '"':s++"\""
         checkArity | length (arguments macro) == 1 && length parameters <= 1
