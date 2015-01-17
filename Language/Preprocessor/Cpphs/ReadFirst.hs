@@ -34,20 +34,22 @@ readFirst :: String		-- ^ filename
               )			-- ^ discovered filepath, and file contents
 
 readFirst name demand path warn =
-    try (cons dd (".":path))
+    case name of
+       '/':nm -> try nm   [""]
+       _      -> try name (cons dd (".":path))
   where
     dd = directory demand
     cons x xs = if null x then xs else x:xs
-    try [] = do
+    try name [] = do
         when warn $
           hPutStrLn stderr ("Warning: Can't find file \""++name
                            ++"\" in directories\n\t"
                            ++concat (intersperse "\n\t" (cons dd (".":path)))
                            ++"\n  Asked for by: "++show demand)
         return ("missing file: "++name,"")
-    try (p:ps) = do
+    try name (p:ps) = do
         let file = cleanPath p++'/':cleanPath name
         ok <- doesFileExist file
-        if not ok then try ps
+        if not ok then try name ps
           else do content <- readFile file
                   return (file,content)
