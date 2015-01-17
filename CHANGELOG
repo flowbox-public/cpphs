@@ -11,7 +11,7 @@ Version 1.18
               #include
   * (1.18.6): bugfix to reject a macro usage with different arity than
               its definition
-
+  * (1.18.7): bugfix to accept a #include with absolute filepath
 
 Version 1.17
 ------------
