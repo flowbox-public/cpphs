@@ -25,13 +25,13 @@ import Language.Preprocessor.Cpphs.Position  (Posn,directory,cleanPath)
 --   The first location found is returned, together with the file content.
 --   (The directory of the calling file is always searched first, then
 --    the current directory, finally any specified search path.)
-readFirst :: String		-- ^ filename
-	-> Posn			-- ^ inclusion point
-	-> [String]		-- ^ search path
-	-> Bool			-- ^ report warnings?
-	-> IO ( FilePath
+readFirst :: String             -- ^ filename
+        -> Posn                 -- ^ inclusion point
+        -> [String]             -- ^ search path
+        -> Bool                 -- ^ report warnings?
+        -> IO ( FilePath
               , String
-              )			-- ^ discovered filepath, and file contents
+              )                 -- ^ discovered filepath, and file contents
 
 readFirst name demand path warn =
     case name of

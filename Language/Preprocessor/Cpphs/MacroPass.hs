@@ -36,19 +36,19 @@ noPos :: Posn
 noPos = newfile "preDefined"
 
 -- | Walk through the document, replacing calls of macros with the expanded RHS.
-macroPass :: [(String,String)]	-- ^ Pre-defined symbols and their values
-          -> BoolOptions	-- ^ Options that alter processing style
-          -> [(Posn,String)]	-- ^ The input file content
-          -> IO String		-- ^ The file after processing
+macroPass :: [(String,String)]  -- ^ Pre-defined symbols and their values
+          -> BoolOptions        -- ^ Options that alter processing style
+          -> [(Posn,String)]    -- ^ The input file content
+          -> IO String          -- ^ The file after processing
 macroPass syms options =
-    fmap (safetail		-- to remove extra "\n" inserted below
+    fmap (safetail              -- to remove extra "\n" inserted below
          . concat
          . onlyRights)
     . macroProcess (pragma options) (layout options) (lang options)
                    (preDefine options syms)
     . tokenise (stripEol options) (stripC89 options)
                (ansi options) (lang options)
-    . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
+    . ((noPos,""):)     -- ensure recognition of "\n#" at start of file
   where
     safetail [] = []
     safetail (_:xs) = xs
@@ -60,20 +60,20 @@ onlyRights = concatMap (\x->case x of Right t-> [t]; Left _-> [];)
 -- | Walk through the document, replacing calls of macros with the expanded RHS.
 --   Additionally returns the active symbol table after processing.
 macroPassReturningSymTab
-          :: [(String,String)]	-- ^ Pre-defined symbols and their values
-          -> BoolOptions	-- ^ Options that alter processing style
-          -> [(Posn,String)]	-- ^ The input file content
+          :: [(String,String)]  -- ^ Pre-defined symbols and their values
+          -> BoolOptions        -- ^ Options that alter processing style
+          -> [(Posn,String)]    -- ^ The input file content
           -> IO (String,[(String,String)])
-				-- ^ The file and symbol table after processing
+                                -- ^ The file and symbol table after processing
 macroPassReturningSymTab syms options =
-    fmap (mapFst (safetail		-- to remove extra "\n" inserted below
+    fmap (mapFst (safetail              -- to remove extra "\n" inserted below
                  . concat)
          . walk)
     . macroProcess (pragma options) (layout options) (lang options)
                    (preDefine options syms)
     . tokenise (stripEol options) (stripC89 options)
                (ansi options) (lang options)
-    . ((noPos,""):)	-- ensure recognition of "\n#" at start of file
+    . ((noPos,""):)     -- ensure recognition of "\n#" at start of file
   where
     safetail [] = []
     safetail (_:xs) = xs

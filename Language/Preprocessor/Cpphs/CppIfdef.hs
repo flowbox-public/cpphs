@@ -13,8 +13,8 @@
 -----------------------------------------------------------------------------
 
 module Language.Preprocessor.Cpphs.CppIfdef
-  ( cppIfdef	-- :: FilePath -> [(String,String)] -> [String] -> Options
-		--      -> String -> IO [(Posn,String)]
+  ( cppIfdef    -- :: FilePath -> [(String,String)] -> [String] -> Options
+                --      -> String -> IO [(Posn,String)]
   ) where
 
 
@@ -37,12 +37,12 @@ import Control.Monad    (when)
 
 -- | Run a first pass of cpp, evaluating \#ifdef's and processing \#include's,
 --   whilst taking account of \#define's and \#undef's as we encounter them.
-cppIfdef :: FilePath		-- ^ File for error reports
-	-> [(String,String)]	-- ^ Pre-defined symbols and their values
-	-> [String]		-- ^ Search path for \#includes
-	-> BoolOptions		-- ^ Options controlling output style
-	-> String		-- ^ The input file content
-	-> IO [(Posn,String)]	-- ^ The file after processing (in lines)
+cppIfdef :: FilePath            -- ^ File for error reports
+        -> [(String,String)]    -- ^ Pre-defined symbols and their values
+        -> [String]             -- ^ Search path for \#includes
+        -> BoolOptions          -- ^ Options controlling output style
+        -> String               -- ^ The input file content
+        -> IO [(Posn,String)]   -- ^ The file after processing (in lines)
 cppIfdef fp syms search options =
     cpp posn defs search options (Keep []) . (cppline posn:) . linesCpp
   where
@@ -85,45 +85,45 @@ cpp p syms path options (Keep ps) (l@('#':x):xs) =
                                          else emitMany (replicate n (p,""))) $
             cpp (newlines n p) syms' path options ud xs'
     in case cmd of
-	"define" -> skipn (insertST def syms) True (Keep ps) xs
-	"undef"  -> skipn (deleteST sym syms) True (Keep ps) xs
-	"ifndef" -> skipn syms False (keepIf (not (definedST sym syms))) xs
-	"ifdef"  -> skipn syms False (keepIf      (definedST sym syms)) xs
-	"if"     -> do b <- gatherDefined p syms (unwords line)
+        "define" -> skipn (insertST def syms) True (Keep ps) xs
+        "undef"  -> skipn (deleteST sym syms) True (Keep ps) xs
+        "ifndef" -> skipn syms False (keepIf (not (definedST sym syms))) xs
+        "ifdef"  -> skipn syms False (keepIf      (definedST sym syms)) xs
+        "if"     -> do b <- gatherDefined p syms (unwords line)
                        skipn syms False (keepIf b) xs
-	"else"   -> skipn syms False (Drop 1 False ps) xs
-	"elif"   -> skipn syms False (Drop 1 True ps) xs
-	"endif"  | null ps ->
+        "else"   -> skipn syms False (Drop 1 False ps) xs
+        "elif"   -> skipn syms False (Drop 1 True ps) xs
+        "endif"  | null ps ->
                     do hPutStrLn stderr $ "Unmatched #endif at "++show p
                        return []
-	"endif"  -> skipn syms False (Keep (tail ps)) xs
-	"pragma" -> skipn syms True  (Keep ps) xs
-        ('!':_)  -> skipn syms False (Keep ps) xs	-- \#!runhs scripts
-	"include"-> do (inc,content) <- readFirst (file syms (unwords line))
+        "endif"  -> skipn syms False (Keep (tail ps)) xs
+        "pragma" -> skipn syms True  (Keep ps) xs
+        ('!':_)  -> skipn syms False (Keep ps) xs       -- \#!runhs scripts
+        "include"-> do (inc,content) <- readFirst (file syms (unwords line))
                                                   p path
                                                   (warnings options)
                        cpp p syms path options (Keep ps)
                              (("#line 1 "++show inc): linesCpp content
                                                     ++ cppline (newline p): xs)
-	"warning"-> if warnings options then
+        "warning"-> if warnings options then
                       do hPutStrLn stderr (l++"\nin "++show p)
                          skipn syms False (Keep ps) xs
                     else skipn syms False (Keep ps) xs
-	"error"  -> error (l++"\nin "++show p)
-	"line"   | all isDigit sym
-	         -> (if locations options && hashline options then emitOne (p,l)
+        "error"  -> error (l++"\nin "++show p)
+        "line"   | all isDigit sym
+                 -> (if locations options && hashline options then emitOne (p,l)
                      else if locations options then emitOne (p,cpp2hask l)
                      else id) $
                     cpp (newpos (read sym) (un rest) p)
                         syms path options (Keep ps) xs
-	n | all isDigit n && not (null n)
-	         -> (if locations options && hashline options then emitOne (p,l)
+        n | all isDigit n && not (null n)
+                 -> (if locations options && hashline options then emitOne (p,l)
                      else if locations options then emitOne (p,cpp2hask l)
                      else id) $
-	            cpp (newpos (read n) (un (tail ws)) p)
+                    cpp (newpos (read n) (un (tail ws)) p)
                         syms path options (Keep ps) xs
           | otherwise
-	         -> do when (warnings options) $
+                 -> do when (warnings options) $
                            hPutStrLn stderr ("Warning: unknown directive #"++n
                                              ++"\nin "++show p)
                        emitOne (p,l) $
@@ -156,7 +156,7 @@ cpp p syms path options (Drop n b ps) (('#':x):xs) =
                                return []
                        else skipn  dend  xs
     else skipn (Drop n b ps) xs
-	-- define, undef, include, error, warning, pragma, line
+        -- define, undef, include, error, warning, pragma, line
 
 cpp p syms path options (Keep ps) (x:xs) =
     let p' = newline p in seq p' $

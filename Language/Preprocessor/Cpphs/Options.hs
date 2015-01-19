@@ -25,12 +25,12 @@ import Data.List (isPrefixOf)
 
 -- | Cpphs options structure.
 data CpphsOptions = CpphsOptions 
-    { infiles	:: [FilePath]
-    , outfiles	:: [FilePath]
-    , defines	:: [(String,String)]
-    , includes	:: [String]
-    , preInclude:: [FilePath]	-- ^ Files to \#include before anything else
-    , boolopts	:: BoolOptions
+    { infiles   :: [FilePath]
+    , outfiles  :: [FilePath]
+    , defines   :: [(String,String)]
+    , includes  :: [String]
+    , preInclude:: [FilePath]   -- ^ Files to \#include before anything else
+    , boolopts  :: BoolOptions
     } deriving (Show)
 
 -- | Default options.
@@ -42,17 +42,17 @@ defaultCpphsOptions = CpphsOptions { infiles = [], outfiles = []
 
 -- | Options representable as Booleans.
 data BoolOptions = BoolOptions
-    { macros	:: Bool  -- ^ Leave \#define and \#undef in output of ifdef?
-    , locations	:: Bool	 -- ^ Place \#line droppings in output?
-    , hashline	:: Bool	 -- ^ Write \#line or {-\# LINE \#-} ?
-    , pragma	:: Bool  -- ^ Keep \#pragma in final output?
-    , stripEol	:: Bool  -- ^ Remove C eol (\/\/) comments everywhere?
-    , stripC89	:: Bool  -- ^ Remove C inline (\/**\/) comments everywhere?
-    , lang	:: Bool  -- ^ Lex input as Haskell code?
-    , ansi	:: Bool  -- ^ Permit stringise \# and catenate \#\# operators?
-    , layout	:: Bool  -- ^ Retain newlines in macro expansions?
-    , literate	:: Bool  -- ^ Remove literate markup?
-    , warnings	:: Bool  -- ^ Issue warnings?
+    { macros    :: Bool  -- ^ Leave \#define and \#undef in output of ifdef?
+    , locations :: Bool  -- ^ Place \#line droppings in output?
+    , hashline  :: Bool  -- ^ Write \#line or {-\# LINE \#-} ?
+    , pragma    :: Bool  -- ^ Keep \#pragma in final output?
+    , stripEol  :: Bool  -- ^ Remove C eol (\/\/) comments everywhere?
+    , stripC89  :: Bool  -- ^ Remove C inline (\/**\/) comments everywhere?
+    , lang      :: Bool  -- ^ Lex input as Haskell code?
+    , ansi      :: Bool  -- ^ Permit stringise \# and catenate \#\# operators?
+    , layout    :: Bool  -- ^ Retain newlines in macro expansions?
+    , literate  :: Bool  -- ^ Remove literate markup?
+    , warnings  :: Bool  -- ^ Issue warnings?
     } deriving (Show)
 
 -- | Default settings of boolean options.
@@ -121,17 +121,17 @@ trailing xs = reverse . dropWhile (`elem`xs) . reverse
 boolOpts :: [RawOption] -> BoolOptions
 boolOpts opts =
   BoolOptions
-    { macros	= not (NoMacro `elem` opts)
-    , locations	= not (NoLine  `elem` opts)
-    , hashline	= not (LinePragma `elem` opts)
-    , pragma	=      Pragma  `elem` opts
-    , stripEol	=      StripEol`elem` opts
-    , stripC89	=      StripEol`elem` opts || Strip `elem` opts
+    { macros    = not (NoMacro `elem` opts)
+    , locations = not (NoLine  `elem` opts)
+    , hashline  = not (LinePragma `elem` opts)
+    , pragma    =      Pragma  `elem` opts
+    , stripEol  =      StripEol`elem` opts
+    , stripC89  =      StripEol`elem` opts || Strip `elem` opts
     , lang      = not (Text    `elem` opts)
-    , ansi	=      Ansi    `elem` opts
-    , layout	=      Layout  `elem` opts
-    , literate	=      Unlit   `elem` opts
-    , warnings	= not (SuppressWarnings `elem` opts)
+    , ansi      =      Ansi    `elem` opts
+    , layout    =      Layout  `elem` opts
+    , literate  =      Unlit   `elem` opts
+    , warnings  = not (SuppressWarnings `elem` opts)
     }
 
 -- | Parse all command-line options.

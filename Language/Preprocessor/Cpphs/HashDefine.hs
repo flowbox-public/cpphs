@@ -23,32 +23,32 @@ import Data.Char (isSpace)
 import Data.List (intercalate)
 
 data HashDefine
-	= LineDrop
-		{ name :: String }
-	| Pragma
-		{ name :: String }
+        = LineDrop
+                { name :: String }
+        | Pragma
+                { name :: String }
         | AntiDefined
-		{ name          :: String
-		, linebreaks    :: Int
-		}
-	| SymbolReplacement
-		{ name		:: String
-		, replacement	:: String
-		, linebreaks    :: Int
-		}
-	| MacroExpansion
-		{ name		:: String
-		, arguments	:: [String]
-		, expansion	:: [(ArgOrText,String)]
-		, linebreaks    :: Int
-		}
+                { name          :: String
+                , linebreaks    :: Int
+                }
+        | SymbolReplacement
+                { name          :: String
+                , replacement   :: String
+                , linebreaks    :: Int
+                }
+        | MacroExpansion
+                { name          :: String
+                , arguments     :: [String]
+                , expansion     :: [(ArgOrText,String)]
+                , linebreaks    :: Int
+                }
     deriving (Eq,Show)
 
 -- | 'smart' constructor to avoid warnings from ghc (undefined fields)
 symbolReplacement :: HashDefine
 symbolReplacement =
     SymbolReplacement
-	 { name=undefined, replacement=undefined, linebreaks=undefined }
+         { name=undefined, replacement=undefined, linebreaks=undefined }
 
 -- | Macro expansion text is divided into sections, each of which is classified
 --   as one of three kinds: a formal argument (Arg), plain text (Text),
