@@ -91,4 +91,5 @@ runtest "$CPPHS cheplyaka" expect57
 runtest "$CPPHS booleanchain" expect58
 runtestE "$CPPHS wrongarity" expect59
 runtest "$CPPHS --hashes wrongarity0" expect60
+runtest "$CPPHS Defined.hs" expect61
 exit $FAIL

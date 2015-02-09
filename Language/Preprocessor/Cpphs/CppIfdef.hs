@@ -220,7 +220,8 @@ expandSymOrCall st =
                              (Right s, _)  -> return s
             convert sym args'
         <|>
-        do  convert sym [] )
+        if (sym=="defined") then do arg <- skip parseSym; convert sym [arg]
+                            else convert sym [] )
   where
     fragment = many1 (satisfy (`notElem`",)"))
     convert "defined" [arg] =
