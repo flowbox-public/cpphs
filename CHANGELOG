@@ -13,6 +13,7 @@ Version 1.18
               its definition
   * (1.18.7): bugfix to accept a #include with absolute filepath
   * (1.18.8): fix version number
+  * (1.18.9): accept #if defined foo as well as #if defined(foo)
 
 Version 1.17
 ------------
