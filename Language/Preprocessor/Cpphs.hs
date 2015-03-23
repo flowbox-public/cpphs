@@ -12,8 +12,8 @@
 -----------------------------------------------------------------------------
 
 module Language.Preprocessor.Cpphs
-  ( runCpphs, runCpphsReturningSymTab
-  , cppIfdef
+  ( runCpphs, runCpphsPass1, runCpphsPass2, runCpphsReturningSymTab
+  , cppIfdef, tokenise, WordStyle(..)
   , macroPass, macroPassReturningSymTab
   , CpphsOptions(..), BoolOptions(..)
   , parseOptions, defaultCpphsOptions, defaultBoolOptions
@@ -24,8 +24,11 @@ import Language.Preprocessor.Cpphs.CppIfdef(cppIfdef)
 import Language.Preprocessor.Cpphs.MacroPass(macroPass
                                             ,macroPassReturningSymTab)
 import Language.Preprocessor.Cpphs.RunCpphs(runCpphs
+                                           ,runCpphsPass1
+                                           ,runCpphsPass2
                                            ,runCpphsReturningSymTab)
 import Language.Preprocessor.Cpphs.Options
        (CpphsOptions(..), BoolOptions(..), parseOptions
        ,defaultCpphsOptions,defaultBoolOptions)
 import Language.Preprocessor.Cpphs.Position
+import Language.Preprocessor.Cpphs.Tokenise

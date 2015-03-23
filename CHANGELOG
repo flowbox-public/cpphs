@@ -1,6 +1,10 @@
+Version 1.19
+------------
+  * expose more of the cpphs API
+
 Version 1.18
 ------------
-  * better lexing of Template Haskell single quotes (thanks to Stephan Wehr)
+  * better lexing of Template Haskell single quotes (thanks to Stefan Wehr)
   * (1.18.1): fix incomplete pattern match
   * (1.18.2): bugfix for erroneous boolean intepretation of some macro
               expansions in #if clauses

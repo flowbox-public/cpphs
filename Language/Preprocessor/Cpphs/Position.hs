@@ -104,4 +104,3 @@ cleanPath :: FilePath -> FilePath
 cleanPath [] = []
 cleanPath ('\\':cs) = '/': cleanPath cs
 cleanPath (c:cs)    = c:   cleanPath cs
-
