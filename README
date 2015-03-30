@@ -30,9 +30,7 @@ option.
 
 COPYRIGHT
 ---------
-Copyright (c) 2004-2014 Malcolm Wallace (Malcolm.Wallace@me.com)
-except for Text.ParserCombinators.HuttonMeijer (Copyright (c) 1995
-Graham Hutton and Erik Meijer).
+Copyright (c) 2004-2015 Malcolm Wallace (Malcolm.Wallace@me.com)
 
 
 LICENCE
@@ -50,5 +48,5 @@ LICENCE-commercial).
 
 WEBSITE
 -------
-http://haskell.org/cpphs/
+http://projects.haskell.org/cpphs/
 darcs get http://code.haskell.org/~malcolm/cpphs

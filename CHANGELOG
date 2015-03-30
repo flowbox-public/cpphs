@@ -1,6 +1,7 @@
 Version 1.19
 ------------
   * expose more of the cpphs API
+  * allow the static linking exception to the LGPL
 
 Version 1.18
 ------------
