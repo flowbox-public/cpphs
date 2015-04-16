@@ -38,6 +38,7 @@ runtest "$CPPHS --nomacro multiline" expect10
 runtest "$CPPHS --hashes stringise" expect11
 runtest "$CPPHS recursive" expect12
 runtest "$CPPHS --strip ross" expect13
+runtest "$CPPHS --cpp -C ross" expect13a
 runtest "$CPPHS precedence" expect14
 runtest "$CPPHS indirect" expect15
 runtest "$CPPHS --hashes indirect-a" expect15a
