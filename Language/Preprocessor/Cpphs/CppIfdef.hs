@@ -190,11 +190,14 @@ gatherDefined p st inp =
         case runParser parseBoolExp s of
           (Left msg, _) -> error ("Cannot parse #if directive in file "++show p
                                  ++":\n    "++msg)
-          (Right b, xs) -> do when (any (not . isSpace) xs) $
+          (Right b, xs) -> do when (any (not . isSpace) xs && notComment xs) $
                                    hPutStrLn stderr
                                      ("Warning: trailing characters after #if"
                                       ++" directive in file "++show p++": "++xs)
                               return b
+
+notComment = not . ("//"`isPrefixOf`) . dropWhile isSpace
+
 
 -- | The preprocessor must expand all macros (recursively) before evaluating
 --   the conditional.
