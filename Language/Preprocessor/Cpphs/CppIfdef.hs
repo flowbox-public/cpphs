@@ -29,7 +29,7 @@ import Language.Preprocessor.Cpphs.HashDefine(HashDefine(..),parseHashDefine
                                              ,expandMacro)
 import Language.Preprocessor.Cpphs.MacroPass (preDefine,defineMacro)
 import Data.Char        (isDigit,isSpace,isAlphaNum)
-import Data.List        (intercalate)
+import Data.List        (intercalate,isPrefixOf)
 import Numeric          (readHex,readOct,readDec)
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.IO        (hPutStrLn,stderr)

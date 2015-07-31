@@ -3,6 +3,7 @@ Version 1.19
   * expose more of the cpphs API
   * allow the static linking exception to the LGPL
   * (1.19.1): don't warn about trailing comments in #ifdefs
+  * (1.19.2): fix build error
 
 Version 1.18
 ------------
