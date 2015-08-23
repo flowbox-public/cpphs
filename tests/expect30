@@ -1,4 +1,3 @@
-#line 1 "Arr.lhs"
 
 {-# OPTIONS_GHC -fno-implicit-prelude -fno-bang-patterns #-}
 -----------------------------------------------------------------------------

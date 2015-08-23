@@ -44,10 +44,11 @@ cppIfdef :: FilePath            -- ^ File for error reports
         -> String               -- ^ The input file content
         -> IO [(Posn,String)]   -- ^ The file after processing (in lines)
 cppIfdef fp syms search options =
-    cpp posn defs search options (Keep []) . (cppline posn:) . linesCpp
+    cpp posn defs search options (Keep []) . initial . linesCpp
   where
     posn = newfile fp
     defs = preDefine options syms
+    initial = if literate options then id else (cppline posn:)
 -- Previous versions had a very simple symbol table  mapping strings
 -- to strings.  Now the #ifdef pass uses a more elaborate table, in
 -- particular to deal with parameterised macros in conditionals.
