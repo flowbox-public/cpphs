@@ -4,6 +4,7 @@ Version 1.19
   * allow the static linking exception to the LGPL
   * (1.19.1): don't warn about trailing comments in #ifdefs
   * (1.19.2): fix build error
+  * (1.19.3): bugfix for hlint ticket #161 - interaction of --unlit/--linepragma
 
 Version 1.18
 ------------
