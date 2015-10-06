@@ -3,7 +3,7 @@
 -- Module      :  ReadFirst
 -- Copyright   :  2004 Malcolm Wallace
 -- Licence     :  LGPL
--- 
+--
 -- Maintainer  :  Malcolm Wallace <Malcolm.Wallace@cs.york.ac.uk>
 -- Stability   :  experimental
 -- Portability :  All
@@ -20,7 +20,7 @@ import System.Directory (doesFileExist)
 import Data.List      (intersperse)
 import Control.Monad     (when)
 import Language.Preprocessor.Cpphs.Position  (Posn,directory,cleanPath)
-
+import System.FilePath (isAbsolute)
 -- | Attempt to read the given file from any location within the search path.
 --   The first location found is returned, together with the file content.
 --   (The directory of the calling file is always searched first, then
@@ -33,13 +33,21 @@ readFirst :: String             -- ^ filename
               , String
               )                 -- ^ discovered filepath, and file contents
 
-readFirst name demand path warn =
-    case name of
-       '/':nm -> try nm   [""]
-       _      -> try name (cons dd (".":path))
+readFirst name demand path warn = case isAbsolute name of
+    False -> try name (cons dd (".":path))
+    True -> do
+        ok <- doesFileExist name
+        if ok then getFile name else do
+            hPutStrLn stderr $ "Warning: Can't find include file by absolute path: " ++ name
+                             ++"\n  Asked for by: "++show demand
+            return ("missing file: "++name,"")
   where
     dd = directory demand
     cons x xs = if null x then xs else x:xs
+
+    getFile file = do content <- readFile file
+                      return (file,content)
+
     try name [] = do
         when warn $
           hPutStrLn stderr ("Warning: Can't find file \""++name
@@ -47,9 +55,8 @@ readFirst name demand path warn =
                            ++concat (intersperse "\n\t" (cons dd (".":path)))
                            ++"\n  Asked for by: "++show demand)
         return ("missing file: "++name,"")
+
     try name (p:ps) = do
         let file = cleanPath p++'/':cleanPath name
         ok <- doesFileExist file
-        if not ok then try name ps
-          else do content <- readFile file
-                  return (file,content)
+        if not ok then try name ps else getFile file
